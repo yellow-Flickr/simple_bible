@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_bible/ChapterScreen.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:simple_bible/KjvModel.dart';
 import 'package:simple_bible/Launcher.dart';
+import 'package:simple_bible/LocalState.dart';
 
 Future<void> main() async {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: ((context) => LocalState()),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -27,7 +32,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        fontFamily: 'Myriad Pro',
+        // fontFamily: 'Myriad Pro',
         primarySwatch: Colors.blue,
       ),
       home: const Launcher(),
@@ -35,128 +40,115 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  final List<Kjv> kjv;
-  const MyHomePage({Key? key, required this.kjv}) : super(key: key);
+// class MyHomePage extends StatefulWidget {
+//   final List<Kjv> kjv;
+//   const MyHomePage({Key? key, required this.kjv}) : super(key: key);
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+//   @override
+//   State<MyHomePage> createState() => _MyHomePageState();
+// }
 
-class _MyHomePageState extends State<MyHomePage> {
-  // late List<Kjv> kjv;
+// class _MyHomePageState extends State<MyHomePage> {
+//   late List<String> old;
+//   late List<String> _new;
+//   @override
+//   void initState() {
+//     super.initState();
+//     old = widget.kjv.map((e) => e.bookName).toSet().take(39).toList();
+//     _new = widget.kjv.map((e) => e.bookName).toSet().skip(39).toList();
+//   }
 
-  // Future<void> loadAsset() async {
-  //   kjv = kjvFromJson(await rootBundle.loadString('asset/kjv.json'));
-  // }
+//   @override
+//   Widget build(BuildContext context) {
+//     return DefaultTabController(
+//       length: 2,
+//       child: Scaffold(
+//         backgroundColor: const Color.fromARGB(255, 20, 6, 46),
+//         appBar: TabBar(
+//           // indicatorPadding: EdgeInsets.symmetric(horizontal: 30,vertical: 30),
 
-  // void loadData() async {
-  //   await loadAsset();
-  // }
-  late List<String> old;
-  late List<String> _new;
-  @override
-  void initState() {
-    super.initState();
-    old = widget.kjv.map((e) => e.bookName).toSet().take(39).toList();
-    _new = widget.kjv.map((e) => e.bookName).toSet().skip(39).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return
-        // Word(
-        //   kjv: kjv,
-        //   child:
-        DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 20, 6, 46),
-        appBar: TabBar(
-          // indicatorPadding: EdgeInsets.symmetric(horizontal: 30,vertical: 30),
-
-          indicatorColor: const Color.fromARGB(255, 196, 211, 255),
-          indicatorWeight: 2,
-          // indicator: Dec,
-          indicatorSize: TabBarIndicatorSize.label,
-          padding: const EdgeInsets.only(top: 50),
-          labelColor: const Color.fromARGB(214, 218, 16, 2),
-          labelStyle:
-              const TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-          tabs: [
-            Text(
-              widget.kjv
-                  .firstWhere((element) => old.contains(element.bookName))
-                  .testament,
-              // style: TextStyle(color: Colors.red),
-            ),
-            Text(
-              widget.kjv
-                  .firstWhere((element) => _new.contains(element.bookName))
-                  .testament,
-              // style: TextStyle(color: Colors.red),
-            )
-          ],
-        ),
-        body: TabBarView(children: [
-          ListView.builder(
-              itemCount: old.length,
-              itemBuilder: ((context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 5),
-                  child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: ((context) => Chapter(
-                                    kjv: widget.kjv
-                                        .where((element) =>
-                                            element.bookName == old[index])
-                                        .toList(),
-                                  ))));
-                    },
-                    title: Text(
-                      old[index],
-                      style:
-                          TextStyle(color: Color.fromARGB(255, 196, 211, 255)),
-                    ),
-                    trailing: const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Color.fromARGB(255, 196, 211, 255),
-                    ),
-                  ),
-                );
-              })),
-          ListView.builder(
-              itemCount: _new.length,
-              itemBuilder: ((context, index) {
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => Chapter(
-                                  kjv: widget.kjv
-                                      .where((element) =>
-                                          element.bookName == _new[index])
-                                      .toList(),
-                                ))));
-                  },
-                  title: Text(
-                    _new[index],
-                    style: const TextStyle(
-                        color: Color.fromARGB(255, 196, 211, 255)),
-                  ),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Color.fromARGB(255, 196, 211, 255),
-                  ),
-                );
-              }))
-        ]),
-      ),
-    );
-    // );
-  }
-}
+//           indicatorColor: const Color.fromARGB(255, 196, 211, 255),
+//           indicatorWeight: 2,
+//           // indicator: Dec,
+//           indicatorSize: TabBarIndicatorSize.label,
+//           padding: const EdgeInsets.only(top: 50),
+//           labelColor: const Color.fromARGB(214, 218, 16, 2),
+//           labelStyle:
+//               const TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+//           tabs: [
+//             Text(
+//               widget.kjv
+//                   .firstWhere((element) => old.contains(element.bookName))
+//                   .testament,
+//               // style: TextStyle(color: Colors.red),
+//             ),
+//             Text(
+//               widget.kjv
+//                   .firstWhere((element) => _new.contains(element.bookName))
+//                   .testament,
+//               // style: TextStyle(color: Colors.red),
+//             )
+//           ],
+//         ),
+//         body: TabBarView(children: [
+//           ListView.builder(
+//               itemCount: old.length,
+//               itemBuilder: ((context, index) {
+//                 return Padding(
+//                   padding: const EdgeInsets.only(left: 8.0, top: 5),
+//                   child: ListTile(
+//                     onTap: () {
+//                       Navigator.push(
+//                           context,
+//                           MaterialPageRoute(
+//                               builder: ((context) => Chapter(
+//                                     kjv: widget.kjv
+//                                         .where((element) =>
+//                                             element.bookName == old[index])
+//                                         .toList(),
+//                                   ))));
+//                     },
+//                     title: Text(
+//                       old[index],
+//                       style: const TextStyle(
+//                           color: Color.fromARGB(255, 196, 211, 255)),
+//                     ),
+//                     trailing: const Icon(
+//                       Icons.arrow_forward_ios,
+//                       color: Color.fromARGB(255, 196, 211, 255),
+//                     ),
+//                   ),
+//                 );
+//               })),
+//           ListView.builder(
+//               itemCount: _new.length,
+//               itemBuilder: ((context, index) {
+//                 return ListTile(
+//                   onTap: () {
+//                     Navigator.push(
+//                         context,
+//                         MaterialPageRoute(
+//                             builder: ((context) => Chapter(
+//                                   kjv: widget.kjv
+//                                       .where((element) =>
+//                                           element.bookName == _new[index])
+//                                       .toList(),
+//                                 ))));
+//                   },
+//                   title: Text(
+//                     _new[index],
+//                     style: const TextStyle(
+//                         color: Color.fromARGB(255, 196, 211, 255)),
+//                   ),
+//                   trailing: const Icon(
+//                     Icons.arrow_forward_ios,
+//                     color: Color.fromARGB(255, 196, 211, 255),
+//                   ),
+//                 );
+//               }))
+//         ]),
+//       ),
+//     );
+//     // );
+//   }
+// }

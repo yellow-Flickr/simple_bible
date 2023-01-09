@@ -9,19 +9,38 @@
 
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart';
-
-List<Kjv> kjvFromJson(String str) {
+Versions versionsFromJson(String str) {
   final jsonData = json.decode(str);
-  return List<Kjv>.from(jsonData.map((x) => Kjv.fromJson(x)));
+  return Versions.fromJson(jsonData);
 }
 
-String kjvToJson(List<Kjv> data) {
-  final dyn = List<dynamic>.from(data.map((x) => x.toJson()));
+String versionsToJson(Versions data) {
+  final dyn = data.toJson();
   return json.encode(dyn);
 }
 
-class Kjv {
+class Versions {
+  String? versionName;
+  List<Books>? books;
+
+  Versions({
+      this.versionName,
+      this.books,
+  });
+
+  factory Versions.fromJson(Map<String, dynamic> json) => Versions(
+        versionName: json["version_name"],
+        books:
+            List<Books>.from(json["version"].map((x) => Books.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "version_name": versionName,
+        "version": List<dynamic>.from(books!.map((x) => x.toJson())),
+      };
+}
+
+class Books {
   int chapter;
   int verse;
   String text;
@@ -30,7 +49,7 @@ class Kjv {
   String bookName;
   String testament;
 
-  Kjv({
+  Books({
     required this.chapter,
     required this.verse,
     required this.text,
@@ -40,13 +59,14 @@ class Kjv {
     required this.testament,
   });
 
-  factory Kjv.fromJson(Map<String, dynamic> json) => Kjv(
+  factory Books.fromJson(Map<String, dynamic> json) => Books(
         chapter: json["chapter"],
         verse: json["verse"],
         text: json["text"],
         translationId: json["translation_id"],
         bookId: json["book_id"],
         bookName: json["book_name"],
+        // bookName:utf8.decode( Uint8List.fromList(json["book_name"].codeUnits)),
         testament: json["testament"],
       );
 
@@ -59,20 +79,4 @@ class Kjv {
         "book_name": bookName,
         "testament": testament,
       };
-}
-
-class Word extends InheritedWidget {
-  final List<Kjv> kjv;
-  final Widget child;
-  const Word({Key? key, required this.kjv, required this.child})
-      : super(key: key, child: child);
-  static Word? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<Word>();
-  }
-
-  @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    // TODO: implement updateShouldNotify
-    throw UnimplementedError();
-  }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_bible/KjvModel.dart';
-import 'package:simple_bible/Version.dart';
- 
+import 'package:simple_bible/LocalState.dart';
+import 'package:simple_bible/ScriptureScreen.dart';
+
 class Launcher extends StatefulWidget {
   const Launcher({Key? key}) : super(key: key);
 
@@ -11,26 +13,20 @@ class Launcher extends StatefulWidget {
 }
 
 class _LauncherState extends State<Launcher> {
-  late List<Kjv> kjv;
-  Map<String, List<Kjv>> versions = {};
+  late Versions version;
+  List<Versions> versions = [];
   void _loadAssets() {
     rootBundle.loadString('asset/kjv.json').then((value) {
-      kjv = kjvFromJson(value);
-      versions.addAll({'KJV': kjv});
+      version = versionsFromJson(value);
+      versions.add(version);
+      Provider.of<LocalState>(context, listen: false).version = version;
     }).then((value) {
       rootBundle.loadString('asset/AkuapemTwi.json').then((value) {
-        kjv = kjvFromJson(value);
-        versions.addAll({'Akuapem': kjv});
-      }).then((value) => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: ((context) => Version(
-                        versions: versions,
-                      )
-                  // MyHomePage(
-                  //       kjv: kjv,
-                  //     )
-                  ))));
+        version = versionsFromJson(value);
+        versions.add(version);
+        Provider.of<LocalState>(context, listen: false).versions = versions;
+      }).then((value) => Navigator.push(context,
+          MaterialPageRoute(builder: ((context) => const ScriptureScreen()))));
     });
   }
 
