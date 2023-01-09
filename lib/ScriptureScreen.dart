@@ -23,12 +23,13 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
 
   String _book = 'Genesis';
   int _chapter = 1;
+  double height = 200;
 
   // Define the function that scroll to an item
-  // void _scrollToIndex(index) {
-  //   _controller.animateTo(_height * index,
-  //       duration: const Duration(seconds: 2), curve: Curves.easeIn);
-  // }
+  void scrollToIndex(index) {
+    _controller.animateTo(height * index,
+        duration: const Duration(milliseconds: 600), curve: Curves.easeIn);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +173,8 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                           .toSet()
                           .toList()[index];
                     });
+                    scrollToIndex(index);
+                    //onTap(index);
                     Navigator.pop(context);
                   },
                   title: Text(Provider.of<LocalState>(context, listen: false)
@@ -215,6 +218,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                     setState(() {
                       _chapter = index + 1;
                     });
+
                     Navigator.pop(context);
                   },
                   child: Text(
@@ -228,9 +232,9 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
   }
 
   void _verses(context) {
-    final theme = Theme.of(context);
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+    // final theme = Theme.of(context);
+    // double width = MediaQuery.of(context).size.width;
+    // double height = MediaQuery.of(context).size.height;
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -263,6 +267,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                     //       .toSet()
                     //       .toList()[index];
                     // });
+
                     Navigator.pop(context);
                   },
                   child: Text(
