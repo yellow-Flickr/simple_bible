@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_bible/KjvModel.dart';
-import 'package:simple_bible/LocalState.dart';
-import 'package:simple_bible/ScriptureScreen.dart';
+import 'package:simple_bible/DAO/LocalState.dart';
+import 'package:simple_bible/DAO/versionClassModel.dart';
+
+import 'package:simple_bible/scriptureScreen.dart';
 
 class Launcher extends StatefulWidget {
   const Launcher({Key? key}) : super(key: key);
@@ -20,6 +21,8 @@ class _LauncherState extends State<Launcher> {
       version = versionsFromJson(value);
       versions.add(version);
       Provider.of<LocalState>(context, listen: false).version = version;
+      Provider.of<LocalState>(context, listen: false).book = version.books!.first;
+      Provider.of<LocalState>(context, listen: false).chapter = 1;
     }).then((value) {
       rootBundle.loadString('asset/AkuapemTwi.json').then((value) {
         version = versionsFromJson(value);
