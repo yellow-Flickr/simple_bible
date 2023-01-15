@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_bible/DAO/LocalState.dart';
 import 'package:simple_bible/DAO/versionClassModel.dart';
+import 'package:simple_bible/constant.dart';
 
 import 'package:simple_bible/scriptureScreen.dart';
 
@@ -37,42 +38,61 @@ class _LauncherState extends State<Launcher> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _loadAssets();
+     _loadAssets();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 20, 6, 46),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'THE',
-              textScaleFactor: 3,
-              style: TextStyle(
-                  color: Color.fromARGB(214, 218, 16, 2), fontSize: 20),
+      backgroundColor: darkColor,
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              //crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:  [
+                 Text(
+                  'THE',
+                 textScaleFactor: 1.5,
+                  style: TextStyle(
+                     //fontFamily: 'Canterbury',
+                      color: primaryColor, fontSize: 20),
+                ),
+                const Text(
+                  'HOLY',
+                  textScaleFactor: 5,
+                  style: TextStyle(
+                    fontFamily: 'Myriad Pro',
+                      fontWeight: FontWeight.w200,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 20),
+                ),
+                const Text(
+                  'BIBLE',
+                  textScaleFactor: 5,
+                  style: TextStyle(
+                     fontFamily: 'Myriad Pro',
+                      fontWeight: FontWeight.w400,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 20),
+                ),
+                SizedBox(height:50),
+                Icon(Icons.menu_book_outlined,size: 100,color:primaryColor)
+              ],
             ),
-            Text(
-              'HOLY',
-              textScaleFactor: 6,
-              style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Color.fromARGB(255, 196, 211, 255),
-                  fontSize: 20),
-            ),
-            Text(
-              'BIBLE',
-              textScaleFactor: 6,
-              style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Color.fromARGB(255, 196, 211, 255),
-                  fontSize: 20),
-            ),
-          ],
-        ),
+          ),
+           Positioned(
+            top: 0,
+            left: 90,
+            child: Container(width: 2,height: 250,color: primaryColor,))
+      ,
+          Positioned(
+            bottom: 0,
+            right: 90,
+            child: Container(width: 2,height: 250,color: primaryColor,))
+        ],
       ),
     );
   }

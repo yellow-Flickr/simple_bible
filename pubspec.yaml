@@ -79,8 +79,12 @@ flutter:
   fonts:
     - family: Myriad Pro
       fonts:
-        - asset: asset/Myriad Pro Semibold.ttf
+        # - asset: asset/Myriad Pro Semibold.ttf
         - asset: asset/Myriad Pro Light SemiExtended.otf
+          weight: 400
+    - family: Canterbury
+      fonts:
+        - asset: asset/Canterbury.ttf
           weight: 400
         # - asset: fonts/Myriad Pro Semibold Italic.ttf
         #   style: italic

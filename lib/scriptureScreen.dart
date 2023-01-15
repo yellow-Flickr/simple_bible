@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:simple_bible/DAO/LocalState.dart';
+import 'package:simple_bible/constant.dart';
 
 
 class ScriptureScreen extends StatefulWidget {
@@ -57,13 +58,14 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 20, 6, 46),
+        backgroundColor: Color.fromARGB(255, 25, 24, 26),
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
           '${context.watch<LocalState>().version.versionName}',
-          style: const TextStyle(color: Color.fromARGB(255, 196, 211, 255)),
+          style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -84,10 +86,10 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
           },
           // showSelectedLabels: false,
           showUnselectedLabels: true,
-          backgroundColor: const Color.fromARGB(255, 20, 6, 46),
+          backgroundColor: const Color.fromARGB(255, 25, 24, 26),
           elevation: 0,
-          unselectedItemColor: Color.fromARGB(255, 196, 211, 255),
-          selectedItemColor: Color.fromARGB(255, 196, 211, 255),
+          unselectedItemColor: Color.fromARGB(255, 255, 255, 255),
+          selectedItemColor: primaryColor,
           items: [
             BottomNavigationBarItem(
                 icon: Icon(Icons.translate), label: 'Versions'),
@@ -102,6 +104,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
           itemPositionsListener: itemPositionsListener,
           itemScrollController: itemScrollController,
           itemBuilder: ((context, index) => Card(
+            color: darkColor,
                 semanticContainer: false,
                 child: Container(
                   padding: const EdgeInsets.all(10),
@@ -111,8 +114,8 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                     children: [
                       Text(
                           '${context.watch<LocalState>().version.books![index].bookName} ${context.watch<LocalState>().version.books![index].chapter}:${context.watch<LocalState>().version.books![index].verse}',
-                          style: const TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold)),
+                          style:  TextStyle(
+                              color: primaryColor, fontWeight: FontWeight.bold)),
                       Text(
                           utf8.decode(JsonUtf8Encoder().convert(context
                               .watch<LocalState>()
@@ -120,7 +123,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                               .books![index]
                               .text)),
                           softWrap: true,
-                          style: const TextStyle(color: Colors.black))
+                          style: const TextStyle(color: Colors.white))
                     ],
                   ),
                 ),
