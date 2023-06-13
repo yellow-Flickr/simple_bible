@@ -57,15 +57,15 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.black,
+      // backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 25, 24, 26),
-        elevation: 0,
+       
         automaticallyImplyLeading: false,
         title: Text(
           '${context.watch<LocalState>().version.versionName}',
-          style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+          style: theme.textTheme.headline6,
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -85,11 +85,11 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
             }
           },
           // showSelectedLabels: false,
-          showUnselectedLabels: true,
-          backgroundColor: const Color.fromARGB(255, 25, 24, 26),
-          elevation: 0,
-          unselectedItemColor: Color.fromARGB(255, 255, 255, 255),
-          selectedItemColor: primaryColor,
+          // showUnselectedLabels: true,
+          // backgroundColor: const Color.fromARGB(255, 25, 24, 26),
+          // elevation: 0,
+          // unselectedItemColor: Color.fromARGB(255, 255, 255, 255),
+          // selectedItemColor: primaryColor,
           items: [
             BottomNavigationBarItem(
                 icon: Icon(Icons.translate), label: 'Versions'),
@@ -104,7 +104,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
           itemPositionsListener: itemPositionsListener,
           itemScrollController: itemScrollController,
           itemBuilder: ((context, index) => Card(
-            color: darkColor,
+            color: theme.primaryColor,
                 semanticContainer: false,
                 child: Container(
                   padding: const EdgeInsets.all(10),
@@ -114,8 +114,10 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                     children: [
                       Text(
                           '${context.watch<LocalState>().version.books![index].bookName} ${context.watch<LocalState>().version.books![index].chapter}:${context.watch<LocalState>().version.books![index].verse}',
-                          style:  TextStyle(
-                              color: primaryColor, fontWeight: FontWeight.bold)),
+                          style:theme.textTheme.bodyMedium  
+                          // TextStyle(
+                          //     color: primaryColor, fontWeight: FontWeight.bold)
+                              ),
                       Text(
                           utf8.decode(JsonUtf8Encoder().convert(context
                               .watch<LocalState>()
@@ -123,7 +125,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                               .books![index]
                               .text)),
                           softWrap: true,
-                          style: const TextStyle(color: Colors.white))
+                          style: theme.textTheme.bodySmall)
                     ],
                   ),
                 ),
@@ -158,8 +160,8 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                   },
                   title: Text(Provider.of<LocalState>(context, listen: false)
                       .versions[index]
-                      .versionName!),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                      .versionName!,style: theme.textTheme.bodyMedium!.copyWith(color: theme.primaryColorLight),),
+                  trailing: Icon(Icons.arrow_forward_ios, ),
                 );
               }));
         });
@@ -226,8 +228,8 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                       .books!
                       .map((e) => e.bookName)
                       .toSet()
-                      .toList()[index]!),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                      .toList()[index]!,style: theme.textTheme.bodyMedium!.copyWith(color: theme.primaryColorLight),),
+                  trailing: Icon(Icons.arrow_forward_ios, ),
                 );
               }));
         });
@@ -277,7 +279,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                   },
                   child: Text(
                     (index + 1).toString(),
-                    /* style: const TextStyle(
+                     style: theme.textTheme.bodySmall /*const TextStyle(
                         color: Color.fromARGB(255, 196, 211, 255)), */
                   ),
                 );
@@ -286,7 +288,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
   }
 
   void _verses(BuildContext context) {
-    // final theme = Theme.of(context);
+    final theme = Theme.of(context);
     // double width = MediaQuery.of(context).size.width;
     // double height = MediaQuery.of(context).size.height;
     showModalBottomSheet(
@@ -336,7 +338,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
                     Navigator.pop(context);
                   },
                   child: Text(
-                    (index + 1).toString(),
+                    (index + 1).toString(), style: theme.textTheme.bodySmall
                     /* style: const TextStyle(
                         color: Color.fromARGB(255, 196, 211, 255)), */
                   ),

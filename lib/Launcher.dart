@@ -22,7 +22,8 @@ class _LauncherState extends State<Launcher> {
       version = versionsFromJson(value);
       versions.add(version);
       Provider.of<LocalState>(context, listen: false).version = version;
-      Provider.of<LocalState>(context, listen: false).book = version.books!.first;
+      Provider.of<LocalState>(context, listen: false).book =
+          version.books!.first;
       Provider.of<LocalState>(context, listen: false).chapter = 1;
     }).then((value) {
       rootBundle.loadString('asset/AkuapemTwi.json').then((value) {
@@ -38,60 +39,71 @@ class _LauncherState extends State<Launcher> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-     _loadAssets();
+      _loadAssets();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+        var theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: darkColor,
+      // backgroundColor: darkColor,
       body: Stack(
         children: [
+          Positioned(
+              top: 0,
+              left: 86,
+              child: Container(
+                width: 2,
+                height: 250,
+                color: theme.primaryColorDark,
+              )),
           Center(
             child: Column(
               //crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
-              children:  [
-                 Text(
+              // textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
                   'THE',
-                 textScaleFactor: 1.5,
+                  textScaleFactor: 1.5,
                   style: TextStyle(
-                     //fontFamily: 'Canterbury',
-                      color: primaryColor, fontSize: 20),
+                      //fontFamily: 'Canterbury',
+                      color: theme.primaryColorDark,
+                      fontSize: 20),
                 ),
-                const Text(
+                  Text(
                   'HOLY',
                   textScaleFactor: 5,
                   style: TextStyle(
-                    fontFamily: 'Myriad Pro',
+                      fontFamily: 'Myriad Pro',
                       fontWeight: FontWeight.w200,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: theme.primaryColorLight,
                       fontSize: 20),
                 ),
-                const Text(
+                  Text(
                   'BIBLE',
                   textScaleFactor: 5,
                   style: TextStyle(
-                     fontFamily: 'Myriad Pro',
+                      fontFamily: 'Myriad Pro',
                       fontWeight: FontWeight.w400,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: theme.primaryColorLight,
                       fontSize: 20),
                 ),
-                SizedBox(height:50),
-                Icon(Icons.menu_book_outlined,size: 100,color:primaryColor)
+                SizedBox(height: 50),
+                Icon(Icons.menu_book_outlined, size: 100, color: theme.primaryColorDark)
               ],
             ),
           ),
-           Positioned(
-            top: 0,
-            left: 90,
-            child: Container(width: 2,height: 250,color: primaryColor,))
-      ,
           Positioned(
-            bottom: 0,
-            right: 90,
-            child: Container(width: 2,height: 250,color: primaryColor,))
+              bottom: 0,
+              right: 90,
+              child: Container(
+                width: 2,
+                height: 250,
+                color: theme.primaryColorDark,
+              ))
         ],
       ),
     );
