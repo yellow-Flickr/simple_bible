@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_bible/DAO/LocalState.dart';
 import 'package:simple_bible/DAO/versionClassModel.dart';
-import 'package:simple_bible/constant.dart';
-
+ 
 import 'package:simple_bible/scriptureScreen.dart';
 
 class Launcher extends StatefulWidget {

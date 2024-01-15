@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:simple_bible/DAO/LocalState.dart';
-import 'package:simple_bible/constant.dart';
 
 
 class ScriptureScreen extends StatefulWidget {
@@ -61,7 +60,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
     return Scaffold(
       // backgroundColor: Colors.black,
       appBar: AppBar(
-       
+       leading: DrawerButton(),
         automaticallyImplyLeading: false,
         title: Text(
           '${context.watch<LocalState>().version.versionName}',
@@ -132,6 +131,9 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
               ))),
     );
   }
+  
+
+
 
   void _versions(context) {
     final theme = Theme.of(context);
