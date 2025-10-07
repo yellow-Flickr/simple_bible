@@ -90,7 +90,7 @@ class _LauncherState extends State<Launcher> {
                       color: theme.primaryColorLight,
                       fontSize: 20),
                 ),
-                SizedBox(height: 50),
+                const SizedBox(height: 50),
                 Icon(Icons.menu_book_outlined, size: 100, color: theme.primaryColorDark)
               ],
             ),

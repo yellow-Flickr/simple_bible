@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -64,7 +63,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
         automaticallyImplyLeading: false,
         title: Text(
           '${context.watch<LocalState>().version.versionName}',
-          style: theme.textTheme.headline6,
+          style: theme.textTheme.titleLarge,
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
