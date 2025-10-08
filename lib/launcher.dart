@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_bible/DAO/LocalState.dart';
+import 'package:simple_bible/DAO/locals_state.dart';
 import 'package:simple_bible/DAO/versionClassModel.dart';
 import 'package:simple_bible/scripture_screen.dart';
 

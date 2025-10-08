@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:simple_bible/DAO/LocalState.dart';
+import 'package:simple_bible/DAO/locals_state.dart';
 
 
 class ScriptureScreen extends StatefulWidget {
@@ -16,10 +16,10 @@ class ScriptureScreen extends StatefulWidget {
   });
 
   @override
-  State<ScriptureScreen> createState() => _ScriptureScreenState();
+  State<ScriptureScreen> createState() => ScriptureScreenState();
 }
 
-class _ScriptureScreenState extends State<ScriptureScreen> {
+class ScriptureScreenState extends State<ScriptureScreen> {
   // final ScrollController _controller = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener =
