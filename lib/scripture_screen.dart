@@ -11,9 +11,9 @@ import 'package:simple_bible/DAO/LocalState.dart';
 class ScriptureScreen extends StatefulWidget {
   // final List<Kjv> kjv;
   const ScriptureScreen({
-    Key? key,
+    super.key,
     /* required this.kjv */
-  }) : super(key: key);
+  });
 
   @override
   State<ScriptureScreen> createState() => _ScriptureScreenState();
@@ -102,7 +102,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
           itemPositionsListener: itemPositionsListener,
           itemScrollController: itemScrollController,
           itemBuilder: ((context, index) => Card(
-            color: theme.primaryColor,
+            color: theme.cardColor,
                 semanticContainer: false,
                 child: Container(
                   padding: const EdgeInsets.all(10),
@@ -136,8 +136,6 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
 
   void _versions(context) {
     final theme = Theme.of(context);
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -170,8 +168,6 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
 
   void _books(context) {
     final theme = Theme.of(context);
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -238,8 +234,7 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
 
   void _chapters(BuildContext context) {
     final theme = Theme.of(context);
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -290,8 +285,6 @@ class _ScriptureScreenState extends State<ScriptureScreen> {
 
   void _verses(BuildContext context) {
     final theme = Theme.of(context);
-    // double width = MediaQuery.of(context).size.width;
-    // double height = MediaQuery.of(context).size.height;
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_bible/DAO/LocalState.dart';
-import 'package:simple_bible/Launcher.dart';
-import 'package:simple_bible/constant.dart';
+import 'package:simple_bible/launcher.dart';
+import 'package:simple_bible/themes.dart';
 
 Future<void> main() async {
   runApp(ChangeNotifierProvider(
@@ -12,7 +12,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
