@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
+import 'package:simple_bible/configs/assets.dart';
 import 'package:simple_bible/configs/extensions.dart';
 
 class Home extends ConsumerWidget {
@@ -248,6 +249,12 @@ class Home extends ConsumerWidget {
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(color: theme.primaryColorLight)),
+                      child: Lottie.asset(
+                        
+                        LottieAssets.reader,
+                        fit: BoxFit.contain,
+                        // height: kToolbarHeight,
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -268,6 +275,12 @@ class Home extends ConsumerWidget {
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: theme.primaryColorLight)),
+                        child: Lottie.asset(
+                        
+                        LottieAssets.history,
+                        fit: BoxFit.contain,
+                        // height: kToolbarHeight,
+                      ),
                   ),
                   SizedBox(
                     height: .5.h,
@@ -286,7 +299,12 @@ class Home extends ConsumerWidget {
                     height: 8.h,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: theme.primaryColorLight)),
+                        border: Border.all(color: theme.primaryColorLight)),child: Lottie.asset(
+                        
+                        LottieAssets.notes,
+                        fit: BoxFit.contain,
+                        // height: kToolbarHeight,
+                      ),
                   ),
                   SizedBox(
                     height: .5.h,
@@ -306,6 +324,12 @@ class Home extends ConsumerWidget {
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: theme.primaryColorLight)),
+                        child: Lottie.asset(
+                        
+                        LottieAssets.favourite,
+                        fit: BoxFit.contain,
+                        // height: kToolbarHeight,
+                      ),
                   ),
                   SizedBox(
                     height: .5.h,
