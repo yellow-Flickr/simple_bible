@@ -1,50 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:simple_bible/DAO/locals_state.dart';
-import 'package:simple_bible/DAO/versionClassModel.dart';
-import 'package:simple_bible/scripture_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:flutter/services.dart';
+// import 'package:simple_bible/DAO/locals_state.dart';
+import 'package:simple_bible/bible_reader/data/scripture_repository.dart';
+import 'package:simple_bible/home/presentation/home.dart';
 
-class Launcher extends StatefulWidget {
-  const Launcher({Key? key}) : super(key: key);
+class Launcher extends ConsumerStatefulWidget {
+  const Launcher({super.key});
 
   @override
-  State<Launcher> createState() => _LauncherState();
+  ConsumerState<Launcher> createState() => _LauncherState();
 }
 
-class _LauncherState extends State<Launcher> {
-  late Versions version;
-  List<Versions> versions = [];
+class _LauncherState extends ConsumerState<Launcher> {
   void _loadAssets() {
-    rootBundle.loadString('asset/kjv.json').then((value) {
-      version = versionsFromJson(value);
-      versions.add(version);
-      Provider.of<LocalState>(context, listen: false).version = version;
-      Provider.of<LocalState>(context, listen: false).book =
-          version.books!.first;
-      Provider.of<LocalState>(context, listen: false).chapter = 1;
-    }).then((value) {
-      rootBundle.loadString('asset/AkuapemTwi.json').then((value) {
-        version = versionsFromJson(value);
-        versions.add(version);
-        Provider.of<LocalState>(context, listen: false).versions = versions;
-      }).then((value) => Navigator.push(context,
-          MaterialPageRoute(builder: ((context) => const ScriptureScreen()))));
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: ((context) => const Home())));
     });
   }
-
-  @override
+ @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _loadAssets();
     });
   }
-
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-
+    ref.watch(scriptureDataProvider);
     return Scaffold(
       // backgroundColor: darkColor,
       body: Stack(

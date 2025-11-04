@@ -1,19 +1,19 @@
 // ignore_for_file: prefer_final_fields
 
 import 'package:flutter/foundation.dart';
-import 'package:simple_bible/DAO/versionClassModel.dart';
+import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 
 class LocalState extends ChangeNotifier {
   List<Versions> _versions = [];
-  Versions _version = Versions();
-  Books _book = Books(id: 0);
+  // Versions _version = Versions();
+  // Verse _book = Verse(id: 0);
   // Lis<Books> _books = Books();
   int _chapter = 1;
   List<int> _bookIds = [];
-  Versions get version => _version;
+  // Versions get version => _version;
   List<Versions> get versions => _versions;
   List<int> get bookIds => _bookIds;
-  Books get book => _book;
+  // Verse get book => _book;
   int get chapter => _chapter;
 
   set versions(List<Versions> versions) {
@@ -21,22 +21,22 @@ class LocalState extends ChangeNotifier {
     notifyListeners();
   }
 
-  set version(Versions version) {
-    _version = version;
-    _bookIds.clear();
-    version.books!.map((e) => e.bookName).toSet().forEach(
-      (elements) {
-        _bookIds.add(version.books!
-            .firstWhere((element) => element.bookName == elements)
-            .id);
-      },
-    );
+  // set version(Versions version) {
+  //   _version = version;
+  //   _bookIds.clear();
+  //   version.books!.map((e) => e.bookName).toSet().forEach(
+  //     (elements) {
+  //       _bookIds.add(version.books!
+  //           .firstWhere((element) => element.bookName == elements)
+  //           .id);
+  //     },
+  //   );
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
-  set book(Books book) {
-    _book = book;
+  set book(Verse book) {
+    // _book = book;
     notifyListeners();
   }
 
