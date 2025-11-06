@@ -1,8 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
+import 'dart:convert' show utf8, JsonUtf8Encoder;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -69,8 +68,10 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 
   void _scrollToVerse(int index) {
     // Calculate the offset for the verse index (this is a simple calculation assuming each verse has similar height)
-    double offset =
-        index * 50.0; // Adjust this based on the height of each verse's widget
+    double offset = index *
+        (50.0 +
+            ref.read(
+                fontSizeProvider)); // Adjust this based on the height of each verse's widget
     _scrollController.animateTo(
       offset,
       duration: Duration(milliseconds: 500),
@@ -226,70 +227,82 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
             ],
           ),
 
-          body: SingleChildScrollView(
-            controller: _scrollController,
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Render all verses as one continuous text
-                Text.rich(
-                  TextSpan(
-                    style: theme.textTheme.bodySmall,
-                    children: List.generate(
-                        scripture.verses.length,
-                        (index) => TextSpan(children: [
-                              TextSpan(text: ' '),
-                              WidgetSpan(
-                                child: Transform.translate(
-                                  offset: const Offset(-1.0, -6.0),
-                                  child: Text(
-                                    (index + 1).toString(),
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                        fontSize: fontSize, color: Colors.red),
-                                  ),
+          body: Visibility(
+            visible: ref.watch(cardSwitcherProvider),
+            // maintainState: true,
+            replacement: ListView.builder(
+                itemCount: scripture.verses.length,
+                controller: _scrollController,
+              padding: EdgeInsets.all(16.0),
+
+                // itemPositionsListener: itemPositionsListener,
+                // itemScrollController: itemScrollController,
+                itemBuilder: ((context, index) => Card(
+                      // color: theme.cardColor,
+                      // semanticContainer: false,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SelectableText(
+                                '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
+                                style: theme.textTheme.labelMedium
+                                // TextStyle(
+                                //     color: primaryColor, fontWeight: FontWeight.bold)
                                 ),
-                              ),
-                              TextSpan(
-                                  text: scripture.verses[index].text,
-                                  // softWrap: true,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                      height: 2, fontSize: fontSize + 4))
-                            ])),
+                            SelectableText(
+                                utf8.decode(JsonUtf8Encoder()
+                                    .convert(scripture.verses[index].text)),
+                                // softWrap: true,
+                                style: theme.textTheme.bodySmall)
+                          ],
+                        ),
+                      ),
+                    ))),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Render all verses as one continuous text
+                  SelectableText.rich(
+                    TextSpan(
+                      style: theme.textTheme.bodySmall,
+                      children: List.generate(
+                          scripture.verses.length,
+                          (index) => TextSpan(
+                                children: [
+                                  TextSpan(text: ' '),
+                                  WidgetSpan(
+                                    child: Transform.translate(
+                                      offset: const Offset(-1.0, -6.0),
+                                      child: Text(
+                                        (index + 1).toString(),
+                                        style: theme.textTheme.labelMedium
+                                            ?.copyWith(
+                                                fontSize: fontSize,
+                                               ),
+                                      ),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                      text: scripture.verses[index].text,
+                                      // softWrap: true,
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                              height: 2,
+                                              fontSize: fontSize + 4))
+                                ],
+                              )),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-
-          // ScrollablePositionedList.builder(
-          //     itemCount: scripture.verses.length,
-          //     itemPositionsListener: itemPositionsListener,
-          //     itemScrollController: itemScrollController,
-          //     itemBuilder: ((context, index) => Card(
-          //           color: theme.cardColor,
-          //           semanticContainer: false,
-          //           child: Container(
-          //             padding: const EdgeInsets.all(10),
-          //             margin: const EdgeInsets.all(10),
-          //             child: Column(
-          //               crossAxisAlignment: CrossAxisAlignment.start,
-          //               children: [
-          //                 Text(
-          //                     '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
-          //                     style: theme.textTheme.bodyMedium
-          //                     // TextStyle(
-          //                     //     color: primaryColor, fontWeight: FontWeight.bold)
-          //                     ),
-          //                 Text(
-          //                     utf8.decode(JsonUtf8Encoder()
-          //                         .convert(scripture.verses[index].text)),
-          //                     softWrap: true,
-          //                     style: theme.textTheme.bodySmall)
-          //               ],
-          //             ),
-          //           ),
-          //         ))),
 
           floatingActionButtonLocation:
               FloatingActionButtonLocation.miniEndFloat,
@@ -630,13 +643,20 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
                             SizedBox(
                               width: 3.w,
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 1.h, horizontal: 3.w),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey.shade400,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Icon(Icons.article),
+                            GestureDetector(
+                              onTap: () => ref
+                                  .read(cardSwitcherProvider.notifier)
+                                  .update((state) => !state),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 1.h, horizontal: 3.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade400,
+                                    borderRadius: BorderRadius.circular(5)),
+                                child: ref.watch(cardSwitcherProvider)
+                                    ? Icon(Icons.article)
+                                    : Icon(Icons.splitscreen_sharp),
+                              ),
                             ),
                             SizedBox(
                               width: 3.w,

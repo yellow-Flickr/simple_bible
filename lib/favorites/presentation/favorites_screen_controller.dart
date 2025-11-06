@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 
-class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
+class FavoriteScreenNotifier extends AutoDisposeNotifier<Quotation> {
   @override
   build() {
     return initialize();
@@ -30,17 +30,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   }
 }
 
-final scriptureScreenProvider =
-    NotifierProvider.autoDispose<ScriptureScreenNotifier, Quotation>(
-        ScriptureScreenNotifier.new);
+final favoriteScreenProvider =
+    NotifierProvider.autoDispose<FavoriteScreenNotifier, Quotation>(
+        FavoriteScreenNotifier.new);
 
-final currentBookProvider =
-    StateProvider<Verse>((ref) => throw UnimplementedError());
-final showFAB = StateProvider.autoDispose<bool>((ref) => false);
-final currentQuotationProvider =
-    StateProvider<Quotation>((ref) => throw UnimplementedError());
-
-
-//Reader Settings
-final fontSizeProvider = StateProvider<double>((ref) => 8);
-final cardSwitcherProvider = StateProvider<bool>((ref) => true);
