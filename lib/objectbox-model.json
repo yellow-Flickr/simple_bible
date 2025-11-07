@@ -163,9 +163,28 @@
           "targetId": "4:2010173576889042204"
         }
       ]
+    },
+    {
+      "id": "6:7311237891295714376",
+      "lastPropertyId": "2:3822119097469718663",
+      "name": "Favorite",
+      "properties": [
+        {
+          "id": "1:4810347590858260278",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3822119097469718663",
+          "name": "date",
+          "type": 6
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "5:5972690017555032954",
+  "lastEntityId": "6:7311237891295714376",
   "lastIndexId": "1:5262188187373121618",
   "lastRelationId": "4:8516526038749981424",
   "lastSequenceId": "0:0",

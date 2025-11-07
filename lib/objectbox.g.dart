@@ -15,6 +15,7 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'bible_reader/domain/scripture_models.dart';
+import 'favorites/domain/favorite.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -204,6 +205,28 @@ final _entities = <obx_int.ModelEntity>[
     ],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(6, 7311237891295714376),
+    name: 'Favorite',
+    lastPropertyId: const obx_int.IdUid(2, 3822119097469718663),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 4810347590858260278),
+        name: 'uid',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 3822119097469718663),
+        name: 'date',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -244,7 +267,7 @@ Future<obx.Store> openStore({
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(5, 5972690017555032954),
+    lastEntityId: const obx_int.IdUid(6, 7311237891295714376),
     lastIndexId: const obx_int.IdUid(1, 5262188187373121618),
     lastRelationId: const obx_int.IdUid(4, 8516526038749981424),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -518,6 +541,40 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    Favorite: obx_int.EntityDefinition<Favorite>(
+      model: _entities[4],
+      toOneRelations: (Favorite object) => [],
+      toManyRelations: (Favorite object) => {},
+      getId: (Favorite object) => object.uid,
+      setId: (Favorite object, int id) {
+        object.uid = id;
+      },
+      objectToFB: (Favorite object, fb.Builder fbb) {
+        fbb.startTable(3);
+        fbb.addInt64(0, object.uid ?? 0);
+        fbb.addInt64(1, object.date);
+        fbb.finish(fbb.endTable());
+        return object.uid ?? 0;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final dateParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final object = Favorite(date: dateParam)
+          ..uid = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            4,
+          );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -646,5 +703,18 @@ class Chapter_ {
   /// see [Chapter.verses]
   static final verses = obx.QueryRelationToMany<Chapter, Verse>(
     _entities[3].relations[0],
+  );
+}
+
+/// [Favorite] entity fields to define ObjectBox queries.
+class Favorite_ {
+  /// See [Favorite.uid].
+  static final uid = obx.QueryIntegerProperty<Favorite>(
+    _entities[4].properties[0],
+  );
+
+  /// See [Favorite.date].
+  static final date = obx.QueryIntegerProperty<Favorite>(
+    _entities[4].properties[1],
   );
 }
