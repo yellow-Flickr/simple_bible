@@ -19,6 +19,7 @@ dependencies:
   path_provider: ^2.1.5
   responsive_sizer: ^3.3.1
   scrollable_positioned_list: ^0.3.8
+  uuid: ^4.5.1
 
 dev_dependencies:
   # flutter_test:

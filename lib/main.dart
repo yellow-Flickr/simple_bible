@@ -5,6 +5,7 @@ import 'package:simple_bible/bible_reader/application/scripture_service.dart';
 import 'package:simple_bible/configs/objectbox.dart';
 import 'package:simple_bible/launcher.dart';
 import 'package:simple_bible/configs/themes.dart';
+import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scriptureService = ref.watch(scriptureServiceProvider);
+    final userSpace = ref.watch(userSpaceProvider);
 
     return ResponsiveSizer(builder:
         (BuildContext context, Orientation orientation, ScreenType deviceType) {

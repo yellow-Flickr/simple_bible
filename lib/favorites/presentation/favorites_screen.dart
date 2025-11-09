@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
-import 'package:simple_bible/bible_reader/presentation/scripture_screen_controller.dart';
 import 'package:simple_bible/configs/objectbox.dart';
+import 'package:simple_bible/favorites/domain/favorite.dart';
 import 'package:simple_bible/objectbox.g.dart';
+import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({
@@ -30,60 +31,48 @@ class FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   // }
 
   Versions getVersionByID(int uid) {
-    // final scripture = ref.watch(versionProvider);
-
     final query = ref
-        .watch(objectBoxProvider)
+        .read(objectBoxProvider)
         .objStore
         .box<Versions>()
         .query(Versions_.id.equals(uid))
         .build();
-    final user = query.findFirst();
+    final version = query.findFirst();
     query.close();
-    return user!;
+    return version!;
   }
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    final controller = ref.watch(scriptureScreenProvider);
-    final fontSize = ref.watch(fontSizeProvider);
-    // final scripture = ref
-    //     .watch(objectBoxProvider)
-    //     .objStore
-    //     .box<Versions>().
-    //     .books[controller.bookId]
-    //     .chapters[controller.chapter];
+    final userSpace = ref.watch(userSpaceProvider);
+    final favorites =
+        ref.read(objectBoxProvider).objStore.box<Favorite>().getAll();
 
-    final scripture = getVersionByID(controller.versionId)
-        .books[controller.bookId]
-        .chapters[controller.chapter];
+    final scripture = getVersionByID(userSpace.preferredTranslation);
 
     return Scaffold(
       // backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text(
-           'Favorite Scriptures',
+        title: Text('Favorite Scriptures',
             style: theme.textTheme.titleMedium
                 ?.copyWith(fontWeight: FontWeight.bold)),
         toolbarHeight: kToolbarHeight - 2.h,
         elevation: 0,
         scrolledUnderElevation: 0,
-        
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 3.w),
             child: Icon(Icons.search),
           ),
-       
         ],
       ),
-        
+
       body: ListView.builder(
-          itemCount: scripture.verses.length,
+          itemCount: favorites.length,
           padding: EdgeInsets.all(16.0),
-        
+
           // itemPositionsListener: itemPositionsListener,
           // itemScrollController: itemScrollController,
           itemBuilder: ((context, index) => Card(
@@ -96,23 +85,23 @@ class FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SelectableText(
-                          '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
+                          '${scripture.books[favorites[index].bookId].chapters[favorites[index].verse].verses[index].bookName} ${scripture.books[favorites[index].bookId].chapters[favorites[index].verse].verses[index].chapter}:${scripture.books[favorites[index].bookId].chapters[favorites[index].verse].verses[index].verse}',
                           style: theme.textTheme.labelMedium
                           // TextStyle(
                           //     color: primaryColor, fontWeight: FontWeight.bold)
                           ),
                       SelectableText(
-                          utf8.decode(JsonUtf8Encoder()
-                              .convert(scripture.verses[index].text)),
+                          utf8.decode(JsonUtf8Encoder().convert(scripture
+                              .books[favorites[index].bookId]
+                              .chapters[favorites[index].verse]
+                              .verses[index]
+                              .text)),
                           // softWrap: true,
                           style: theme.textTheme.bodySmall)
                     ],
                   ),
                 ),
               ))),
-        
-
     );
   }
-
 }
