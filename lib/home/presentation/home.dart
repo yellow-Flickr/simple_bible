@@ -7,6 +7,7 @@ import 'package:simple_bible/configs/assets.dart';
 import 'package:simple_bible/configs/extensions.dart';
 import 'package:simple_bible/favorites/presentation/favorites_screen.dart';
 import 'package:simple_bible/history/presentation/history_screen.dart';
+import 'package:simple_bible/notes/presentation/note_List.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -301,11 +302,11 @@ class Home extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                    GestureDetector(
-                    // onTap: () => Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => ScriptureScreen(),
-                    //     )),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NoteList(),
+                        )),
                     child: Container(
                       width: 20.w,
                       height: 8.h,
