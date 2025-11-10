@@ -4,213 +4,339 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "2:1415826168774251796",
-      "lastPropertyId": "3:2565655620986255551",
-      "name": "Versions",
+      "id": "1:1602679659778186236",
+      "lastPropertyId": "4:2845876379499696630",
+      "name": "Book",
       "properties": [
         {
-          "id": "1:2117693414833873188",
-          "name": "id",
-          "type": 6,
-          "flags": 32808,
-          "indexId": "1:5262188187373121618"
-        },
-        {
-          "id": "2:3420780069434401457",
+          "id": "1:7235314929248552220",
           "name": "uid",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "3:2565655620986255551",
+          "id": "2:6426254307666464542",
+          "name": "translationId",
+          "type": 9
+        },
+        {
+          "id": "3:5467292473555088607",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:2845876379499696630",
+          "name": "testament",
+          "type": 9
+        }
+      ],
+      "relations": [
+        {
+          "id": "1:6359593926268593551",
+          "name": "chapters",
+          "targetId": "2:7697504883421794524"
+        }
+      ]
+    },
+    {
+      "id": "2:7697504883421794524",
+      "lastPropertyId": "5:7881213053661786586",
+      "name": "Chapter",
+      "properties": [
+        {
+          "id": "1:6268995745032100604",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4389691225849687539",
+          "name": "id",
+          "type": 6
+        },
+        {
+          "id": "3:5784146149573079295",
+          "name": "chapter",
+          "type": 6
+        },
+        {
+          "id": "4:8060916851522696481",
+          "name": "translationId",
+          "type": 9
+        },
+        {
+          "id": "5:7881213053661786586",
+          "name": "testament",
+          "type": 9
+        }
+      ],
+      "relations": [
+        {
+          "id": "2:7036437588369590069",
+          "name": "verses",
+          "targetId": "5:1640553792115180838"
+        }
+      ]
+    },
+    {
+      "id": "3:4789251647910984140",
+      "lastPropertyId": "2:5948068777600196658",
+      "name": "Favorite",
+      "properties": [
+        {
+          "id": "1:6023779680369373166",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5948068777600196658",
+          "name": "date",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:3921686483285617415",
+      "lastPropertyId": "2:4240691935666260155",
+      "name": "History",
+      "properties": [
+        {
+          "id": "1:7599479185759601727",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4240691935666260155",
+          "name": "dateTime",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "5:1640553792115180838",
+      "lastPropertyId": "9:2500804978165824223",
+      "name": "Verse",
+      "properties": [
+        {
+          "id": "1:997733190178296751",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5783954338486265976",
+          "name": "id",
+          "type": 6
+        },
+        {
+          "id": "3:5185477055089574367",
+          "name": "bookId",
+          "type": 6
+        },
+        {
+          "id": "4:3059044353972126590",
+          "name": "chapter",
+          "type": 6
+        },
+        {
+          "id": "5:1833646167150953914",
+          "name": "verse",
+          "type": 6
+        },
+        {
+          "id": "6:2044056688861532817",
+          "name": "text",
+          "type": 9
+        },
+        {
+          "id": "7:8249330962189601988",
+          "name": "translationId",
+          "type": 9
+        },
+        {
+          "id": "8:2549265935663652040",
+          "name": "bookName",
+          "type": 9
+        },
+        {
+          "id": "9:2500804978165824223",
+          "name": "testament",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "6:8357890997136580676",
+      "lastPropertyId": "3:4364434394991071871",
+      "name": "Versions",
+      "properties": [
+        {
+          "id": "1:143332685337330851",
+          "name": "id",
+          "type": 6,
+          "flags": 32808,
+          "indexId": "1:22275339665192138"
+        },
+        {
+          "id": "2:3871218368122691551",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "3:4364434394991071871",
           "name": "versionName",
           "type": 9
         }
       ],
       "relations": [
         {
-          "id": "1:6358848946683929322",
+          "id": "3:4866563810177610348",
           "name": "books",
-          "targetId": "3:4370676525116907314"
+          "targetId": "1:1602679659778186236"
         }
       ]
     },
     {
-      "id": "3:4370676525116907314",
-      "lastPropertyId": "6:8718448851480239110",
-      "name": "Book",
+      "id": "7:5808858207151706210",
+      "lastPropertyId": "21:6550101957020328148",
+      "name": "UserSpace",
       "properties": [
         {
-          "id": "1:525048129981325558",
+          "id": "1:7966648732111039662",
           "name": "uid",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "3:3255892841249259231",
-          "name": "translationId",
+          "id": "2:7652104720643468874",
+          "name": "userId",
           "type": 9
         },
         {
-          "id": "5:3669181742645062340",
-          "name": "name",
+          "id": "3:6171453944575141296",
+          "name": "email",
           "type": 9
         },
         {
-          "id": "6:8718448851480239110",
-          "name": "testament",
+          "id": "4:314621553995405189",
+          "name": "username",
+          "type": 9
+        },
+        {
+          "id": "5:1172779471092373081",
+          "name": "passwordHash",
+          "type": 9
+        },
+        {
+          "id": "6:4526288937589789925",
+          "name": "authProvider",
+          "type": 9
+        },
+        {
+          "id": "7:6097898966541490259",
+          "name": "createdAt",
+          "type": 6
+        },
+        {
+          "id": "8:7435295432562829836",
+          "name": "lastLogin",
+          "type": 6
+        },
+        {
+          "id": "9:1072323314543459166",
+          "name": "fullName",
+          "type": 9
+        },
+        {
+          "id": "10:3575886671876753974",
+          "name": "avatarUrl",
+          "type": 9
+        },
+        {
+          "id": "11:7370022132027568418",
+          "name": "bio",
+          "type": 9
+        },
+        {
+          "id": "12:5806625808623704276",
+          "name": "theme",
+          "type": 6
+        },
+        {
+          "id": "13:4926350438233593366",
+          "name": "fontSize",
+          "type": 6
+        },
+        {
+          "id": "14:9193368937322555414",
+          "name": "preferredTranslation",
+          "type": 6
+        },
+        {
+          "id": "15:3896082287986422135",
+          "name": "streakDays",
+          "type": 6
+        },
+        {
+          "id": "16:6149293321204355552",
+          "name": "versesHighlighted",
+          "type": 6
+        },
+        {
+          "id": "17:4670772453429021139",
+          "name": "bookmarksCount",
+          "type": 6
+        },
+        {
+          "id": "18:1685933336957843095",
+          "name": "notesCount",
+          "type": 6
+        },
+        {
+          "id": "19:1755579139883828401",
+          "name": "notes",
+          "type": 30
+        },
+        {
+          "id": "20:2196696235346138565",
+          "name": "appVersion",
+          "type": 9
+        },
+        {
+          "id": "21:6550101957020328148",
+          "name": "deviceType",
           "type": 9
         }
       ],
       "relations": [
         {
-          "id": "3:82257534153918868",
-          "name": "chapters",
-          "targetId": "5:5972690017555032954"
+          "id": "4:5711290307472767621",
+          "name": "favoriteVerses",
+          "targetId": "3:4789251647910984140"
+        },
+        {
+          "id": "5:1193216619512378852",
+          "name": "readingHistory",
+          "targetId": "4:3921686483285617415"
         }
       ]
-    },
-    {
-      "id": "4:2010173576889042204",
-      "lastPropertyId": "10:2387146028606243561",
-      "name": "Verse",
-      "properties": [
-        {
-          "id": "1:2443602858341774035",
-          "name": "uid",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:7866875413030206183",
-          "name": "id",
-          "type": 6
-        },
-        {
-          "id": "3:5621591918440069037",
-          "name": "bookId",
-          "type": 6
-        },
-        {
-          "id": "4:4116737088001757109",
-          "name": "chapter",
-          "type": 6
-        },
-        {
-          "id": "5:8442293153341803788",
-          "name": "verse",
-          "type": 6
-        },
-        {
-          "id": "6:1392209299130579374",
-          "name": "text",
-          "type": 9
-        },
-        {
-          "id": "7:965278367771143388",
-          "name": "translationId",
-          "type": 9
-        },
-        {
-          "id": "9:1177745911894806754",
-          "name": "bookName",
-          "type": 9
-        },
-        {
-          "id": "10:2387146028606243561",
-          "name": "testament",
-          "type": 9
-        }
-      ],
-      "relations": []
-    },
-    {
-      "id": "5:5972690017555032954",
-      "lastPropertyId": "5:8018091953119835796",
-      "name": "Chapter",
-      "properties": [
-        {
-          "id": "1:7119934525917675911",
-          "name": "uid",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:5159499235635947412",
-          "name": "id",
-          "type": 6
-        },
-        {
-          "id": "3:2397712485352771910",
-          "name": "chapter",
-          "type": 6
-        },
-        {
-          "id": "4:6004547672417794750",
-          "name": "translationId",
-          "type": 9
-        },
-        {
-          "id": "5:8018091953119835796",
-          "name": "testament",
-          "type": 9
-        }
-      ],
-      "relations": [
-        {
-          "id": "4:8516526038749981424",
-          "name": "verses",
-          "targetId": "4:2010173576889042204"
-        }
-      ]
-    },
-    {
-      "id": "6:7311237891295714376",
-      "lastPropertyId": "2:3822119097469718663",
-      "name": "Favorite",
-      "properties": [
-        {
-          "id": "1:4810347590858260278",
-          "name": "uid",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:3822119097469718663",
-          "name": "date",
-          "type": 6
-        }
-      ],
-      "relations": []
     }
   ],
-  "lastEntityId": "6:7311237891295714376",
-  "lastIndexId": "1:5262188187373121618",
-  "lastRelationId": "4:8516526038749981424",
+  "lastEntityId": "7:5808858207151706210",
+  "lastIndexId": "1:22275339665192138",
+  "lastRelationId": "5:1193216619512378852",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
-  "retiredEntityUids": [
-    5845052180651136447
-  ],
+  "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [
-    8706766543042316534,
-    7463265076415335753,
-    3669499377841723803,
-    1437886001785354259,
-    8435243719959751722,
-    7933284848741564750,
-    5437053447278113094,
-    1330780005739473745,
-    799350210711289304,
-    4193737162723846339,
-    1099943180880427059,
-    3995458075883154341,
-    903600397379637992
-  ],
-  "retiredRelationUids": [
-    462233829848366501
-  ],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
   "version": 1
 }

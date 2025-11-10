@@ -6,6 +6,7 @@ import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
 import 'package:simple_bible/configs/assets.dart';
 import 'package:simple_bible/configs/extensions.dart';
 import 'package:simple_bible/favorites/presentation/favorites_screen.dart';
+import 'package:simple_bible/history/presentation/history_screen.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -269,16 +270,22 @@ class Home extends ConsumerWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    width: 20.w,
-                    height: 8.h,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: theme.primaryColorLight)),
-                    child: Lottie.asset(
-                      LottieAssets.history,
-                      fit: BoxFit.contain,
-                      // height: kToolbarHeight,
+ GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HistoryScreen(),
+                        )),                    child: Container(
+                      width: 20.w,
+                      height: 8.h,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: theme.primaryColorLight)),
+                      child: Lottie.asset(
+                        LottieAssets.history,
+                        fit: BoxFit.contain,
+                        // height: kToolbarHeight,
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -293,16 +300,23 @@ class Home extends ConsumerWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    width: 20.w,
-                    height: 8.h,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: theme.primaryColorLight)),
-                    child: Lottie.asset(
-                      LottieAssets.notes,
-                      fit: BoxFit.contain,
-                      // height: kToolbarHeight,
+                   GestureDetector(
+                    // onTap: () => Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => ScriptureScreen(),
+                    //     )),
+                    child: Container(
+                      width: 20.w,
+                      height: 8.h,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: theme.primaryColorLight)),
+                      child: Lottie.asset(
+                        LottieAssets.notes,
+                        fit: BoxFit.contain,
+                        // height: kToolbarHeight,
+                      ),
                     ),
                   ),
                   SizedBox(

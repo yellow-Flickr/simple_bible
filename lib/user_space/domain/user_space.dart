@@ -1,23 +1,23 @@
 // import 'dart:convert';
 
+import 'package:objectbox/objectbox.dart';
 import 'package:simple_bible/favorites/domain/favorite.dart';
-import 'package:simple_bible/objectbox.g.dart';
+import 'package:simple_bible/history/domain/history.dart';
 import 'package:uuid/uuid.dart';
 
 @Entity()
 class UserSpace {
   @Id()
   int? uid;
-
   // Core Identification
-  @Unique(onConflict: ConflictStrategy.replace)
+  // @Unique(onConflict: ConflictStrategy.replace)
   final String userId;
   final String? email;
   final String? username;
   final String? passwordHash;
   final String? authProvider;
-  final DateTime? createdAt;
-  final DateTime? lastLogin;
+  final int? createdAt;
+  final int? lastLogin;
 
   // Profile
   final String? fullName;
@@ -41,8 +41,9 @@ class UserSpace {
   final int bookmarksCount;
   final int notesCount;
   // final String? lastReadReference;
-  final List<Favorite> favoriteVerses;
-  final List<String> readingHistory;
+
+  final favoriteVerses = ToMany<Favorite>();
+  final readingHistory = ToMany<History>();
   final List<String> notes;
   // final int devotionalsCompleted;
 
@@ -78,8 +79,8 @@ class UserSpace {
     this.bookmarksCount = 0,
     this.notesCount = 0,
     // this.lastReadReference,
-    this.favoriteVerses = const [],
-    this.readingHistory = const [],
+    // this.favoriteVerses =  [],
+    // this.readingHistory = const [],
     this.notes = const [],
     // this.devotionalsCompleted = 0,
     this.appVersion,
@@ -89,23 +90,20 @@ class UserSpace {
     // this.deletedAt,
   });
 
-  factory UserSpace.guest() {
-    final uuid = const Uuid().v4();
-    return UserSpace(
-      userId: 'guest-$uuid',
-      username: 'Guest',
-      authProvider: 'guest',
-      createdAt: DateTime.now(),
-      // notificationsEnabled: false,
-      // offlineMode: true,
-      preferredTranslation: 100,
-      theme: 0,
-      fontSize: 16,
-      favoriteVerses: const [],
-      readingHistory: const [],
-      notes: const [],
-    );
-  }
+  factory UserSpace.guest() => UserSpace(
+        userId: 'guest-${Uuid().v4()}',
+        username: 'Guest',
+        authProvider: 'guest',
+        createdAt: DateTime.now().microsecondsSinceEpoch,
+        // notificationsEnabled: false,
+        // offlineMode: true,
+        preferredTranslation: 100,
+        theme: 0,
+        // fontSize: 16,
+        // favoriteVerses: const [],
+        // readingHistory: const [],
+        notes: const [],
+      );
   // factory UserSpace.fromJson(Map<String, dynamic> json) {
   //   return UserSpace(
   //     userId: json['userId'],
