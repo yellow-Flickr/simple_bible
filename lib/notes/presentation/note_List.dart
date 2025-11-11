@@ -5,12 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
-import 'package:simple_bible/configs/constants.dart';
-import 'package:simple_bible/configs/extensions.dart';
 import 'package:simple_bible/configs/objectbox.dart';
 import 'package:simple_bible/history/domain/history.dart';
+import 'package:simple_bible/notes/presentation/new_note.dart';
 import 'package:simple_bible/objectbox.g.dart';
-import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 class NoteList extends ConsumerStatefulWidget {
   const NoteList({
@@ -72,7 +70,20 @@ class NoteListState extends ConsumerState<NoteList> {
         itemCount: history.length,
         padding: EdgeInsets.all(16.0),
         itemBuilder: ((context, index) =>
-            NoteCard(title: 'Sermon 5/25', date: DateTime.now())), separatorBuilder: (BuildContext context, int index)=>Divider(),
+            NoteCard(title: 'Sermon 5/25', date: DateTime.now())),
+        separatorBuilder: (BuildContext context, int index) => Divider(),
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+      floatingActionButton: FloatingActionButton.small(
+        onPressed: () {},
+        child: IconButton.outlined(
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewNote(),
+                )),
+            icon: Icon(Icons.note_alt)),
       ),
     );
   }
@@ -118,7 +129,7 @@ class NoteCard extends StatelessWidget {
               ),
               overflow: TextOverflow.ellipsis,
             ),
-             SizedBox(height: .6.h),
+            SizedBox(height: .6.h),
             Text(
               dateText,
               style: theme.textTheme.bodySmall?.copyWith(
@@ -127,9 +138,7 @@ class NoteCard extends StatelessWidget {
             ),
             SizedBox(height: .6.h),
             Text(
-              subtitle?.isNotEmpty == true
-                  ? subtitle!
-                  : "No additional text",
+              subtitle?.isNotEmpty == true ? subtitle! : "No additional text",
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.hintColor,
               ),
