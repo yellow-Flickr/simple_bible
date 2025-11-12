@@ -6,8 +6,8 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/configs/objectbox.dart';
-import 'package:simple_bible/history/domain/history.dart';
-import 'package:simple_bible/notes/presentation/new_note.dart';
+import 'package:simple_bible/notes/domain/notes.dart';
+import 'package:simple_bible/notes/presentation/note_editor.dart';
 import 'package:simple_bible/objectbox.g.dart';
 
 class NoteList extends ConsumerStatefulWidget {
@@ -45,8 +45,14 @@ class NoteListState extends ConsumerState<NoteList> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    final history = historySamples;
-    // ref.read(objectBoxProvider).objStore.box<History>().getAll();
+    final notes = List.from(notesSamples
+      ..sort((a, b) => DateTime.parse(a.lastModified)
+          .compareTo(DateTime.parse(b.lastModified)))
+      ..reversed);
+    // ref.read(objectBoxProvider).objStore.box<Notes>().getAll()
+    //   ..sort((a, b) => DateTime.parse(a.lastModified)
+    //       .compareTo(DateTime.parse(b.lastModified)))
+    //   ..reversed;
 
     return Scaffold(
       // backgroundColor: Colors.black,
@@ -67,21 +73,32 @@ class NoteListState extends ConsumerState<NoteList> {
       ),
 
       body: ListView.separated(
-        itemCount: history.length,
+        itemCount: notes.length,
         padding: EdgeInsets.all(16.0),
-        itemBuilder: ((context, index) =>
-            NoteCard(title: 'Sermon 5/25', date: DateTime.now())),
+        itemBuilder: ((context, index) => NoteCard(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NoteEditor(
+                    notes: notes[index],
+                  ),
+                )),
+            title: notes[index].title,
+            subtitle: notes[index].content,
+            date: (DateTime.parse(notes[index].lastModified)))),
         separatorBuilder: (BuildContext context, int index) => Divider(),
       ),
 
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
-      floatingActionButton: FloatingActionButton.small(
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
+        elevation: 4,
         onPressed: () {},
-        child: IconButton.outlined(
+        child: IconButton.filledTonal(
+            iconSize: 30,
             onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NewNote(),
+                  builder: (context) => NoteEditor(),
                 )),
             icon: Icon(Icons.note_alt)),
       ),
