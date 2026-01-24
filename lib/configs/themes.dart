@@ -23,7 +23,7 @@ class Themes {
           unselectedLabelStyle: TextStyle(color: Colors.black54)),
       primaryColor: const Color(0xFFfff0cc),
       primaryColorDark: const Color(0xFFd8b04a),
-      primaryColorLight: Colors.grey.shade700,
+      primaryColorLight: Colors.black26,
       brightness: Brightness.light,
       cardColor: const Color(0xFFfff0cc),
       textTheme: const TextTheme(

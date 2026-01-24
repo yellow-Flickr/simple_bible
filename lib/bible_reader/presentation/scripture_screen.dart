@@ -893,3 +893,5 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
         });
   }
 }
+
+

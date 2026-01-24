@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:simple_bible/configs/objectbox.dart' show objectBoxProvider;
 import 'package:simple_bible/notes/domain/notes.dart';
 import 'package:uuid/v4.dart';
@@ -14,7 +15,8 @@ class NoteEditor extends ConsumerStatefulWidget {
 }
 
 class NoteEditorState extends ConsumerState<NoteEditor> {
-  final TextEditingController _controller = TextEditingController();
+  late final RichTextController _controller;
+  final UndoHistoryController _undoController = UndoHistoryController();
   String _title = 'New Note';
   String _body = '';
 
@@ -22,24 +24,22 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
   void initState() {
     super.initState();
 
-// _controller = RichTextController(
-//       patternMatchMap: {
-//         // Matches everything up to the first newline (or the whole text if no newline)
-//         RegExp(r'^[^\n]*'): const TextStyle(
-//           fontWeight: FontWeight.bold,
-//           color: Colors.blue,
-//         ),
-//       },
-//       onMatch: (matches) => print(matches),
-//     );
-  
+    _undoController.addListener(_handleUndoStack);
 
+    _controller = RichTextController(
+      targetMatches: [
+        // Matches everything up to the first newline (or the whole text if no newline)
+        MatchTargetItem.pattern(
+          r'^[^\n]*',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        )
+      ],
+      onMatch: (matches) {},
+    );
 
     _controller.addListener(_handleTextChange);
     if (widget.notes != null) {
       _controller.text = "${widget.notes!.title}\n${widget.notes!.content}";
-      // _title = widget.notes!.title;
-      // _body
     }
   }
 
@@ -57,9 +57,19 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
     });
   }
 
+  void _handleUndoStack() {
+    // if (_undoController.value.canUndo) {}
+    // if (_undoController.value.canRedo) {}
+    setState(() {
+      
+    });
+  }
+
   @override
   void dispose() {
     _controller.removeListener(_handleTextChange);
+    _undoController.removeListener(_handleUndoStack);
+    _undoController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -71,18 +81,26 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
         automaticallyImplyLeading: true,
         title: Text(_title),
         actions: [
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.undo,
-                size: 18,
-              )),
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.redo,
-                size: 18,
-              )),
+          Row(
+            children: [
+              IconButton(
+                  onPressed: () {
+                    _undoController.undo();
+                  },
+                  icon: Icon(
+                    Icons.undo,
+                    size: 18,
+                  )),
+              IconButton(
+                  onPressed: () {
+                    _undoController.redo();
+                  },
+                  icon: Icon(
+                    Icons.redo,
+                    size: 18,
+                  )),
+            ],
+          ),
           IconButton(
               onPressed: () {},
               icon: Icon(
@@ -99,9 +117,10 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: .7.h),
         child: TextField(
+          undoController: _undoController,
           controller: _controller,
-
           maxLines: null, // allows multiple lines
+          style: Theme.of(context).textTheme.bodySmall,
           decoration: InputDecoration(
             hintText: 'What would you like to note?',
             border: InputBorder.none,
