@@ -28,6 +28,11 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   void changeVersion({required int versionId}) {
     state = state.copyWith(versionId: versionId);
   }
+
+  void gotoQuotation({required Quotation quote}) {
+    state = state.copyWith(
+        bookId: quote.bookId, verse: quote.verse, chapter: quote.chapter);
+  }
 }
 
 final scriptureScreenProvider =
@@ -40,7 +45,6 @@ final showFAB = StateProvider.autoDispose<bool>((ref) => false);
 final currentQuotationProvider =
     StateProvider<Quotation>((ref) => throw UnimplementedError());
 
-
 //Reader Settings
 final fontSizeProvider = StateProvider<double>((ref) => 8);
-final cardSwitcherProvider = StateProvider<bool>((ref) => true);
+final cardSwitcherProvider = StateProvider<bool>((ref) => false);

@@ -37,7 +37,7 @@ class History extends Quotation {
 }
 final List<History> historySamples = [
   History(
-    bookId: 1,
+    bookId: 0,
     chapter: 1,
     verse: 1,
     text: "In the beginning, God created the heavens and the earth.",

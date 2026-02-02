@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
+import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
 import 'package:simple_bible/configs/constants.dart';
 import 'package:simple_bible/configs/extensions.dart';
 import 'package:simple_bible/configs/objectbox.dart';
@@ -77,6 +78,15 @@ class HistoryScreenState extends ConsumerState<HistoryScreen> {
         // itemPositionsListener: itemPositionsListener,
         // itemScrollController: itemScrollController,
         itemBuilder: ((context, index) => ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScriptureScreen(
+                            quotation: history[index],
+                          ),
+                        ));
+                  },
                   leading: Container(
                     width: 10.w,
                     height: 10.w,

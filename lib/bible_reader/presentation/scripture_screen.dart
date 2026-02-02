@@ -38,6 +38,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   //   );
   // }
   bool canPop = false;
+  int highlightedIndex = -1;
 
   Timer? _hideTimer;
 
@@ -103,6 +104,20 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     //   // log(itemPositionsListener.itemPositions.value.last.index.toString());
     // });
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.quotation != null) {
+        ref
+            .read(scriptureScreenProvider.notifier)
+            .gotoQuotation(quote: widget.quotation!);
+
+        setState(() => highlightedIndex = widget.quotation!.verse);
+        _scrollToVerse(widget.quotation!.verse);
+
+        await Future.delayed(Duration(seconds: 2));
+        setState(() => highlightedIndex = -1);
+      }
+    });
+
     Future.delayed(Durations.medium4, () {
       _showFABs();
     });
@@ -130,16 +145,15 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
         .box<Versions>()
         .query(Versions_.id.equals(uid))
         .build();
-    final user = query.findFirst();
+    final version = query.findFirst();
     query.close();
-    return user!;
+    return version!;
   }
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     final controller = ref.watch(scriptureScreenProvider);
-    final fontSize = ref.watch(fontSizeProvider);
     // final scripture = ref
     //     .watch(objectBoxProvider)
     //     .objStore
@@ -163,6 +177,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
         }
       },
       child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: () => _showFABs(),
         child: Scaffold(
           // backgroundColor: Colors.black,
@@ -230,77 +245,14 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
           body: Visibility(
             visible: ref.watch(cardSwitcherProvider),
             // maintainState: true,
-            replacement: ListView.builder(
-                itemCount: scripture.verses.length,
-                controller: _scrollController,
-              padding: EdgeInsets.all(16.0),
-
-                // itemPositionsListener: itemPositionsListener,
-                // itemScrollController: itemScrollController,
-                itemBuilder: ((context, index) => Card(
-                      // color: theme.cardColor,
-                      // semanticContainer: false,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        margin: const EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SelectableText(
-                                '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
-                                style: theme.textTheme.labelMedium
-                                // TextStyle(
-                                //     color: primaryColor, fontWeight: FontWeight.bold)
-                                ),
-                            SelectableText(
-                                utf8.decode(JsonUtf8Encoder()
-                                    .convert(scripture.verses[index].text)),
-                                // softWrap: true,
-                                style: theme.textTheme.bodySmall)
-                          ],
-                        ),
-                      ),
-                    ))),
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Render all verses as one continuous text
-                  SelectableText.rich(
-                    TextSpan(
-                      style: theme.textTheme.bodySmall,
-                      children: List.generate(
-                          scripture.verses.length,
-                          (index) => TextSpan(
-                                children: [
-                                  TextSpan(text: ' '),
-                                  WidgetSpan(
-                                    child: Transform.translate(
-                                      offset: const Offset(-1.0, -6.0),
-                                      child: Text(
-                                        (index + 1).toString(),
-                                        style: theme.textTheme.labelMedium
-                                            ?.copyWith(
-                                                fontSize: fontSize,
-                                               ),
-                                      ),
-                                    ),
-                                  ),
-                                  TextSpan(
-                                      text: scripture.verses[index].text,
-                                      // softWrap: true,
-                                      style: theme.textTheme.bodySmall
-                                          ?.copyWith(
-                                              height: 2,
-                                              fontSize: fontSize + 4))
-                                ],
-                              )),
-                    ),
-                  ),
-                ],
-              ),
+            replacement: CardView(
+              scripture: scripture,
+              scrollController: _scrollController,
+              highlightedIndex: highlightedIndex,
+            ),
+            child: ContinousView(
+              scrollController: _scrollController,
+              scripture: scripture,
             ),
           ),
 
@@ -894,4 +846,119 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   }
 }
 
+class ContinousView extends ConsumerWidget {
+  const ContinousView({
+    super.key,
+    required ScrollController scrollController,
+    required this.scripture,
+  }) : _scrollController = scrollController;
 
+  final ScrollController _scrollController;
+  final Chapter scripture;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var theme = Theme.of(context);
+
+    final fontSize = ref.watch(fontSizeProvider);
+
+    return SingleChildScrollView(
+      controller: _scrollController,
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Render all verses as one continuous text
+          SelectableText.rich(
+            TextSpan(
+              style: theme.textTheme.bodySmall,
+              children: List.generate(
+                  scripture.verses.length,
+                  (index) => TextSpan(
+                        children: [
+                          TextSpan(text: ' '),
+                          WidgetSpan(
+                            child: Transform.translate(
+                              offset: const Offset(-1.0, -6.0),
+                              child: Text(
+                                (index + 1).toString(),
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  fontSize: fontSize,
+                                ),
+                              ),
+                            ),
+                          ),
+                          TextSpan(
+                              text: scripture.verses[index].text,
+                              // softWrap: true,
+                              style: theme.textTheme.bodySmall
+                                  ?.copyWith(height: 2, fontSize: fontSize + 4))
+                        ],
+                      )),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CardView extends ConsumerWidget {
+  const CardView({
+    super.key,
+    required this.scripture,
+    this.highlightedIndex = -1,
+    required ScrollController scrollController,
+  }) : _scrollController = scrollController;
+
+  final Chapter scripture;
+  final int highlightedIndex;
+  final ScrollController _scrollController;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var theme = Theme.of(context);
+
+    // final fontSize = ref.watch(fontSizeProvider);
+
+    return ListView.separated(
+      itemCount: scripture.verses.length,
+      controller: _scrollController,
+      padding: EdgeInsets.all(16.0),
+
+      // itemPositionsListener: itemPositionsListener,
+      // itemScrollController: itemScrollController,
+      itemBuilder: ((context, index) => AnimatedContainer(
+            duration: Duration(milliseconds: 500),
+            color: highlightedIndex == index
+                ? theme.primaryColor .withValues(alpha: .4)
+                : Colors.transparent,
+                
+              
+              padding: const EdgeInsets.all(10),
+              // margin: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                    '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
+                    style: theme.textTheme.labelMedium
+                    // TextStyle(
+                    //     color: primaryColor, fontWeight: FontWeight.bold)
+                    ),
+                SelectableText(
+                    utf8.decode(JsonUtf8Encoder()
+                        .convert(scripture.verses[index].text)),
+                    // softWrap: true,
+                    style: theme.textTheme.bodySmall)
+              ],
+            ),
+          )),
+
+      separatorBuilder: (BuildContext context, int index) => Divider(
+        thickness: .5,
+        color: theme.dividerColor,
+      ),
+    );
+  }
+}
