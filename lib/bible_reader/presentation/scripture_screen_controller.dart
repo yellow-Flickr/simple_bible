@@ -47,4 +47,6 @@ final currentQuotationProvider =
 
 //Reader Settings
 final fontSizeProvider = StateProvider<double>((ref) => 8);
+final lineHeightProvider = StateProvider<double>((ref) => 1.3);
+final wordSpacingProvider = StateProvider<double>((ref) => 0);
 final cardSwitcherProvider = StateProvider<bool>((ref) => false);

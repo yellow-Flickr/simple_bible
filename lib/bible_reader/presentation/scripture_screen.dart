@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert' show utf8, JsonUtf8Encoder;
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -519,263 +520,203 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
         enableDrag: false,
         showDragHandle: false,
         builder: (BuildContext bc) {
-          return BottomSheet(
-            enableDrag: false,
-            showDragHandle: false,
-            builder: (context) => Column(
-              // physics: NeverScrollableScrollPhysics(),
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 3.w, right: 3.w, top: 1.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Themes & Settings',
-                          style: theme.textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                      Divider(),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+          return Consumer(
+            builder: (context, ref, child) => BottomSheet(
+              enableDrag: false,
+              showDragHandle: false,
+              builder: (context) => Column(
+                // physics: NeverScrollableScrollPhysics(),
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 3.w, right: 3.w, top: 1.h),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: 2.h,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 1.h, horizontal: 3.w),
-                                height: 5.h,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.grey.shade400),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        if (ref.watch(fontSizeProvider) <= 8) {
-                                          return;
-                                        }
-                                        ref
-                                            .read(fontSizeProvider.notifier)
-                                            .update((cb) => cb - 1);
-                                      },
-                                      child: Text(
-                                        'A',
-                                        style: theme.textTheme.labelSmall,
-                                      ),
-                                    ),
-                                    VerticalDivider(),
-                                    GestureDetector(
-                                        onTap: () {
-                                          if (ref.watch(fontSizeProvider) >=
-                                              16) {
-                                            return;
-                                          }
-                                          ref
-                                              .read(fontSizeProvider.notifier)
-                                              .update((cb) => cb + 1);
-                                        },
-                                        child: Text('A'))
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 3.w,
-                            ),
-                            GestureDetector(
-                              onTap: () => ref
-                                  .read(cardSwitcherProvider.notifier)
-                                  .update((state) => !state),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 1.h, horizontal: 3.w),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey.shade400,
-                                    borderRadius: BorderRadius.circular(5)),
-                                child: ref.watch(cardSwitcherProvider)
-                                    ? Icon(Icons.article)
-                                    : Icon(Icons.splitscreen_sharp),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 3.w,
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 1.h, horizontal: 3.w),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey.shade400,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Icon(Icons.light_mode),
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 2.h,
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.brightness_7,
-                              size: 14,
-                            ),
-                            Expanded(
-                              flex: 5,
-                              child: Slider(
-                                value: .5,
-                                onChanged: (value) {},
-                              ),
-                            ),
-                            Icon(
-                              Icons.brightness_7_outlined,
-                              size: 14,
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 2.h,
-                        ),
-                        Container(
-                          padding: EdgeInsetsDirectional.symmetric(
-                              horizontal: 3.w, vertical: .5.h),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.grey.shade400,
-                          ),
-                          child: Column(
-                            children: [
-                              ListTile(
-                                visualDensity: VisualDensity.compact,
-                                leading: Icon(
-                                  Icons.font_download_rounded,
-                                  size: 18,
-                                ),
-                                trailing: SizedBox(
-                                  width: 18.w,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Text('Default'),
-                                      Icon(
-                                        Icons.arrow_right,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                minLeadingWidth: 10,
-                                horizontalTitleGap: 14,
-                                dense: true,
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(
-                                  'Font',
-                                  style: theme.textTheme.displaySmall?.copyWith(
-                                    fontSize:
-                                        14, /* fontWeight: FontWeight.w500 */
-                                  ),
-                                ),
-                              ),
-                              Divider(),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Line Height',
-                                    style: theme.textTheme.displaySmall
-                                        ?.copyWith(fontSize: 14),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.height_rounded,
-                                        size: 14,
-                                      ),
-                                      Expanded(
-                                        flex: 5,
-                                        child: Slider(
-                                          value: .5,
-                                          onChanged: (value) {},
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                              Divider(),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Line Height',
-                                    style: theme.textTheme.displaySmall
-                                        ?.copyWith(fontSize: 14),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.height_rounded,
-                                        size: 14,
-                                      ),
-                                      Expanded(
-                                        flex: 5,
-                                        child: Slider(
-                                          value: .5,
-                                          onChanged: (value) {},
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                              Divider(),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Line Height',
-                                    style: theme.textTheme.displaySmall
-                                        ?.copyWith(fontSize: 14),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.height_rounded,
-                                        size: 14,
-                                      ),
-                                      Expanded(
-                                        flex: 5,
-                                        child: Slider(
-                                          value: .5,
-                                          onChanged: (value) {},
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        Text('Themes & Settings',
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        Divider(),
                       ],
                     ),
                   ),
-                )
-              ],
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 2.h,
+                          ),
+                       
+                          Container(
+                            padding: EdgeInsetsDirectional.symmetric(
+                                horizontal: 3.w, vertical: .5.h),
+                            // decoration: BoxDecoration(
+                            //   borderRadius: BorderRadius.circular(5),
+                            //   color: Colors.grey.shade400,
+                            // ),
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  visualDensity: VisualDensity.compact,
+                                  leading: Icon(
+                                    Icons.font_download_rounded,
+                                    size: 18,
+                                  ),
+                                  trailing: SizedBox(
+                                    width: 18.w,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text('Default'),
+                                        Icon(
+                                          Icons.arrow_right,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  minLeadingWidth: 10,
+                                  horizontalTitleGap: 14,
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(
+                                    'Font',
+                                    style:
+                                        theme.textTheme.displaySmall?.copyWith(
+                                      fontSize:
+                                          14, /* fontWeight: FontWeight.w500 */
+                                    ),
+                                  ),
+                                ),
+                                Divider(),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Font Size',
+                                      style: theme.textTheme.displaySmall
+                                          ?.copyWith(fontSize: 14),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.height_rounded,
+                                          size: 14,
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Slider(
+                                             min: 8,
+                                            max: 16,
+                                            divisions: 20,
+                                            value: ref.watch(fontSizeProvider),
+                                            onChanged: (value) {
+                                              ref
+                                                  .read(fontSizeProvider
+                                                      .notifier)
+                                                  .update((curr) => value);
+                                               
+                                              // log(ref
+                                              //     .watch(wordSpacingProvider)
+                                              //     .toString());
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                Divider(),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Word Spacing',
+                                      style: theme.textTheme.displaySmall
+                                          ?.copyWith(fontSize: 14),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.height_rounded,
+                                          size: 14,
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Slider(
+                                            min: 0,
+                                            max: 20,
+                                            divisions: 20,
+                                            value:
+                                                ref.watch(wordSpacingProvider),
+                                            onChanged: (value) {
+                                              ref
+                                                  .read(wordSpacingProvider
+                                                      .notifier)
+                                                  .update((curr) => value);
+
+                                              // log(ref
+                                              //     .watch(wordSpacingProvider)
+                                              //     .toString());
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                Divider(),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Line Spacing',
+                                      style: theme.textTheme.displaySmall
+                                          ?.copyWith(fontSize: 14),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.height_rounded,
+                                          size: 14,
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Slider(
+                                            min: 1.2,
+                                            max: 3,
+                                            divisions: 18,
+                                            value:
+                                                ref.watch(lineHeightProvider),
+                                            onChanged: (value) {
+                                              ref
+                                                  .read(lineHeightProvider
+                                                      .notifier)
+                                                  .update((curr) => value);
+
+                                              // log(ref
+                                              //     .watch(wordSpacingProvider)
+                                              //     .toString());
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              onClosing: () {},
             ),
-            onClosing: () {},
           );
         });
   }
@@ -919,7 +860,9 @@ class CardView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = Theme.of(context);
 
-    // final fontSize = ref.watch(fontSizeProvider);
+    final fontSize = ref.watch(fontSizeProvider);
+    final lineSpacing = ref.watch(lineHeightProvider);
+    final wordSpacing = ref.watch(wordSpacingProvider);
 
     return ListView.separated(
       itemCount: scripture.verses.length,
@@ -931,18 +874,21 @@ class CardView extends ConsumerWidget {
       itemBuilder: ((context, index) => AnimatedContainer(
             duration: Duration(milliseconds: 500),
             color: highlightedIndex == index
-                ? theme.primaryColor .withValues(alpha: .4)
+                ? theme.primaryColor.withValues(alpha: .4)
                 : Colors.transparent,
-                
-              
-              padding: const EdgeInsets.all(10),
-              // margin: const EdgeInsets.all(10),
+
+            padding: const EdgeInsets.all(10),
+            // margin: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SelectableText(
                     '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
-                    style: theme.textTheme.labelMedium
+                    style: theme.textTheme.labelMedium?.copyWith(
+                        height: 2,
+                        fontSize: (theme.textTheme.labelMedium?.fontSize ??
+                                fontSize) +
+                            4)
                     // TextStyle(
                     //     color: primaryColor, fontWeight: FontWeight.bold)
                     ),
@@ -950,7 +896,10 @@ class CardView extends ConsumerWidget {
                     utf8.decode(JsonUtf8Encoder()
                         .convert(scripture.verses[index].text)),
                     // softWrap: true,
-                    style: theme.textTheme.bodySmall)
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        wordSpacing: wordSpacing,
+                        height: lineSpacing,
+                        fontSize: fontSize + 4))
               ],
             ),
           )),
