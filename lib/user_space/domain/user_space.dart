@@ -1,9 +1,8 @@
-// import 'dart:convert';
-
 import 'package:objectbox/objectbox.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:simple_bible/favorites/domain/favorite.dart';
 import 'package:simple_bible/history/domain/history.dart';
-import 'package:uuid/uuid.dart';
 
 @Entity()
 class UserSpace {
@@ -37,7 +36,7 @@ class UserSpace {
 
   // Spiritual / Activity
   final int streakDays;
-  final int versesHighlighted;
+  final   versesHighlighted = ToMany<HighLightedVerses>();
   final int bookmarksCount;
   final int notesCount;
   // final String? lastReadReference;
@@ -75,7 +74,7 @@ class UserSpace {
     // this.offlineMode = false,
     // this.readingPlanId,
     this.streakDays = 0,
-    this.versesHighlighted = 0,
+    // this.versesHighlighted ,
     this.bookmarksCount = 0,
     this.notesCount = 0,
     // this.lastReadReference,
@@ -188,4 +187,27 @@ class UserSpace {
   // String toJsonString() => jsonEncode(toJson());
   // factory UserSpace.fromJsonString(String source) =>
   //     UserSpace.fromJson(jsonDecode(source));
+}
+
+@Entity()
+class HighLightedVerses {
+  @Id()
+  int? uid;
+  @Unique(onConflict: ConflictStrategy.replace)
+  final int versionID;
+  final List<int> highlightedVerses;
+  HighLightedVerses({
+    required this.versionID,
+    required this.highlightedVerses,
+  });
+
+  HighLightedVerses copyWith({
+    int? versionID,
+    List<int>? highlightedVerses,
+  }) {
+    return HighLightedVerses(
+      versionID: versionID ?? this.versionID,
+      highlightedVerses: highlightedVerses ?? this.highlightedVerses,
+    );
+  }
 }

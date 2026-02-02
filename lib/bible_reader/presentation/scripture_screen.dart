@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert' show utf8, JsonUtf8Encoder;
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -27,8 +26,8 @@ class ScriptureScreen extends ConsumerStatefulWidget {
 class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener =
-      ItemPositionsListener.create();
+  // final ItemPositionsListener itemPositionsListener =
+  //     ItemPositionsListener.create();
 
   // Define the function that scroll to an item
   // void scrollToIndex(int index) {
@@ -70,12 +69,19 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 
   void _scrollToVerse(int index) {
     // Calculate the offset for the verse index (this is a simple calculation assuming each verse has similar height)
-    double offset = index *
-        (50.0 +
-            ref.read(
-                fontSizeProvider)); // Adjust this based on the height of each verse's widget
-    _scrollController.animateTo(
-      offset,
+    // double offset = index *
+    //     (50.0 +
+    //         ref.read(
+    //             fontSizeProvider)); 
+    // Adjust this based on the height of each verse's widget
+    // _scrollController.animateTo(
+    //   offset,
+    //   duration: Duration(milliseconds: 500),
+    //   curve: Curves.easeInOut,
+    // );
+    
+      itemScrollController.scrollTo (
+      index: index,
       duration: Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
@@ -248,7 +254,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
             // maintainState: true,
             replacement: CardView(
               scripture: scripture,
-              scrollController: _scrollController,
+              scrollController: itemScrollController,
               highlightedIndex: highlightedIndex,
             ),
             child: ContinousView(
@@ -845,16 +851,19 @@ class ContinousView extends ConsumerWidget {
 }
 
 class CardView extends ConsumerWidget {
-  const CardView({
+    CardView({
     super.key,
     required this.scripture,
     this.highlightedIndex = -1,
-    required ScrollController scrollController,
+    
+    required ItemScrollController scrollController,
   }) : _scrollController = scrollController;
 
   final Chapter scripture;
   final int highlightedIndex;
-  final ScrollController _scrollController;
+  final ItemScrollController _scrollController;
+  final ItemPositionsListener _itemPositionsListener =ItemPositionsListener.create();
+  // final ItemScrollController _scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -864,43 +873,47 @@ class CardView extends ConsumerWidget {
     final lineSpacing = ref.watch(lineHeightProvider);
     final wordSpacing = ref.watch(wordSpacingProvider);
 
-    return ListView.separated(
+    return ScrollablePositionedList.separated(
       itemCount: scripture.verses.length,
-      controller: _scrollController,
+      itemScrollController: _scrollController,
+      itemPositionsListener: _itemPositionsListener,
       padding: EdgeInsets.all(16.0),
 
       // itemPositionsListener: itemPositionsListener,
       // itemScrollController: itemScrollController,
       itemBuilder: ((context, index) => AnimatedContainer(
+        key: ValueKey(scripture.verses[index].id),
             duration: Duration(milliseconds: 500),
             color: highlightedIndex == index
                 ? theme.primaryColor.withValues(alpha: .4)
                 : Colors.transparent,
 
-            padding: const EdgeInsets.all(10),
             // margin: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SelectableText(
-                    '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                        height: 2,
-                        fontSize: (theme.textTheme.labelMedium?.fontSize ??
-                                fontSize) +
-                            4)
-                    // TextStyle(
-                    //     color: primaryColor, fontWeight: FontWeight.bold)
-                    ),
-                SelectableText(
-                    utf8.decode(JsonUtf8Encoder()
-                        .convert(scripture.verses[index].text)),
-                    // softWrap: true,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                        wordSpacing: wordSpacing,
-                        height: lineSpacing,
-                        fontSize: fontSize + 4))
-              ],
+            child: Padding(
+            padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SelectableText(
+                      '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                          height: 2,
+                          fontSize: (theme.textTheme.labelMedium?.fontSize ??
+                                  fontSize) *(fontSize/8)
+                              )
+                      // TextStyle(
+                      //     color: primaryColor, fontWeight: FontWeight.bold)
+                      ),
+                  SelectableText(
+                      utf8.decode(JsonUtf8Encoder()
+                          .convert(scripture.verses[index].text)),
+                      // softWrap: true,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                          wordSpacing: wordSpacing,
+                          height: lineSpacing,
+                          fontSize: fontSize + 4))
+                ],
+              ),
             ),
           )),
 

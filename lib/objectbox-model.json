@@ -284,11 +284,6 @@
           "type": 6
         },
         {
-          "id": "16:6149293321204355552",
-          "name": "versesHighlighted",
-          "type": 6
-        },
-        {
           "id": "17:4670772453429021139",
           "name": "bookmarksCount",
           "type": 6
@@ -324,19 +319,93 @@
           "id": "5:1193216619512378852",
           "name": "readingHistory",
           "targetId": "4:3921686483285617415"
+        },
+        {
+          "id": "6:8354695754462940354",
+          "name": "versesHighlighted",
+          "targetId": "8:8305848319618170856"
         }
       ]
+    },
+    {
+      "id": "8:8305848319618170856",
+      "lastPropertyId": "3:9150893408105376902",
+      "name": "HighLightedVerses",
+      "properties": [
+        {
+          "id": "1:8942891392625766966",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:811220489615668746",
+          "name": "versionID",
+          "type": 6,
+          "flags": 32808,
+          "indexId": "2:6245863164393114543"
+        },
+        {
+          "id": "3:9150893408105376902",
+          "name": "highlightedVerses",
+          "type": 27
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "9:7751605867257765537",
+      "lastPropertyId": "6:7218994913678207890",
+      "name": "Notes",
+      "properties": [
+        {
+          "id": "1:7799274042078559582",
+          "name": "uid",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3727067625688673721",
+          "name": "id",
+          "type": 9,
+          "flags": 34848,
+          "indexId": "3:3490676688967502133"
+        },
+        {
+          "id": "3:8700361234488633016",
+          "name": "createdAt",
+          "type": 9
+        },
+        {
+          "id": "4:8861787028821785528",
+          "name": "lastModified",
+          "type": 9
+        },
+        {
+          "id": "5:867497201769540827",
+          "name": "title",
+          "type": 9
+        },
+        {
+          "id": "6:7218994913678207890",
+          "name": "content",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "7:5808858207151706210",
-  "lastIndexId": "1:22275339665192138",
-  "lastRelationId": "5:1193216619512378852",
+  "lastEntityId": "9:7751605867257765537",
+  "lastIndexId": "3:3490676688967502133",
+  "lastRelationId": "6:8354695754462940354",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    6149293321204355552
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

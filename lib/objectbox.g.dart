@@ -17,6 +17,7 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 import 'bible_reader/domain/scripture_models.dart';
 import 'favorites/domain/favorite.dart';
 import 'history/domain/history.dart';
+import 'notes/domain/notes.dart';
 import 'user_space/domain/user_space.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -348,12 +349,6 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(16, 6149293321204355552),
-        name: 'versesHighlighted',
-        type: 6,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
         id: const obx_int.IdUid(17, 4670772453429021139),
         name: 'bookmarksCount',
         type: 6,
@@ -395,7 +390,88 @@ final _entities = <obx_int.ModelEntity>[
         name: 'readingHistory',
         targetId: const obx_int.IdUid(4, 3921686483285617415),
       ),
+      obx_int.ModelRelation(
+        id: const obx_int.IdUid(6, 8354695754462940354),
+        name: 'versesHighlighted',
+        targetId: const obx_int.IdUid(8, 8305848319618170856),
+      ),
     ],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(8, 8305848319618170856),
+    name: 'HighLightedVerses',
+    lastPropertyId: const obx_int.IdUid(3, 9150893408105376902),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 8942891392625766966),
+        name: 'uid',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 811220489615668746),
+        name: 'versionID',
+        type: 6,
+        flags: 32808,
+        indexId: const obx_int.IdUid(2, 6245863164393114543),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 9150893408105376902),
+        name: 'highlightedVerses',
+        type: 27,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(9, 7751605867257765537),
+    name: 'Notes',
+    lastPropertyId: const obx_int.IdUid(6, 7218994913678207890),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 7799274042078559582),
+        name: 'uid',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 3727067625688673721),
+        name: 'id',
+        type: 9,
+        flags: 34848,
+        indexId: const obx_int.IdUid(3, 3490676688967502133),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 8700361234488633016),
+        name: 'createdAt',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 8861787028821785528),
+        name: 'lastModified',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 867497201769540827),
+        name: 'title',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 7218994913678207890),
+        name: 'content',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
 ];
@@ -438,13 +514,13 @@ Future<obx.Store> openStore({
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(7, 5808858207151706210),
-    lastIndexId: const obx_int.IdUid(1, 22275339665192138),
-    lastRelationId: const obx_int.IdUid(5, 1193216619512378852),
+    lastEntityId: const obx_int.IdUid(9, 7751605867257765537),
+    lastIndexId: const obx_int.IdUid(3, 3490676688967502133),
+    lastRelationId: const obx_int.IdUid(6, 8354695754462940354),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [],
+    retiredPropertyUids: const [6149293321204355552],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -773,6 +849,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
                 object.favoriteVerses,
             obx_int.RelInfo<UserSpace>.toMany(5, object.uid!):
                 object.readingHistory,
+            obx_int.RelInfo<UserSpace>.toMany(6, object.uid!):
+                object.versesHighlighted,
           },
       getId: (UserSpace object) => object.uid,
       setId: (UserSpace object, int id) {
@@ -827,7 +905,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(12, object.fontSize);
         fbb.addInt64(13, object.preferredTranslation);
         fbb.addInt64(14, object.streakDays);
-        fbb.addInt64(15, object.versesHighlighted);
         fbb.addInt64(16, object.bookmarksCount);
         fbb.addInt64(17, object.notesCount);
         fbb.addOffset(18, notesOffset);
@@ -895,12 +972,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
           32,
           0,
         );
-        final versesHighlightedParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          34,
-          0,
-        );
         final bookmarksCountParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -938,7 +1009,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
             fontSize: fontSizeParam,
             preferredTranslation: preferredTranslationParam,
             streakDays: streakDaysParam,
-            versesHighlighted: versesHighlightedParam,
             bookmarksCount: bookmarksCountParam,
             notesCount: notesCountParam,
             notes: notesParam,
@@ -960,6 +1030,114 @@ obx_int.ModelDefinition getObjectBoxModel() {
           store,
           obx_int.RelInfo<UserSpace>.toMany(5, object.uid!),
         );
+        obx_int.InternalToManyAccess.setRelInfo<UserSpace>(
+          object.versesHighlighted,
+          store,
+          obx_int.RelInfo<UserSpace>.toMany(6, object.uid!),
+        );
+        return object;
+      },
+    ),
+    HighLightedVerses: obx_int.EntityDefinition<HighLightedVerses>(
+      model: _entities[7],
+      toOneRelations: (HighLightedVerses object) => [],
+      toManyRelations: (HighLightedVerses object) => {},
+      getId: (HighLightedVerses object) => object.uid,
+      setId: (HighLightedVerses object, int id) {
+        object.uid = id;
+      },
+      objectToFB: (HighLightedVerses object, fb.Builder fbb) {
+        final highlightedVersesOffset = fbb.writeListInt64(
+          object.highlightedVerses,
+        );
+        fbb.startTable(4);
+        fbb.addInt64(0, object.uid ?? 0);
+        fbb.addInt64(1, object.versionID);
+        fbb.addOffset(2, highlightedVersesOffset);
+        fbb.finish(fbb.endTable());
+        return object.uid ?? 0;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final versionIDParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final highlightedVersesParam = const fb.ListReader<int>(
+          fb.Int64Reader(),
+          lazy: false,
+        ).vTableGet(buffer, rootOffset, 8, []);
+        final object = HighLightedVerses(
+            versionID: versionIDParam,
+            highlightedVerses: highlightedVersesParam,
+          )
+          ..uid = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            4,
+          );
+
+        return object;
+      },
+    ),
+    Notes: obx_int.EntityDefinition<Notes>(
+      model: _entities[8],
+      toOneRelations: (Notes object) => [],
+      toManyRelations: (Notes object) => {},
+      getId: (Notes object) => object.uid,
+      setId: (Notes object, int id) {
+        object.uid = id;
+      },
+      objectToFB: (Notes object, fb.Builder fbb) {
+        final idOffset = fbb.writeString(object.id);
+        final createdAtOffset = fbb.writeString(object.createdAt);
+        final lastModifiedOffset = fbb.writeString(object.lastModified);
+        final titleOffset = fbb.writeString(object.title);
+        final contentOffset = fbb.writeString(object.content);
+        fbb.startTable(7);
+        fbb.addInt64(0, object.uid ?? 0);
+        fbb.addOffset(1, idOffset);
+        fbb.addOffset(2, createdAtOffset);
+        fbb.addOffset(3, lastModifiedOffset);
+        fbb.addOffset(4, titleOffset);
+        fbb.addOffset(5, contentOffset);
+        fbb.finish(fbb.endTable());
+        return object.uid ?? 0;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final createdAtParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final lastModifiedParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 10, '');
+        final titleParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 12, '');
+        final contentParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 14, '');
+        final object = Notes(
+            id: idParam,
+            createdAt: createdAtParam,
+            lastModified: lastModifiedParam,
+            title: titleParam,
+            content: contentParam,
+          )
+          ..uid = const fb.Int64Reader().vTableGetNullable(
+            buffer,
+            rootOffset,
+            4,
+          );
+
         return object;
       },
     ),
@@ -1197,34 +1375,29 @@ class UserSpace_ {
     _entities[6].properties[14],
   );
 
-  /// See [UserSpace.versesHighlighted].
-  static final versesHighlighted = obx.QueryIntegerProperty<UserSpace>(
-    _entities[6].properties[15],
-  );
-
   /// See [UserSpace.bookmarksCount].
   static final bookmarksCount = obx.QueryIntegerProperty<UserSpace>(
-    _entities[6].properties[16],
+    _entities[6].properties[15],
   );
 
   /// See [UserSpace.notesCount].
   static final notesCount = obx.QueryIntegerProperty<UserSpace>(
-    _entities[6].properties[17],
+    _entities[6].properties[16],
   );
 
   /// See [UserSpace.notes].
   static final notes = obx.QueryStringVectorProperty<UserSpace>(
-    _entities[6].properties[18],
+    _entities[6].properties[17],
   );
 
   /// See [UserSpace.appVersion].
   static final appVersion = obx.QueryStringProperty<UserSpace>(
-    _entities[6].properties[19],
+    _entities[6].properties[18],
   );
 
   /// See [UserSpace.deviceType].
   static final deviceType = obx.QueryStringProperty<UserSpace>(
-    _entities[6].properties[20],
+    _entities[6].properties[19],
   );
 
   /// see [UserSpace.favoriteVerses]
@@ -1235,5 +1408,61 @@ class UserSpace_ {
   /// see [UserSpace.readingHistory]
   static final readingHistory = obx.QueryRelationToMany<UserSpace, History>(
     _entities[6].relations[1],
+  );
+
+  /// see [UserSpace.versesHighlighted]
+  static final versesHighlighted =
+      obx.QueryRelationToMany<UserSpace, HighLightedVerses>(
+        _entities[6].relations[2],
+      );
+}
+
+/// [HighLightedVerses] entity fields to define ObjectBox queries.
+class HighLightedVerses_ {
+  /// See [HighLightedVerses.uid].
+  static final uid = obx.QueryIntegerProperty<HighLightedVerses>(
+    _entities[7].properties[0],
+  );
+
+  /// See [HighLightedVerses.versionID].
+  static final versionID = obx.QueryIntegerProperty<HighLightedVerses>(
+    _entities[7].properties[1],
+  );
+
+  /// See [HighLightedVerses.highlightedVerses].
+  static final highlightedVerses =
+      obx.QueryIntegerVectorProperty<HighLightedVerses>(
+        _entities[7].properties[2],
+      );
+}
+
+/// [Notes] entity fields to define ObjectBox queries.
+class Notes_ {
+  /// See [Notes.uid].
+  static final uid = obx.QueryIntegerProperty<Notes>(
+    _entities[8].properties[0],
+  );
+
+  /// See [Notes.id].
+  static final id = obx.QueryStringProperty<Notes>(_entities[8].properties[1]);
+
+  /// See [Notes.createdAt].
+  static final createdAt = obx.QueryStringProperty<Notes>(
+    _entities[8].properties[2],
+  );
+
+  /// See [Notes.lastModified].
+  static final lastModified = obx.QueryStringProperty<Notes>(
+    _entities[8].properties[3],
+  );
+
+  /// See [Notes.title].
+  static final title = obx.QueryStringProperty<Notes>(
+    _entities[8].properties[4],
+  );
+
+  /// See [Notes.content].
+  static final content = obx.QueryStringProperty<Notes>(
+    _entities[8].properties[5],
   );
 }

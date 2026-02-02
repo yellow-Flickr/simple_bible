@@ -138,7 +138,8 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
         lastModified: DateTime.now().toIso8601String(),
         title: _title,
         content: _body,
-        reference: []);
+        // reference: []
+        );
     if (widget.notes != null) {
       note = note.copywith(
         id: widget.notes!.id,
