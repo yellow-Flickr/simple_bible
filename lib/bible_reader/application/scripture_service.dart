@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/data/scripture_repository.dart';
-import 'package:simple_bible/configs/objectbox.dart';
+import 'package:simple_bible/shared/configs/objectbox.dart';
 
 class ScriptureService extends AsyncNotifier<void> {
   @override
@@ -25,12 +25,9 @@ class ScriptureService extends AsyncNotifier<void> {
 }
 
 final scriptureServiceProvider =
-    AsyncNotifierProvider<ScriptureService, void>(() {
-  return ScriptureService();
-});
+    AsyncNotifierProvider<ScriptureService, void>(() => ScriptureService());
 
 final versionProvider = Provider<Versions>((ref) =>
     (ref.watch(objectBoxProvider).objStore.box<Versions>().getAll().first));
-    
-    
+
 final currentVersion = StateProvider<int>((ref) => 0);

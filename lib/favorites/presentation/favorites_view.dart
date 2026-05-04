@@ -5,22 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
-import 'package:simple_bible/configs/objectbox.dart';
+import 'package:simple_bible/shared/configs/objectbox.dart';
 import 'package:simple_bible/favorites/domain/favorite.dart';
 import 'package:simple_bible/objectbox.g.dart';
 import 'package:simple_bible/user_space/application/user_space_service.dart';
 
-class FavoritesScreen extends ConsumerStatefulWidget {
-  const FavoritesScreen({
+class FavoritesView extends ConsumerStatefulWidget {
+  const FavoritesView({
     super.key,
     /* required this.kjv */
   });
 
   @override
-  ConsumerState<FavoritesScreen> createState() => FavoritesScreenState();
+  ConsumerState<FavoritesView> createState() => FavoritesScreenState();
 }
 
-class FavoritesScreenState extends ConsumerState<FavoritesScreen> {
+class FavoritesScreenState extends ConsumerState<FavoritesView> {
   // Define the function that scroll to an item
   // void scrollToIndex(int index) {
   //   _controller.jumpTo(

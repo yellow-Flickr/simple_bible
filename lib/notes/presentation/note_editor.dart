@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
-import 'package:simple_bible/configs/objectbox.dart' show objectBoxProvider;
+import 'package:simple_bible/shared/configs/objectbox.dart' show objectBoxProvider;
 import 'package:simple_bible/notes/domain/notes.dart';
 import 'package:uuid/v4.dart';
 

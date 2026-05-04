@@ -1,4 +1,4 @@
-import 'package:simple_bible/configs/assets.dart';
+import 'package:simple_bible/shared/configs/assets.dart';
 
 extension DayStatus on DateTime {
   (String, String) greeting() {

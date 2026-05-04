@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
-import 'package:simple_bible/configs/assets.dart';
-import 'package:simple_bible/configs/extensions.dart';
-import 'package:simple_bible/favorites/presentation/favorites_screen.dart';
+import 'package:simple_bible/shared/configs/assets.dart';
+import 'package:simple_bible/shared/configs/extensions.dart';
+import 'package:simple_bible/favorites/presentation/favorites_view.dart';
 import 'package:simple_bible/history/presentation/history_screen.dart';
-import 'package:simple_bible/notes/presentation/note_List.dart';
+import 'package:simple_bible/notes/presentation/note_list.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -271,12 +271,13 @@ class Home extends ConsumerWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
- GestureDetector(
+                  GestureDetector(
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => HistoryScreen(),
-                        )),                    child: Container(
+                        )),
+                    child: Container(
                       width: 20.w,
                       height: 8.h,
                       decoration: BoxDecoration(
@@ -301,7 +302,7 @@ class Home extends ConsumerWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                   GestureDetector(
+                  GestureDetector(
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -336,7 +337,7 @@ class Home extends ConsumerWidget {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FavoritesScreen(),
+                          builder: (context) => FavoritesView(),
                         )),
                     child: Container(
                       width: 20.w,

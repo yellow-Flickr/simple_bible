@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/application/scripture_service.dart';
-import 'package:simple_bible/configs/objectbox.dart';
+import 'package:simple_bible/shared/configs/objectbox.dart';
 import 'package:simple_bible/launcher.dart';
-import 'package:simple_bible/configs/themes.dart';
+import 'package:simple_bible/shared/configs/themes.dart';
 import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 Future<void> main() async {
@@ -32,7 +32,7 @@ class MyApp extends ConsumerWidget {
         (BuildContext context, Orientation orientation, ScreenType deviceType) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        // title: 'Flutter Demo',
         darkTheme: Themes.darkTheme, // standard dark theme
         theme: Themes.lightTheme,
         themeMode: ThemeMode.system,

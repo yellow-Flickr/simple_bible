@@ -3,7 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 
-class LocalState extends ChangeNotifier {
+class BookService extends ChangeNotifier {
   List<Versions> _versions = [];
   // Versions _version = Versions();
   // Verse _book = Verse(id: 0);

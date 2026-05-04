@@ -1,4 +1,6 @@
 // dio_provider.dart
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,23 +22,23 @@ final dioProvider = Provider<Dio>((ref) {
         switch (error.type) {
           case DioExceptionType.connectionTimeout:
           case DioExceptionType.receiveTimeout:
-            print("Connection timed out. Please try again.");
+            log("Connection timed out. Please try again.");
             break;
           case DioExceptionType.badResponse:
             final statusCode = error.response?.statusCode;
             if (statusCode == 404) {
-              print("Resource not found (404).");
+              log("Resource not found (404).");
             } else if (statusCode == 500) {
-              print("Server error (500).");
+              log("Server error (500).");
             } else {
-              print("Received invalid status code: $statusCode");
+              log("Received invalid status code: $statusCode");
             }
             break;
           case DioExceptionType.unknown:
-            print("Unknown error occurred: ${error.message}");
+            log("Unknown error occurred: ${error.message}");
             break;
           default:
-            print("Request failed: ${error.message}");
+            log("Request failed: ${error.message}");
         }
 
         // Pass the error onward

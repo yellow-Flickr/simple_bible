@@ -8,7 +8,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_screen_controller.dart';
-import 'package:simple_bible/configs/objectbox.dart';
+import 'package:simple_bible/shared/configs/objectbox.dart';
 import 'package:simple_bible/objectbox.g.dart';
 
 class ScriptureScreen extends ConsumerStatefulWidget {
@@ -72,15 +72,15 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     // double offset = index *
     //     (50.0 +
     //         ref.read(
-    //             fontSizeProvider)); 
+    //             fontSizeProvider));
     // Adjust this based on the height of each verse's widget
     // _scrollController.animateTo(
     //   offset,
     //   duration: Duration(milliseconds: 500),
     //   curve: Curves.easeInOut,
     // );
-    
-      itemScrollController.scrollTo (
+
+    itemScrollController.scrollTo(
       index: index,
       duration: Duration(milliseconds: 500),
       curve: Curves.easeInOut,
@@ -95,21 +95,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 
   @override
   void initState() {
-    // final affordbox = objectBox.objStore.box<Affordability>();
-    // itemPositionsListener.itemPositions.addListener(() {
-    //   Provider.of<LocalState>(context, listen: false).book =
-    //       Provider.of<LocalState>(context, listen: false)
-    //           .version
-    //           .books![itemPositionsListener.itemPositions.value.last.index];
 
-    //   Provider.of<LocalState>(context, listen: false).chapter =
-    //       Provider.of<LocalState>(context, listen: false)
-    //           .version
-    //           .books![itemPositionsListener.itemPositions.value.last.index]
-    //           .chapter!;
-
-    //   // log(itemPositionsListener.itemPositions.value.last.index.toString());
-    // });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.quotation != null) {
@@ -509,13 +495,13 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   void _themeSettings(
     BuildContext context,
     /* Versions scripture */
-  ) {
+  ) async {
     final theme = Theme.of(context);
     // final scripture = ref.watch(versionProvider);
     // final controller = ref.watch(scriptureScreenProvider);
     // final scripture = getVersionByID(controller.versionId);
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(20.0),
@@ -554,7 +540,6 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
                           SizedBox(
                             height: 2.h,
                           ),
-                       
                           Container(
                             padding: EdgeInsetsDirectional.symmetric(
                                 horizontal: 3.w, vertical: .5.h),
@@ -614,16 +599,16 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
                                         Expanded(
                                           flex: 5,
                                           child: Slider(
-                                             min: 8,
+                                            min: 8,
                                             max: 16,
                                             divisions: 20,
                                             value: ref.watch(fontSizeProvider),
                                             onChanged: (value) {
                                               ref
-                                                  .read(fontSizeProvider
-                                                      .notifier)
+                                                  .read(
+                                                      fontSizeProvider.notifier)
                                                   .update((curr) => value);
-                                               
+
                                               // log(ref
                                               //     .watch(wordSpacingProvider)
                                               //     .toString());
@@ -851,18 +836,18 @@ class ContinousView extends ConsumerWidget {
 }
 
 class CardView extends ConsumerWidget {
-    CardView({
+  CardView({
     super.key,
     required this.scripture,
     this.highlightedIndex = -1,
-    
     required ItemScrollController scrollController,
   }) : _scrollController = scrollController;
 
   final Chapter scripture;
   final int highlightedIndex;
   final ItemScrollController _scrollController;
-  final ItemPositionsListener _itemPositionsListener =ItemPositionsListener.create();
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
   // final ItemScrollController _scrollController;
 
   @override
@@ -882,7 +867,7 @@ class CardView extends ConsumerWidget {
       // itemPositionsListener: itemPositionsListener,
       // itemScrollController: itemScrollController,
       itemBuilder: ((context, index) => AnimatedContainer(
-        key: ValueKey(scripture.verses[index].id),
+            key: ValueKey(scripture.verses[index].id),
             duration: Duration(milliseconds: 500),
             color: highlightedIndex == index
                 ? theme.primaryColor.withValues(alpha: .4)
@@ -890,7 +875,7 @@ class CardView extends ConsumerWidget {
 
             // margin: const EdgeInsets.all(10),
             child: Padding(
-            padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -899,8 +884,8 @@ class CardView extends ConsumerWidget {
                       style: theme.textTheme.labelMedium?.copyWith(
                           height: 2,
                           fontSize: (theme.textTheme.labelMedium?.fontSize ??
-                                  fontSize) *(fontSize/8)
-                              )
+                                  fontSize) *
+                              (fontSize / 8))
                       // TextStyle(
                       //     color: primaryColor, fontWeight: FontWeight.bold)
                       ),

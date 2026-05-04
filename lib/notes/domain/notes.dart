@@ -1,7 +1,4 @@
 import 'package:objectbox/objectbox.dart';
-
-import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
-
 @Entity()
 class Notes {
   @Id()

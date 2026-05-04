@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:flutter/services.dart';
-// import 'package:simple_bible/DAO/locals_state.dart';
 import 'package:simple_bible/bible_reader/data/scripture_repository.dart';
 import 'package:simple_bible/home/presentation/home.dart';
 
@@ -15,17 +13,18 @@ class Launcher extends ConsumerStatefulWidget {
 class _LauncherState extends ConsumerState<Launcher> {
   void _loadAssets() {
     Future.delayed(Duration(seconds: 2), () {
+      if (!mounted) return;
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: ((context) => const Home())));
     });
   }
- @override
+
+  @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _loadAssets();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _loadAssets());
   }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
