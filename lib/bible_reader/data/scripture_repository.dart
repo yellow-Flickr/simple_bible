@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'dart:isolate' show Isolate;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -111,7 +112,7 @@ class ScriptureDataSource {
   /// Throws [ScriptureLoadException] on failure
   Future<Versions> _loadScriptureAsset(String assetPath) async {
     try {
-      final jsonString = await rootBundle.loadString(assetPath);
+      final jsonString = await rootBundle.loadString (assetPath);
 
       if (jsonString.isEmpty) {
         throw ScriptureLoadException(

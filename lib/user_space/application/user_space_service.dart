@@ -1,18 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:simple_bible/shared/configs/objectbox.dart';
+import 'package:simple_bible/user_space/data/user_space_repository_provider.dart';
 import 'package:simple_bible/user_space/domain/user_space.dart';
 
 class UserSpaceService extends Notifier<UserSpace> {
   @override
-  UserSpace build() => initializeUserSpace();
-
-  UserSpace initializeUserSpace() {
-    if (ref.read(objectBoxProvider).objStore.box<UserSpace>().isEmpty()) {
-      final user = UserSpace.guest();
-      ref.read(objectBoxProvider).objStore.box<UserSpace>().putAsync(user);
-      return user;
+  UserSpace build() {
+    final repository = ref.read(userSpaceRepositoryProvider);
+    final userSpace = repository.getUserSpace();
+    if (userSpace == null) {
+      final guest = UserSpace.guest();
+      // Save the guest user (fire and forget)
+      // ignore: unawaited_futures
+      repository.saveUserSpace(guest);
+      return guest;
     }
-    return ref.read(objectBoxProvider).objStore.box<UserSpace>().getAll().first;
+    return userSpace;
   }
 }
 
