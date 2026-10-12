@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
-import 'package:simple_bible/shared/configs/objectbox.dart' show objectBoxProvider;
+import 'package:simple_bible/shared/configs/objectbox.dart'
+    show objectBoxProvider;
 import 'package:simple_bible/notes/domain/notes.dart';
 import 'package:uuid/v4.dart';
 
@@ -31,7 +32,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
         // Matches everything up to the first newline (or the whole text if no newline)
         MatchTargetItem.pattern(
           r'^[^\n]*',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle( fontWeight: FontWeight.bold),
         )
       ],
       onMatch: (matches) {},
@@ -60,9 +61,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
   void _handleUndoStack() {
     // if (_undoController.value.canUndo) {}
     // if (_undoController.value.canRedo) {}
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -79,7 +78,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text(_title),
+        title: Text(_title,style: Theme.of(context).textTheme.titleSmall,),
         actions: [
           Row(
             children: [
@@ -101,12 +100,12 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
                   )),
             ],
           ),
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.share,
-                size: 18,
-              )),
+          // IconButton(
+          //     onPressed: () {},
+          //     icon: Icon(
+          //       Icons.share,
+          //       size: 18,
+          //     )),
           TextButton(
             onPressed: () => editingComplete(),
             child: Text('Done'),
@@ -133,13 +132,13 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
 
   void editingComplete() {
     Notes note = Notes(
-        id: UuidV4().generate(),
-        createdAt: DateTime.now().toIso8601String(),
-        lastModified: DateTime.now().toIso8601String(),
-        title: _title,
-        content: _body,
-        // reference: []
-        );
+      id: UuidV4().generate(),
+      createdAt: DateTime.now().toIso8601String(),
+      lastModified: DateTime.now().toIso8601String(),
+      title: _title,
+      content: _body,
+      // reference: []
+    );
     if (widget.notes != null) {
       note = note.copywith(
         id: widget.notes!.id,

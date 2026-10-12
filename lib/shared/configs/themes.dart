@@ -43,32 +43,63 @@ class Themes {
 
   /* Dark theme settings */
   static ThemeData darkTheme = ThemeData(
-      primarySwatch: Colors.blueGrey,
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        backgroundColor: Color(0xFF19181A),
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: const ColorScheme.dark(
+      primary: Color(0xFFD8B04A),
+      onPrimary: Color(0xFF19181A),
+      secondary: Color(0xFFFFD778),
+      onSecondary: Color(0xFF19181A),
+      surface: Color(0xFF1E1F23),
+      onSurface: Color(0xFFEAE6DD),
+      error: Color(0xFFCF6679),
+      onError: Color(0xFF19181A),
+    ),
+    primarySwatch: Colors.blueGrey,
+    primaryColor: const Color(0xFF1E1F23),
+    primaryColorDark: const Color(0xFFD8B04A),
+    primaryColorLight: const Color(0xFFEAE6DD),
+    scaffoldBackgroundColor: const Color(0xFF121316),
+    cardColor: const Color(0xFF26272C),
+    dividerColor: Colors.white12,
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      backgroundColor: Color(0xFF1E1F23),
+      foregroundColor: Color(0xFFEAE6DD),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      showUnselectedLabels: true,
+      elevation: 0,
+      backgroundColor: Color(0xFF1E1F23),
+      selectedItemColor: Color(0xFFD8B04A),
+      unselectedItemColor: Color(0xFFAAA8A2),
+      selectedLabelStyle: TextStyle(
+        fontWeight: FontWeight.bold,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        showUnselectedLabels: true,
-        elevation: 0,
-        backgroundColor: Color(0xFF19181A),
-        unselectedItemColor: Colors.white,
-        selectedItemColor: Colors.amber,
+      unselectedLabelStyle: TextStyle(
+        fontWeight: FontWeight.normal,
       ),
-      primaryColor: const Color.fromARGB(255, 25, 24, 26),
-      primaryColorDark: const Color(0xFFFFC107),
-      primaryColorLight: Colors.white,
-      brightness: Brightness.dark,
-      cardColor: const Color(0xFF0C0C0C),
-      textTheme: const TextTheme(
-          bodyMedium:
-              TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
-          labelMedium:
-              TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
-          bodySmall: TextStyle(color: Colors.white),
-          bodyLarge: TextStyle(color: Colors.white, fontSize: 20)),
-      dividerColor: Colors.black12,
-      bottomSheetTheme:
-          BottomSheetThemeData(modalBackgroundColor: Color(0xFF19181A)),
-      scaffoldBackgroundColor: const Color.fromARGB(255, 12, 12, 12));
+    ),
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(
+        color: Color(0xFFEAE6DD),
+        fontWeight: FontWeight.normal,
+      ),
+      bodyLarge: TextStyle(
+        color: Color(0xFFEAE6DD),
+        fontSize: 20,
+      ),
+      bodySmall: TextStyle(
+        color: Color(0xFFEAE6DD),
+      ),
+      labelMedium: TextStyle(
+        color: Color(0xFFD8B04A),
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Color(0xFF1E1F23),
+      modalBackgroundColor: Color(0xFF1E1F23),
+    ),
+  );
 }
