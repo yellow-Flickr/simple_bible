@@ -8,6 +8,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_screen_controller.dart';
+import 'package:simple_bible/favorites/domain/favorite.dart';
+import 'package:simple_bible/notes/presentation/note_editor.dart';
 import 'package:simple_bible/shared/configs/objectbox.dart';
 import 'package:simple_bible/objectbox.g.dart';
 
@@ -95,8 +97,6 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 
   @override
   void initState() {
-
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.quotation != null) {
         ref
@@ -242,6 +242,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
               scripture: scripture,
               scrollController: itemScrollController,
               highlightedIndex: highlightedIndex,
+              versionId: controller.versionId,
             ),
             child: ContinousView(
               scrollController: _scrollController,
@@ -835,76 +836,327 @@ class ContinousView extends ConsumerWidget {
   }
 }
 
-class CardView extends ConsumerWidget {
-  CardView({
+class CardView extends ConsumerStatefulWidget {
+  const CardView({
     super.key,
     required this.scripture,
     this.highlightedIndex = -1,
     required ItemScrollController scrollController,
+    required this.versionId,
   }) : _scrollController = scrollController;
 
   final Chapter scripture;
   final int highlightedIndex;
   final ItemScrollController _scrollController;
-  final ItemPositionsListener _itemPositionsListener =
-      ItemPositionsListener.create();
-  // final ItemScrollController _scrollController;
+  final int versionId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var theme = Theme.of(context);
+  ConsumerState<CardView> createState() => _CardViewState();
+}
+
+class _CardViewState extends ConsumerState<CardView> {
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
+  final Set<int> _selectedIndexes = {};
+
+  bool get _isSelecting => _selectedIndexes.isNotEmpty;
+
+  @override
+  void didUpdateWidget(covariant CardView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.scripture.id != widget.scripture.id ||
+        oldWidget.versionId != widget.versionId) {
+      _selectedIndexes.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
     final fontSize = ref.watch(fontSizeProvider);
     final lineSpacing = ref.watch(lineHeightProvider);
     final wordSpacing = ref.watch(wordSpacingProvider);
+    final favoriteBox = ref.read(objectBoxProvider).objStore.box<Favorite>();
+    final favoriteKeys = favoriteBox
+        .getAll()
+        .map((favorite) => (
+              favorite.versionId,
+              favorite.bookId,
+              favorite.chapter,
+              favorite.verse,
+            ))
+        .toSet();
 
-    return ScrollablePositionedList.separated(
-      itemCount: scripture.verses.length,
-      itemScrollController: _scrollController,
-      itemPositionsListener: _itemPositionsListener,
-      padding: EdgeInsets.all(16.0),
+    final allSelectedAreFavorites = _selectedIndexes.isNotEmpty &&
+        _selectedIndexes.every((index) {
+          final verse = widget.scripture.verses[index];
+          return favoriteKeys.contains((
+            widget.versionId,
+            verse.bookId,
+            verse.chapter,
+            verse.verse,
+          ));
+        });
 
-      // itemPositionsListener: itemPositionsListener,
-      // itemScrollController: itemScrollController,
-      itemBuilder: ((context, index) => AnimatedContainer(
-            key: ValueKey(scripture.verses[index].id),
-            duration: Duration(milliseconds: 500),
-            color: highlightedIndex == index
-                ? theme.primaryColor.withValues(alpha: .4)
-                : Colors.transparent,
-
-            // margin: const EdgeInsets.all(10),
+    return Column(
+      children: [
+        if (_isSelecting)
+          Material(
+            color: theme.primaryColorDark.withValues(alpha: .14),
             child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              child: Row(
                 children: [
-                  SelectableText(
-                      '${scripture.verses[index].bookName} ${scripture.verses[index].chapter}:${scripture.verses[index].verse}',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                          height: 2,
-                          fontSize: (theme.textTheme.labelMedium?.fontSize ??
-                                  fontSize) *
-                              (fontSize / 8))
-                      // TextStyle(
-                      //     color: primaryColor, fontWeight: FontWeight.bold)
-                      ),
-                  SelectableText(
-                      utf8.decode(JsonUtf8Encoder()
-                          .convert(scripture.verses[index].text)),
-                      // softWrap: true,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                          wordSpacing: wordSpacing,
-                          height: lineSpacing,
-                          fontSize: fontSize + 4))
+                  IconButton(
+                    tooltip: 'Clear selection',
+                    onPressed: _clearSelection,
+                    icon: const Icon(Icons.close),
+                  ),
+                  Expanded(
+                    child: Text(
+                      '${_selectedIndexes.length} selected',
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: allSelectedAreFavorites
+                        ? 'Remove selected verses from favorites'
+                        : 'Favorite selected verses',
+                    onPressed: () => _toggleFavorites(
+                      _selectedIndexes.toList(),
+                      favoriteKeys,
+                    ),
+                    icon: Icon(
+                      allSelectedAreFavorites
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: allSelectedAreFavorites
+                          ? theme.colorScheme.error
+                          : null,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Add a note to selected verses',
+                    onPressed: () => _openNote(_selectedIndexes.toList()),
+                    icon: const Icon(Icons.note_add_outlined),
+                  ),
                 ],
               ),
             ),
-          )),
+          ),
+        Expanded(
+          child: ScrollablePositionedList.separated(
+            itemCount: widget.scripture.verses.length,
+            itemScrollController: widget._scrollController,
+            itemPositionsListener: _itemPositionsListener,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) {
+              final verse = widget.scripture.verses[index];
+              final isSelected = _selectedIndexes.contains(index);
+              final isFavorite = favoriteKeys.contains((
+                widget.versionId,
+                verse.bookId,
+                verse.chapter,
+                verse.verse,
+              ));
+              final accent = theme.primaryColorDark;
+              final backgroundColor = isSelected
+                  ? accent.withValues(alpha: .2)
+                  : widget.highlightedIndex == index
+                      ? theme.primaryColor.withValues(alpha: .4)
+                      : isFavorite
+                          ? accent.withValues(alpha: .07)
+                          : Colors.transparent;
 
-      separatorBuilder: (BuildContext context, int index) => Divider(
-        thickness: .5,
-        color: theme.dividerColor,
+              return AnimatedContainer(
+                key: ValueKey(verse.id),
+                duration: const Duration(milliseconds: 250),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: isSelected
+                      ? Border.all(color: accent.withValues(alpha: .8))
+                      : isFavorite
+                          ? Border.all(color: accent.withValues(alpha: .35))
+                          : null,
+                ),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onLongPress: () => _selectVerse(index),
+                  onTap: _isSelecting ? () => _toggleSelection(index) : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            if (_isSelecting)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Icon(
+                                  isSelected
+                                      ? Icons.check_circle
+                                      : Icons.radio_button_unchecked,
+                                  color:
+                                      isSelected ? accent : theme.disabledColor,
+                                  size: 20,
+                                ),
+                              ),
+                            Expanded(
+                              child: Text(
+                                '${verse.bookName} ${verse.chapter}:${verse.verse}',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  height: 2,
+                                  fontSize:
+                                      (theme.textTheme.labelMedium?.fontSize ??
+                                              fontSize) *
+                                          (fontSize / 8),
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: isFavorite
+                                  ? 'Remove from favorites'
+                                  : 'Add to favorites',
+                              visualDensity: VisualDensity.compact,
+                              constraints: const BoxConstraints.tightFor(
+                                width: 36,
+                                height: 36,
+                              ),
+                              onPressed: () =>
+                                  _toggleFavorites([index], favoriteKeys),
+                              icon: Icon(
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                size: 19,
+                                color: isFavorite
+                                    ? theme.colorScheme.error
+                                    : theme.iconTheme.color,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Add a note',
+                              visualDensity: VisualDensity.compact,
+                              constraints: const BoxConstraints.tightFor(
+                                width: 36,
+                                height: 36,
+                              ),
+                              onPressed: () => _openNote([index]),
+                              icon: const Icon(
+                                Icons.note_add_outlined,
+                                size: 19,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SelectableText(
+                          utf8.decode(JsonUtf8Encoder().convert(verse.text)),
+                          onTap: _isSelecting
+                              ? () => _toggleSelection(index)
+                              : null,
+                          onSelectionChanged: (selection, cause) {
+                            if (cause == SelectionChangedCause.longPress) {
+                              _selectVerse(index);
+                            }
+                          },
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            wordSpacing: wordSpacing,
+                            height: lineSpacing,
+                            fontSize: fontSize + 4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+            separatorBuilder: (context, index) => Divider(
+              thickness: .5,
+              color: theme.dividerColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _selectVerse(int index) {
+    if (_selectedIndexes.contains(index)) return;
+    setState(() {
+      _selectedIndexes.add(index);
+    });
+  }
+
+  void _toggleSelection(int index) {
+    setState(() {
+      if (!_selectedIndexes.add(index)) {
+        _selectedIndexes.remove(index);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(_selectedIndexes.clear);
+  }
+
+  void _toggleFavorites(
+    List<int> indexes,
+    Set<(int, int, int, int)> favoriteKeys,
+  ) {
+    final box = ref.read(objectBoxProvider).objStore.box<Favorite>();
+    final verses = indexes.map((index) => widget.scripture.verses[index]);
+    final favorites = box.getAll();
+    final allAreFavorites = verses.every((verse) => favoriteKeys.contains((
+          widget.versionId,
+          verse.bookId,
+          verse.chapter,
+          verse.verse,
+        )));
+
+    for (final verse in verses) {
+      final matching = favorites
+          .where((favorite) =>
+              favorite.versionId == widget.versionId &&
+              favorite.bookId == verse.bookId &&
+              favorite.chapter == verse.chapter &&
+              favorite.verse == verse.verse)
+          .toList();
+      if (allAreFavorites) {
+        for (final favorite in matching) {
+          if (favorite.uid != null) box.remove(favorite.uid!);
+        }
+      } else if (matching.isEmpty) {
+        box.put(
+          Favorite(
+            bookId: verse.bookId,
+            chapter: verse.chapter,
+            verse: verse.verse,
+            text: verse.text,
+            versionId: widget.versionId,
+            date: DateTime.now().millisecondsSinceEpoch,
+          ),
+        );
+      }
+    }
+    setState(() {});
+  }
+
+  void _openNote(List<int> indexes) {
+    final verses = indexes.map((index) => widget.scripture.verses[index]);
+    final noteText = verses
+        .map((verse) =>
+            '${verse.bookName} ${verse.chapter}:${verse.verse}\n${verse.text}')
+        .join('\n\n');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NoteEditor(
+          initialText: 'Scripture notes\n\n$noteText',
+        ),
       ),
     );
   }

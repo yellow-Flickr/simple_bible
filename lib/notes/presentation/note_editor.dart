@@ -9,7 +9,8 @@ import 'package:uuid/v4.dart';
 
 class NoteEditor extends ConsumerStatefulWidget {
   final Notes? notes;
-  const NoteEditor({super.key, this.notes});
+  final String? initialText;
+  const NoteEditor({super.key, this.notes, this.initialText});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => NoteEditorState();
@@ -32,7 +33,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
         // Matches everything up to the first newline (or the whole text if no newline)
         MatchTargetItem.pattern(
           r'^[^\n]*',
-          style: TextStyle( fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         )
       ],
       onMatch: (matches) {},
@@ -41,6 +42,8 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
     _controller.addListener(_handleTextChange);
     if (widget.notes != null) {
       _controller.text = "${widget.notes!.title}\n${widget.notes!.content}";
+    } else if (widget.initialText != null) {
+      _controller.text = widget.initialText!;
     }
   }
 
@@ -78,7 +81,10 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text(_title,style: Theme.of(context).textTheme.titleSmall,),
+        title: Text(
+          _title,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         actions: [
           Row(
             children: [
@@ -130,7 +136,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
     );
   }
 
-  void editingComplete() {
+  Future<void> editingComplete() async {
     Notes note = Notes(
       id: UuidV4().generate(),
       createdAt: DateTime.now().toIso8601String(),
@@ -146,6 +152,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
         createdAt: widget.notes!.createdAt,
       );
     }
-    ref.read(objectBoxProvider).objStore.box<Notes>().putAsync(note);
+    await ref.read(objectBoxProvider).objStore.box<Notes>().putAsync(note);
+    if (mounted) Navigator.pop(context);
   }
 }

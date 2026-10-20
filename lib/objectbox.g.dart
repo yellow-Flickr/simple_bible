@@ -112,7 +112,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 4789251647910984140),
     name: 'Favorite',
-    lastPropertyId: const obx_int.IdUid(2, 5948068777600196658),
+    lastPropertyId: const obx_int.IdUid(7, 4562176872635121577),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -124,6 +124,36 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(2, 5948068777600196658),
         name: 'date',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 2367620320826080214),
+        name: 'chapter',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 2454562762521780599),
+        name: 'verse',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 1818514248584944682),
+        name: 'text',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 325553569393347149),
+        name: 'versionId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 4562176872635121577),
+        name: 'bookId',
         type: 6,
         flags: 0,
       ),
@@ -653,22 +683,63 @@ obx_int.ModelDefinition getObjectBoxModel() {
         object.uid = id;
       },
       objectToFB: (Favorite object, fb.Builder fbb) {
-        fbb.startTable(3);
+        final textOffset =
+            object.text == null ? null : fbb.writeString(object.text!);
+        fbb.startTable(8);
         fbb.addInt64(0, object.uid ?? 0);
         fbb.addInt64(1, object.date);
+        fbb.addInt64(2, object.chapter);
+        fbb.addInt64(3, object.verse);
+        fbb.addOffset(4, textOffset);
+        fbb.addInt64(5, object.versionId);
+        fbb.addInt64(6, object.bookId);
         fbb.finish(fbb.endTable());
         return object.uid ?? 0;
       },
       objectFromFB: (obx.Store store, ByteData fbData) {
         final buffer = fb.BufferContext(fbData);
         final rootOffset = buffer.derefObject(0);
+        final bookIdParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          16,
+          0,
+        );
+        final chapterParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          8,
+          0,
+        );
+        final textParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 12);
+        final verseParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          10,
+          0,
+        );
+        final versionIdParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          14,
+          0,
+        );
         final dateParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
           6,
           0,
         );
-        final object = Favorite(date: dateParam)
+        final object = Favorite(
+            bookId: bookIdParam,
+            chapter: chapterParam,
+            text: textParam,
+            verse: verseParam,
+            versionId: versionIdParam,
+            date: dateParam,
+          )
           ..uid = const fb.Int64Reader().vTableGetNullable(
             buffer,
             rootOffset,
@@ -1213,6 +1284,31 @@ class Favorite_ {
   /// See [Favorite.date].
   static final date = obx.QueryIntegerProperty<Favorite>(
     _entities[2].properties[1],
+  );
+
+  /// See [Favorite.chapter].
+  static final chapter = obx.QueryIntegerProperty<Favorite>(
+    _entities[2].properties[2],
+  );
+
+  /// See [Favorite.verse].
+  static final verse = obx.QueryIntegerProperty<Favorite>(
+    _entities[2].properties[3],
+  );
+
+  /// See [Favorite.text].
+  static final text = obx.QueryStringProperty<Favorite>(
+    _entities[2].properties[4],
+  );
+
+  /// See [Favorite.versionId].
+  static final versionId = obx.QueryIntegerProperty<Favorite>(
+    _entities[2].properties[5],
+  );
+
+  /// See [Favorite.bookId].
+  static final bookId = obx.QueryIntegerProperty<Favorite>(
+    _entities[2].properties[6],
   );
 }
 
