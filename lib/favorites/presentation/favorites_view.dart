@@ -85,7 +85,7 @@ class FavoritesScreenState extends ConsumerState<FavoritesView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SelectableText(
-                          '${scripture.books[favorites[index].bookId].chapters[favorites[index].verse].verses[index].bookName} ${scripture.books[favorites[index].bookId].chapters[favorites[index].verse].verses[index].chapter}:${scripture.books[favorites[index].bookId].chapters[favorites[index].verse].verses[index].verse}',
+                          '${scripture.books[favorites[index].bookId].chapters[favorites[index].fromVerse].verses[index].bookName} ${scripture.books[favorites[index].bookId].chapters[favorites[index].fromVerse].verses[index].chapter}:${scripture.books[favorites[index].bookId].chapters[favorites[index].fromVerse].verses[index].verse}',
                           style: theme.textTheme.labelMedium
                           // TextStyle(
                           //     color: primaryColor, fontWeight: FontWeight.bold)
@@ -93,7 +93,7 @@ class FavoritesScreenState extends ConsumerState<FavoritesView> {
                       SelectableText(
                           utf8.decode(JsonUtf8Encoder().convert(scripture
                               .books[favorites[index].bookId]
-                              .chapters[favorites[index].verse]
+                              .chapters[favorites[index].fromVerse]
                               .verses[index]
                               .text)),
                           // softWrap: true,

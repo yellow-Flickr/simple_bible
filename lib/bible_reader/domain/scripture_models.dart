@@ -115,31 +115,35 @@ class Verse {
 }
 
 class Quotation {
-  int chapter;
-  int verse;
-  String? text;
+  final int chapter;
+  final int fromVerse;
+  final int? toVerse;
+  final String text;
   int versionId;
   // String? bookTag;
-  int bookId;
+  final int bookId;
 
   Quotation(
       {/* required */ this.chapter = 0,
-      /* required */ this.verse = 0,
-      /* required */ this.text,
+      /* required */ this.fromVerse = 0,
+      /* required */ this.toVerse,
+      this.text = '',
       /* required */ this.versionId = 100,
       // /* required */ this.bookTag,
       this.bookId = 0});
 
   Quotation copyWith({
     int? chapter,
-    int? verse,
+    int? fromVerse,
+    int? toVerse,
     String? text,
     int? versionId,
     int? bookId,
   }) {
     return Quotation(
       chapter: chapter ?? this.chapter,
-      verse: verse ?? this.verse,
+      fromVerse: fromVerse ?? this.fromVerse,
+      toVerse: toVerse ?? this.toVerse,
       text: text ?? this.text,
       versionId: versionId ?? this.versionId,
       bookId: bookId ?? this.bookId,
@@ -175,7 +179,8 @@ class Book {
         name: verses.first.bookName);
 
     final chapters = List<Chapter>.from(verses
-        .map((element) => (element.chapter)).toSet()
+        .map((element) => (element.chapter))
+        .toSet()
         .toList()
         .map((e) => Chapter.fromVerses(
             verses.where(((vers) => vers.chapter == e)).toList())));

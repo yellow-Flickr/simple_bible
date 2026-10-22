@@ -1,3 +1,4 @@
+import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/shared/configs/assets.dart';
 
 extension DayStatus on DateTime {
@@ -19,3 +20,7 @@ extension Initials on String? {
       ? (this ?? '').split(' ')[0][0] + (this ?? '').substring(0, 2)
       : (this ?? '').substring(0, 2);
 }
+
+// extension Qoutes on Quotation {
+//   String get quotationHead => '' ;
+// }

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
-import 'package:simple_bible/shared/configs/objectbox.dart'
-    show objectBoxProvider;
+import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/notes/domain/notes.dart';
+import 'package:simple_bible/notes/presentation/notes_controller.dart';
 import 'package:uuid/v4.dart';
 
 class NoteEditor extends ConsumerStatefulWidget {
   final Notes? notes;
-  final String? initialText;
+  final Quotation? initialText;
   const NoteEditor({super.key, this.notes, this.initialText});
 
   @override
@@ -21,6 +21,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
   final UndoHistoryController _undoController = UndoHistoryController();
   String _title = 'New Note';
   String _body = '';
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
     if (widget.notes != null) {
       _controller.text = "${widget.notes!.title}\n${widget.notes!.content}";
     } else if (widget.initialText != null) {
-      _controller.text = widget.initialText!;
+      _controller.text = widget.initialText!.text;
     }
   }
 
@@ -111,11 +112,10 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
           //     icon: Icon(
           //       Icons.share,
           //       size: 18,
-          //     )),
+          //     )          ),
           TextButton(
-            onPressed: () => editingComplete(),
-            child: Text('Done'),
-            // icon: Icon(Icons.done),
+            onPressed: _isSaving ? null : editingComplete,
+            child: Text(_isSaving ? 'Saving...' : 'Done'),
           )
         ],
       ),
@@ -137,6 +137,9 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
   }
 
   Future<void> editingComplete() async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
     Notes note = Notes(
       id: UuidV4().generate(),
       createdAt: DateTime.now().toIso8601String(),
@@ -152,7 +155,27 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
         createdAt: widget.notes!.createdAt,
       );
     }
-    await ref.read(objectBoxProvider).objStore.box<Notes>().putAsync(note);
-    if (mounted) Navigator.pop(context);
+
+    try {
+      await ref.read(notesControllerProvider.notifier).save(note);
+      if (mounted) Navigator.pop(context);
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'notes',
+          context: ErrorDescription('while saving a note'),
+        ),
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Unable to save note. Please try again.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 }

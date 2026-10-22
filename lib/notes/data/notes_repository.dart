@@ -1,41 +1,54 @@
 import 'package:simple_bible/notes/domain/notes.dart';
+import 'package:simple_bible/notes/domain/notes_repository.dart';
 import 'package:simple_bible/objectbox.g.dart';
 
-class NotesRepository {
+class LocalNotesRepository implements NotesRepository {
   final Box<Notes> _box;
 
-  NotesRepository(Store store) : _box = store.box<Notes>();
+  LocalNotesRepository(Store store) : _box = store.box<Notes>();
 
-  // Read
+  @override
   List<Notes> getAll() => _box.getAll();
 
+  @override
   bool isEmpty() => _box.count() == 0;
 
-  // Write
-  void saveAll(List<Notes> loans) {
-    _box.putMany(loans);
+  @override
+  void saveAll(List<Notes> notes) {
+    _box.putMany(notes);
   }
 
-  void save(Notes loan) {
-    _box.put(loan);
+  @override
+  Future<void> save(Notes note) async {
+    await _box.putAsync(note);
   }
 
-  // Delete
+  @override
   void clear() => _box.removeAll();
 
-  void deleteById(String remoteId) {
-    final entity = _box.query(Notes_.id.equals(remoteId)).build().findFirst();
-    if (entity != null) _box.remove(entity.uid ?? 0);
+  @override
+  void deleteById(String id) {
+    final query = _box.query(Notes_.id.equals(id)).build();
+    try {
+      final entity = query.findFirst();
+      if (entity != null) _box.remove(entity.uid ?? 0);
+    } finally {
+      query.close();
+    }
   }
 
+  @override
   List<Notes> search(String term) {
     if (term.isEmpty) return [];
 
     final condition = Notes_.content
         .contains(term, caseSensitive: false)
         .or(Notes_.title.contains(term, caseSensitive: false));
-    // add more fields as needed
-
-    return _box.query(condition).build().find();
+    final query = _box.query(condition).build();
+    try {
+      return query.find();
+    } finally {
+      query.close();
+    }
   }
 }

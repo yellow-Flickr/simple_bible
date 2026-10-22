@@ -10,9 +10,9 @@ class Favorite extends Quotation {
   @override
   int chapter;
   @override
-  int verse;
+  int fromVerse;
   @override
-  String? text;
+  String text;
   @override
   int versionId;
   @override
@@ -22,15 +22,15 @@ class Favorite extends Quotation {
   Favorite({
     this.bookId = 0,
     this.chapter = 0,
-    this.text,
-    this.verse = 0,
+    this.text = '',
+    this.fromVerse = 0,
     this.versionId = 100,
     required this.date,
   }) : super(
           bookId: bookId,
           chapter: chapter,
           text: text,
-          verse: verse,
+          fromVerse: fromVerse,
           versionId: versionId,
         );
 

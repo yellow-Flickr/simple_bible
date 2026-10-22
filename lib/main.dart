@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/application/scripture_service.dart';
+import 'package:simple_bible/notes/application/notes_service.dart';
+import 'package:simple_bible/notes/data/notes_repository.dart';
+import 'package:simple_bible/notes/presentation/notes_controller.dart';
 import 'package:simple_bible/shared/configs/objectbox.dart';
 import 'package:simple_bible/launcher.dart';
 import 'package:simple_bible/shared/configs/themes.dart';
@@ -14,6 +17,9 @@ Future<void> main() async {
     overrides: [
       // Override the unimplemented provider with the value gotten from the plugin
       objectBoxProvider.overrideWithValue(objectBox),
+      notesServiceProvider.overrideWithValue(
+        NotesService(LocalNotesRepository(objectBox.objStore)),
+      ),
     ],
     child: const MyApp(),
   ));
@@ -25,8 +31,8 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scriptureService = ref.watch(scriptureServiceProvider);
-    final userSpace = ref.watch(userSpaceProvider);
+    ref.watch(scriptureServiceProvider);
+    ref.watch(userSpaceProvider);
 
     return ResponsiveSizer(builder:
         (BuildContext context, Orientation orientation, ScreenType deviceType) {

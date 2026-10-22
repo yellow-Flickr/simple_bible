@@ -98,7 +98,7 @@ class HistoryScreenState extends ConsumerState<HistoryScreen> {
                     child: Text(
                         scripture
                             .books[history[index].bookId]
-                            .chapters[history[index].verse]
+                            .chapters[history[index].fromVerse]
                             .verses[index]
                             .bookName
                             .initials,
@@ -107,7 +107,7 @@ class HistoryScreenState extends ConsumerState<HistoryScreen> {
                         )),
                   ),
                   title: Text(
-                      '${scripture.books[history[index].bookId].chapters[history[index].verse].verses[index].bookName} ${scripture.books[history[index].bookId].chapters[history[index].verse].verses[index].chapter}'),
+                      '${scripture.books[history[index].bookId].chapters[history[index].fromVerse].verses[index].bookName} ${scripture.books[history[index].bookId].chapters[history[index].fromVerse].verses[index].chapter}'),
                   subtitle: Text(serverformat
                       .format(DateTime.parse(history[index].dateTime))),
                 )

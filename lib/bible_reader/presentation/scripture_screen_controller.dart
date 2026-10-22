@@ -11,7 +11,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   int currentChapter = 1;
   int currentBook = 0;
 
-  Quotation initialize() => Quotation();
+  Quotation initialize() => Quotation(text: '');
 
   void changeBook({required int bookID}) {
     state = state.copyWith(bookId: bookID);
@@ -22,7 +22,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   }
 
   void changeVerse({required int verse}) {
-    state = state.copyWith(verse: verse);
+    state = state.copyWith(fromVerse: verse);
   }
 
   void changeVersion({required int versionId}) {
@@ -31,7 +31,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
 
   void gotoQuotation({required Quotation quote}) {
     state = state.copyWith(
-        bookId: quote.bookId, verse: quote.verse, chapter: quote.chapter);
+        bookId: quote.bookId, fromVerse: quote.fromVerse, chapter: quote.chapter);
   }
 }
 

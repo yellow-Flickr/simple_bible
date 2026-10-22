@@ -4,58 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
-import 'package:simple_bible/notes/domain/notes.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
-import 'package:simple_bible/objectbox.g.dart';
-import 'package:simple_bible/shared/configs/objectbox.dart' show objectBoxProvider;
+import 'package:simple_bible/notes/presentation/notes_controller.dart';
 
-class NoteList extends ConsumerStatefulWidget {
-  const NoteList({
-    super.key,
-    /* required this.kjv */
-  });
+class NoteList extends ConsumerWidget {
+  const NoteList({super.key});
 
   @override
-  ConsumerState<NoteList> createState() => NoteListState();
-}
-
-class NoteListState extends ConsumerState<NoteList> {
-  // Define the function that scroll to an item
-  // void scrollToIndex(int index) {
-  //   _controller.jumpTo(
-  //     height *
-  //         index
-  //             .toDouble(), /*  duration: const Duration(milliseconds: 600), curve: Curves.easeIn */
-  //   );
-  // }
-
-  Versions getVersionByID(int uid) {
-    final query = ref
-        .read(objectBoxProvider)
-        .objStore
-        .box<Versions>()
-        .query(Versions_.id.equals(uid))
-        .build();
-    final version = query.findFirst();
-    query.close();
-    return version!;
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var theme = Theme.of(context);
-    final notes = List.from(notesSamples
-      ..sort((a, b) => DateTime.parse(a.lastModified)
-          .compareTo(DateTime.parse(b.lastModified)))
-      ..reversed);
-    // ref.read(objectBoxProvider).objStore.box<Notes>().getAll()
-    //   ..sort((a, b) => DateTime.parse(a.lastModified)
-    //       .compareTo(DateTime.parse(b.lastModified)))
-    //   ..reversed;
+    final notesAsync = ref.watch(notesControllerProvider);
 
     return Scaffold(
-      // backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: Text('Notes',
@@ -71,36 +31,51 @@ class NoteListState extends ConsumerState<NoteList> {
           ),
         ],
       ),
+      body: notesAsync.when(
+        data: (notes) {
+          if (notes.isEmpty) {
+            return const Center(child: Text('No notes yet'));
+          }
 
-      body: ListView.separated(
-        itemCount: notes.length,
-        padding: EdgeInsets.all(16.0),
-        itemBuilder: ((context, index) => NoteCard(
-            onTap: () => Navigator.push(
+          return ListView.separated(
+            itemCount: notes.length,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) => NoteCard(
+              onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NoteEditor(
-                    notes: notes[index],
-                  ),
-                )),
-            title: notes[index].title,
-            subtitle: notes[index].content,
-            date: (DateTime.parse(notes[index].lastModified)))),
-        separatorBuilder: (BuildContext context, int index) => Divider(),
+                  builder: (context) => NoteEditor(notes: notes[index]),
+                ),
+              ),
+              title: notes[index].title,
+              subtitle: notes[index].content,
+              date: DateTime.parse(notes[index].lastModified),
+            ),
+            separatorBuilder: (context, index) => const Divider(),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Unable to load notes.'),
+              TextButton(
+                onPressed: () => ref.invalidate(notesControllerProvider),
+                child: const Text('Try again'),
+              ),
+            ],
+          ),
+        ),
       ),
-
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(
         elevation: 4,
-        onPressed: () {},
-        child: IconButton.filledTonal(
-            iconSize: 30,
-            onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NoteEditor(),
-                )),
-            icon: Icon(Icons.note_alt)),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NoteEditor()),
+        ),
+        child: const Icon(Icons.note_alt),
       ),
     );
   }

@@ -103,8 +103,8 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
             .read(scriptureScreenProvider.notifier)
             .gotoQuotation(quote: widget.quotation!);
 
-        setState(() => highlightedIndex = widget.quotation!.verse);
-        _scrollToVerse(widget.quotation!.verse);
+        setState(() => highlightedIndex = widget.quotation!.fromVerse);
+        _scrollToVerse(widget.quotation!.fromVerse);
 
         await Future.delayed(Duration(seconds: 2));
         setState(() => highlightedIndex = -1);
@@ -884,7 +884,7 @@ class _CardViewState extends ConsumerState<CardView> {
               favorite.versionId,
               favorite.bookId,
               favorite.chapter,
-              favorite.verse,
+              favorite.fromVerse,
             ))
         .toSet();
 
@@ -1123,7 +1123,7 @@ class _CardViewState extends ConsumerState<CardView> {
               favorite.versionId == widget.versionId &&
               favorite.bookId == verse.bookId &&
               favorite.chapter == verse.chapter &&
-              favorite.verse == verse.verse)
+              favorite.fromVerse == verse.verse)
           .toList();
       if (allAreFavorites) {
         for (final favorite in matching) {
@@ -1134,7 +1134,7 @@ class _CardViewState extends ConsumerState<CardView> {
           Favorite(
             bookId: verse.bookId,
             chapter: verse.chapter,
-            verse: verse.verse,
+            fromVerse: verse.verse,
             text: verse.text,
             versionId: widget.versionId,
             date: DateTime.now().millisecondsSinceEpoch,
