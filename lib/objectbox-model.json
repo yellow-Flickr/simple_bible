@@ -80,7 +80,7 @@
     },
     {
       "id": "3:4789251647910984140",
-      "lastPropertyId": "7:4562176872635121577",
+      "lastPropertyId": "8:8538219285830703062",
       "name": "Favorite",
       "properties": [
         {
@@ -100,11 +100,6 @@
           "type": 6
         },
         {
-          "id": "4:2454562762521780599",
-          "name": "verse",
-          "type": 6
-        },
-        {
           "id": "5:1818514248584944682",
           "name": "text",
           "type": 9
@@ -118,13 +113,18 @@
           "id": "7:4562176872635121577",
           "name": "bookId",
           "type": 6
+        },
+        {
+          "id": "8:8538219285830703062",
+          "name": "fromVerse",
+          "type": 6
         }
       ],
       "relations": []
     },
     {
       "id": "4:3921686483285617415",
-      "lastPropertyId": "2:4240691935666260155",
+      "lastPropertyId": "6:2334966887826332100",
       "name": "History",
       "properties": [
         {
@@ -137,6 +137,26 @@
           "id": "2:4240691935666260155",
           "name": "dateTime",
           "type": 9
+        },
+        {
+          "id": "3:179250965140352785",
+          "name": "versionId",
+          "type": 6
+        },
+        {
+          "id": "4:7868165832025804384",
+          "name": "bookId",
+          "type": 6
+        },
+        {
+          "id": "5:174810581091004952",
+          "name": "chapter",
+          "type": 6
+        },
+        {
+          "id": "6:2334966887826332100",
+          "name": "fromVerse",
+          "type": 6
         }
       ],
       "relations": []
@@ -429,7 +449,8 @@
   "retiredEntityUids": [],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
-    6149293321204355552
+    6149293321204355552,
+    2454562762521780599
   ],
   "retiredRelationUids": [],
   "version": 1

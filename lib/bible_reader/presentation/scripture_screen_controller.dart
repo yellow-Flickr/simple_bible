@@ -31,7 +31,11 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
 
   void gotoQuotation({required Quotation quote}) {
     state = state.copyWith(
-        bookId: quote.bookId, fromVerse: quote.fromVerse, chapter: quote.chapter);
+      bookId: quote.bookId,
+      fromVerse: quote.fromVerse,
+      chapter: quote.chapter,
+      versionId: quote.versionId,
+    );
   }
 }
 

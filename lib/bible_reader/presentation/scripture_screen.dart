@@ -7,11 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
+import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
+    show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen_controller.dart';
-import 'package:simple_bible/favorites/domain/favorite.dart';
+import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
+import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
-import 'package:simple_bible/shared/configs/objectbox.dart';
-import 'package:simple_bible/objectbox.g.dart';
 
 class ScriptureScreen extends ConsumerStatefulWidget {
   final Quotation? quotation;
@@ -41,6 +42,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   // }
   bool canPop = false;
   int highlightedIndex = -1;
+  (int, int, int)? _lastRecordedLocation;
 
   Timer? _hideTimer;
 
@@ -97,19 +99,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.quotation != null) {
-        ref
-            .read(scriptureScreenProvider.notifier)
-            .gotoQuotation(quote: widget.quotation!);
-
-        setState(() => highlightedIndex = widget.quotation!.fromVerse);
-        _scrollToVerse(widget.quotation!.fromVerse);
-
-        await Future.delayed(Duration(seconds: 2));
-        setState(() => highlightedIndex = -1);
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _recordVisit());
 
     Future.delayed(Durations.medium4, () {
       _showFABs();
@@ -121,6 +111,60 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     super.initState();
   }
 
+  Future<void> _recordVisit() async {
+    if (!mounted) return;
+
+    final quotation = widget.quotation;
+    if (quotation != null) {
+      _lastRecordedLocation = _locationKey(quotation);
+      ref
+          .read(scriptureScreenProvider.notifier)
+          .gotoQuotation(quote: quotation);
+      setState(() => highlightedIndex = quotation.fromVerse);
+      _scrollToVerse(quotation.fromVerse);
+
+      await _persistVisit(quotation, fromVerse: quotation.fromVerse);
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) setState(() => highlightedIndex = -1);
+      return;
+    }
+
+    await _recordLocation(ref.read(scriptureScreenProvider));
+  }
+
+  (int, int, int) _locationKey(Quotation reference) =>
+      (reference.versionId, reference.bookId, reference.chapter);
+
+  Future<void> _recordLocation(Quotation reference) async {
+    final key = _locationKey(reference);
+    if (_lastRecordedLocation == key) return;
+    _lastRecordedLocation = key;
+    await _persistVisit(reference);
+  }
+
+  Future<void> _persistVisit(
+    Quotation reference, {
+    int? fromVerse,
+  }) async {
+    try {
+      await ref.read(historyControllerProvider.notifier).recordVisit(
+            versionId: reference.versionId,
+            bookId: reference.bookId,
+            chapter: reference.chapter,
+            fromVerse: fromVerse,
+          );
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'history',
+          context: ErrorDescription('while recording a scripture visit'),
+        ),
+      );
+    }
+  }
+
 // @override
 //   void deactivate() {
 //     // TODO: implement deactivate
@@ -130,29 +174,19 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 //   }
 
   Versions getVersionByID(int uid) {
-    // final scripture = ref.watch(versionProvider);
-
-    final query = ref
-        .watch(objectBoxProvider)
-        .objStore
-        .box<Versions>()
-        .query(Versions_.id.equals(uid))
-        .build();
-    final version = query.findFirst();
-    query.close();
-    return version!;
+    return ref.read(scriptureServiceProvider).getVersion(uid);
   }
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     final controller = ref.watch(scriptureScreenProvider);
-    // final scripture = ref
-    //     .watch(objectBoxProvider)
-    //     .objStore
-    //     .box<Versions>().
-    //     .books[controller.bookId]
-    //     .chapters[controller.chapter];
+    ref.listen(scriptureScreenProvider, (previous, next) {
+      if (previous == null || _locationKey(previous) == _locationKey(next)) {
+        return;
+      }
+      _recordLocation(next);
+    });
 
     final scripture = getVersionByID(controller.versionId)
         .books[controller.bookId]
@@ -344,8 +378,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   void _versions(context) {
     final theme = Theme.of(context);
 
-    final scriptures =
-        ref.watch(objectBoxProvider).objStore.box<Versions>().getAll();
+    final scriptures = ref.read(scriptureServiceProvider).getVersions();
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -877,9 +910,8 @@ class _CardViewState extends ConsumerState<CardView> {
     final fontSize = ref.watch(fontSizeProvider);
     final lineSpacing = ref.watch(lineHeightProvider);
     final wordSpacing = ref.watch(wordSpacingProvider);
-    final favoriteBox = ref.read(objectBoxProvider).objStore.box<Favorite>();
-    final favoriteKeys = favoriteBox
-        .getAll()
+    final favoriteKeys = ref
+        .watch(favoritesControllerProvider)
         .map((favorite) => (
               favorite.versionId,
               favorite.bookId,
@@ -925,7 +957,6 @@ class _CardViewState extends ConsumerState<CardView> {
                         : 'Favorite selected verses',
                     onPressed: () => _toggleFavorites(
                       _selectedIndexes.toList(),
-                      favoriteKeys,
                     ),
                     icon: Icon(
                       allSelectedAreFavorites
@@ -1025,8 +1056,7 @@ class _CardViewState extends ConsumerState<CardView> {
                                 width: 36,
                                 height: 36,
                               ),
-                              onPressed: () =>
-                                  _toggleFavorites([index], favoriteKeys),
+                              onPressed: () => _toggleFavorites([index]),
                               icon: Icon(
                                 isFavorite
                                     ? Icons.favorite
@@ -1103,46 +1133,12 @@ class _CardViewState extends ConsumerState<CardView> {
     setState(_selectedIndexes.clear);
   }
 
-  void _toggleFavorites(
-    List<int> indexes,
-    Set<(int, int, int, int)> favoriteKeys,
-  ) {
-    final box = ref.read(objectBoxProvider).objStore.box<Favorite>();
-    final verses = indexes.map((index) => widget.scripture.verses[index]);
-    final favorites = box.getAll();
-    final allAreFavorites = verses.every((verse) => favoriteKeys.contains((
-          widget.versionId,
-          verse.bookId,
-          verse.chapter,
-          verse.verse,
-        )));
-
-    for (final verse in verses) {
-      final matching = favorites
-          .where((favorite) =>
-              favorite.versionId == widget.versionId &&
-              favorite.bookId == verse.bookId &&
-              favorite.chapter == verse.chapter &&
-              favorite.fromVerse == verse.verse)
-          .toList();
-      if (allAreFavorites) {
-        for (final favorite in matching) {
-          if (favorite.uid != null) box.remove(favorite.uid!);
-        }
-      } else if (matching.isEmpty) {
-        box.put(
-          Favorite(
-            bookId: verse.bookId,
-            chapter: verse.chapter,
-            fromVerse: verse.verse,
-            text: verse.text,
-            versionId: widget.versionId,
-            date: DateTime.now().millisecondsSinceEpoch,
-          ),
+  void _toggleFavorites(List<int> indexes) {
+    ref.read(favoritesControllerProvider.notifier).toggleFavorites(
+          verses:
+              indexes.map((index) => widget.scripture.verses[index]).toList(),
+          versionId: widget.versionId,
         );
-      }
-    }
-    setState(() {});
   }
 
   void _openNote(List<int> indexes) {
@@ -1155,7 +1151,7 @@ class _CardViewState extends ConsumerState<CardView> {
       context,
       MaterialPageRoute(
         builder: (context) => NoteEditor(
-          initialText: 'Scripture notes\n\n$noteText',
+          initialText: Quotation(text: 'Scripture notes\n\n$noteText'),
         ),
       ),
     );

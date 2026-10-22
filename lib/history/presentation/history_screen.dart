@@ -1,174 +1,144 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
+import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
+    show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
+import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/shared/configs/constants.dart';
 import 'package:simple_bible/shared/configs/extensions.dart';
-import 'package:simple_bible/shared/configs/objectbox.dart';
-import 'package:simple_bible/history/domain/history.dart';
-import 'package:simple_bible/objectbox.g.dart';
-import 'package:simple_bible/user_space/application/user_space_service.dart';
 
-class HistoryScreen extends ConsumerStatefulWidget {
-  const HistoryScreen({
-    super.key,
-    /* required this.kjv */
-  });
+class HistoryScreen extends ConsumerWidget {
+  const HistoryScreen({super.key});
 
   @override
-  ConsumerState<HistoryScreen> createState() => HistoryScreenState();
-}
-
-class HistoryScreenState extends ConsumerState<HistoryScreen> {
-  // Define the function that scroll to an item
-  // void scrollToIndex(int index) {
-  //   _controller.jumpTo(
-  //     height *
-  //         index
-  //             .toDouble(), /*  duration: const Duration(milliseconds: 600), curve: Curves.easeIn */
-  //   );
-  // }
-
-  Versions getVersionByID(int uid) {
-    final query = ref
-        .read(objectBoxProvider)
-        .objStore
-        .box<Versions>()
-        .query(Versions_.id.equals(uid))
-        .build();
-    final version = query.findFirst();
-    query.close();
-    return version!;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    final userSpace = ref.watch(userSpaceProvider);
-    final history = historySamples;
-    // ref.read(objectBoxProvider).objStore.box<History>().getAll();
-
-    final scripture = getVersionByID(userSpace.preferredTranslation);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final historyAsync = ref.watch(historyControllerProvider);
+    final scriptureService = ref.read(scriptureServiceProvider);
 
     return Scaffold(
-      // backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Reading History',
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Reading History',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         toolbarHeight: kToolbarHeight - 2.h,
         elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 3.w),
-            child: Icon(Icons.search),
+            child: const Icon(Icons.search),
           ),
         ],
       ),
+      body: historyAsync.when(
+        data: (history) {
+          if (history.isEmpty) {
+            return const Center(child: Text('No reading history yet'));
+          }
 
-      body: ListView.separated(
-        itemCount: history.length,
-        padding: EdgeInsets.all(16.0),
+          return ListView.separated(
+            itemCount: history.length,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) {
+              final entry = history[index];
+              final version = scriptureService.getVersion(entry.versionId);
+              final book = version.books[entry.bookId];
+              final chapter = book.chapters[entry.chapter];
+              final timestamp = DateTime.parse(entry.dateTime);
+              final verseLabel =
+                  entry.fromVerse == null ? '' : ':${entry.fromVerse! + 1}';
 
-        // itemPositionsListener: itemPositionsListener,
-        // itemScrollController: itemScrollController,
-        itemBuilder: ((context, index) => ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScriptureScreen(
-                            quotation: history[index],
-                          ),
-                        ));
-                  },
-                  leading: Container(
-                    width: 10.w,
-                    height: 10.w,
-                    decoration: BoxDecoration(
-                        border: BoxBorder.all(
-                            color: theme.primaryColorDark, width: 1),
-                        borderRadius: BorderRadius.circular(10)),
-                    alignment: Alignment.center,
-                    child: Text(
-                        scripture
-                            .books[history[index].bookId]
-                            .chapters[history[index].fromVerse]
-                            .verses[index]
-                            .bookName
-                            .initials,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        )),
+              return ListTile(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ScriptureScreen(
+                      quotation: Quotation(
+                        versionId: entry.versionId,
+                        bookId: entry.bookId,
+                        chapter: entry.chapter,
+                        fromVerse: entry.fromVerse ?? 0,
+                      ),
+                    ),
                   ),
-                  title: Text(
-                      '${scripture.books[history[index].bookId].chapters[history[index].fromVerse].verses[index].bookName} ${scripture.books[history[index].bookId].chapters[history[index].fromVerse].verses[index].chapter}'),
-                  subtitle: Text(serverformat
-                      .format(DateTime.parse(history[index].dateTime))),
-                )
+                ),
+                leading: Container(
+                  width: 10.w,
+                  height: 10.w,
+                  decoration: BoxDecoration(
+                    border: BoxBorder.all(color: theme.primaryColorDark),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    book.name.initials,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                title: Text('${book.name} ${chapter.chapter}$verseLabel'),
+                subtitle: Text(
+                  '${version.versionName} · ${serverformat.format(timestamp)}',
+                ),
+              );
+            },
+            separatorBuilder: (context, index) {
+              if (index + 1 >= history.length) return const SizedBox.shrink();
 
-            // Card(
-            //       // color: theme.cardColor,
-            //       // semanticContainer: false,
-            //       child: Container(
-            //         padding: const EdgeInsets.all(10),
-            //         margin: const EdgeInsets.all(10),
-            //         child: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             SelectableText(
-            //                 '${scripture.books[history[index].bookId].chapters[history[index].verse].verses[index].bookName} ${scripture.books[history[index].bookId].chapters[history[index].verse].verses[index].chapter}:${scripture.books[history[index].bookId].chapters[history[index].verse].verses[index].verse}',
-            //                 style: theme.textTheme.labelMedium
-            //                 // TextStyle(
-            //                 //     color: primaryColor, fontWeight: FontWeight.bold)
-            //                 ),
-            //             SelectableText(
-            //                 utf8.decode(JsonUtf8Encoder().convert(scripture
-            //                     .books[history[index].bookId]
-            //                     .chapters[history[index].verse]
-            //                     .verses[index]
-            //                     .text)),
-            //                 // softWrap: true,
-            //                 style: theme.textTheme.bodySmall)
-            //           ],
-            //         ),
-            //       ),
-            //     )
+              final current = DateTime.parse(history[index].dateTime);
+              final next = DateTime.parse(history[index + 1].dateTime);
+              if (current.year == next.year &&
+                  current.month == next.month &&
+                  current.day == next.day) {
+                return const SizedBox.shrink();
+              }
 
-            ),
-        separatorBuilder: (BuildContext context, int index) =>
-            ((DateTime.parse(history[index].dateTime.toString()).day !=
-                        DateTime.parse(history[index + 1].dateTime.toString())
-                            .day) &&
-                    index < history.length)
-                ? Stack(alignment: Alignment.center, children: [
-                    Center(
-                      child: Divider(
-                        thickness: .5,
-                        color: theme.dividerColor,
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Center(
+                    child: Divider(
+                      thickness: .5,
+                      color: theme.dividerColor,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    color: theme.scaffoldBackgroundColor,
+                    child: Text(
+                      serverformat2.format(next),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 8,
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      color: theme.scaffoldBackgroundColor,
-                      // height: 2.h,
-                      // width: 15.w,
-                      // color: theme.dividerColor,
-
-                      child: Text(
-                        serverformat2.format(
-                            DateTime.parse(history[index + 1].dateTime)),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w400, fontSize: 8),
-                      ),
-                    ),
-                  ])
-                : SizedBox.shrink(),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Unable to load reading history.'),
+              TextButton(
+                onPressed: () => ref.invalidate(historyControllerProvider),
+                child: const Text('Try again'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

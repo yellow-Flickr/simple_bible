@@ -1,4 +1,3 @@
-import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/shared/configs/assets.dart';
 
 extension DayStatus on DateTime {

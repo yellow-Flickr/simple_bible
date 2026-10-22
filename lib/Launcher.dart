@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:simple_bible/bible_reader/data/scripture_repository.dart';
+import 'package:simple_bible/bible_reader/data/scripture_data_source.dart' show scriptureDataProvider;
 import 'package:simple_bible/home/presentation/home.dart';
 
 class Launcher extends ConsumerStatefulWidget {

@@ -1,33 +1,26 @@
-import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
-import 'package:simple_bible/bible_reader/data/scripture_repository.dart';
-import 'package:simple_bible/shared/configs/objectbox.dart';
+import 'package:simple_bible/bible_reader/domain/scripture_repository.dart';
 
-class ScriptureService extends AsyncNotifier<void> {
-  @override
-  Future<void> build() {
-    return initializeScriptures();
+class ScriptureService {
+  const ScriptureService(this._repository, this._dataSource);
+
+  final ScriptureRepository _repository;
+  final ScriptureAssetSource _dataSource;
+
+  Future<void> initialize() async {
+    if (_repository.getAll().isNotEmpty) return;
+
+    final versions = await _dataSource.loadLocalScriptures();
+    await _repository.saveAll(versions);
   }
 
-  Future<void> initializeScriptures() async {
-    // bool isNewInstance =
-    //     ref.watch(objectBoxProvider).objStore.box<Versions>().isEmpty();
-    if (!ref.watch(objectBoxProvider).objStore.box<Versions>().isEmpty()) {
-      return;
+  List<Versions> getVersions() => _repository.getAll();
+
+  Versions getVersion(int id) {
+    final version = _repository.getById(id);
+    if (version == null) {
+      throw StateError('Scripture version $id is not available.');
     }
-
-    await ref.watch(objectBoxProvider).objStore.box<Versions>().putManyAsync(
-        await ref.read(scriptureDataProvider).loadLocalScriptures());
-
-    return;
+    return version;
   }
 }
-
-final scriptureServiceProvider =
-    AsyncNotifierProvider<ScriptureService, void>(() => ScriptureService());
-
-final versionProvider = Provider<Versions>((ref) =>
-    (ref.watch(objectBoxProvider).objStore.box<Versions>().getAll().first));
-
-final currentVersion = StateProvider<int>((ref) => 0);

@@ -1,73 +1,16 @@
 import 'dart:developer' as developer;
 import 'dart:io';
-import 'dart:isolate' show Isolate;
-
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Provider;
 import 'package:path_provider/path_provider.dart';
+import 'package:simple_bible/bible_reader/data/remote_scripture_repository.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
+import 'package:simple_bible/bible_reader/domain/scripture_repository.dart';
 import 'package:simple_bible/shared/network_providers.dart';
 
-/// Exception thrown when scripture loading fails
-class ScriptureLoadException implements Exception {
-  final String message;
-  final String? assetPath;
-  final dynamic originalError;
-
-  const ScriptureLoadException(
-    this.message, {
-    this.assetPath,
-    this.originalError,
-  });
-
-  @override
-  String toString() => 'ScriptureLoadException: $message'
-      '${assetPath != null ? ' (Asset: $assetPath)' : ''}';
-}
-
-/// Exception thrown when scripture download fails
-class ScriptureDownloadException implements Exception {
-  final String message;
-  final String? url;
-  final String? filePath;
-  final dynamic originalError;
-
-  const ScriptureDownloadException(
-    this.message, {
-    this.url,
-    this.filePath,
-    this.originalError,
-  });
-
-  @override
-  String toString() => 'ScriptureDownloadException: $message'
-      '${url != null ? ' (URL: $url)' : ''}'
-      '${filePath != null ? ' (File: $filePath)' : ''}';
-}
-
-/// Result of a successful scripture download
-class DownloadResult {
-  final String filePath;
-  final int fileSize;
-  final String downloadUrl;
-  final DateTime downloadedAt;
-
-  const DownloadResult({
-    required this.filePath,
-    required this.fileSize,
-    required this.downloadUrl,
-    required this.downloadedAt,
-  });
-
-  @override
-  String toString() => 'DownloadResult(filePath: $filePath, '
-      'fileSize: $fileSize bytes, downloadUrl: $downloadUrl, '
-      'downloadedAt: $downloadedAt)';
-}
-
 /// Data source for scripture operations
-class ScriptureDataSource {
+class ScriptureDataSource implements ScriptureAssetSource {
   ScriptureDataSource(this._dio, this._progressNotifier);
 
   final Dio _dio;
@@ -83,6 +26,7 @@ class ScriptureDataSource {
   ///
   /// Returns a list of [Versions] loaded from local assets.
   /// Throws [ScriptureLoadException] if any asset fails to load or parse.
+  @override
   Future<List<Versions>> loadLocalScriptures() async {
     try {
       // Load all scripture files concurrently for better performance
@@ -112,7 +56,7 @@ class ScriptureDataSource {
   /// Throws [ScriptureLoadException] on failure
   Future<Versions> _loadScriptureAsset(String assetPath) async {
     try {
-      final jsonString = await rootBundle.loadString (assetPath);
+      final jsonString = await rootBundle.loadString(assetPath);
 
       if (jsonString.isEmpty) {
         throw ScriptureLoadException(
@@ -296,6 +240,8 @@ class ScriptureDataSource {
     );
   }
 }
+
+
 
 final scriptureDataProvider = Provider<ScriptureDataSource>((ref) {
   final dio = ref.watch(dioProvider);
