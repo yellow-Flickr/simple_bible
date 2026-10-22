@@ -1,17 +1,13 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
-import 'dart:async';
 import 'dart:convert' show utf8, JsonUtf8Encoder;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
-import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
-    show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen_controller.dart';
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
-import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
 
 class ScriptureScreen extends ConsumerStatefulWidget {
@@ -29,61 +25,10 @@ class ScriptureScreen extends ConsumerStatefulWidget {
 class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
-  // final ItemPositionsListener itemPositionsListener =
-  //     ItemPositionsListener.create();
-
-  // Define the function that scroll to an item
-  // void scrollToIndex(int index) {
-  //   _controller.jumpTo(
-  //     height *
-  //         index
-  //             .toDouble(), /*  duration: const Duration(milliseconds: 600), curve: Curves.easeIn */
-  //   );
-  // }
   bool canPop = false;
   int highlightedIndex = -1;
-  (int, int, int)? _lastRecordedLocation;
-
-  Timer? _hideTimer;
-
-  void _showFABs() {
-    ref.watch(showFAB);
-
-    ref.read(showFAB.notifier).update((old) => !old);
-
-    // Cancel any existing timer
-    _hideTimer?.cancel();
-
-    // Auto-hide after 5 seconds
-    // if (fabShowing) {
-    _hideTimer = Timer(Duration(seconds: 5), () {
-      ref.read(showFAB.notifier).update((old) => false);
-    });
-    // }
-  }
-
-  // void _hideFABs() {
-  //   if (_showFAB) {
-  //     setState(() {
-  //       _showFAB = false;
-  //     });
-  //     _hideTimer?.cancel();
-  //   }
-  // }
 
   void _scrollToVerse(int index) {
-    // Calculate the offset for the verse index (this is a simple calculation assuming each verse has similar height)
-    // double offset = index *
-    //     (50.0 +
-    //         ref.read(
-    //             fontSizeProvider));
-    // Adjust this based on the height of each verse's widget
-    // _scrollController.animateTo(
-    //   offset,
-    //   duration: Duration(milliseconds: 500),
-    //   curve: Curves.easeInOut,
-    // );
-
     itemScrollController.scrollTo(
       index: index,
       duration: Duration(milliseconds: 500),
@@ -93,22 +38,15 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 
   @override
   void dispose() {
-    _hideTimer?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _recordVisit());
-
-    Future.delayed(Durations.medium4, () {
-      _showFABs();
-    });
-
-    // WidgetsBinding.instance.addPostFrameCallback((callback) {
-    //   _showFABs();
-    // });
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _recordVisit());
+    ref.read(scriptureScreenProvider.notifier).scheduleFloatingActions();
   }
 
   Future<void> _recordVisit() async {
@@ -116,65 +54,20 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
 
     final quotation = widget.quotation;
     if (quotation != null) {
-      _lastRecordedLocation = _locationKey(quotation);
-      ref
-          .read(scriptureScreenProvider.notifier)
-          .gotoQuotation(quote: quotation);
+      final visitRecording =
+          ref.read(scriptureScreenProvider.notifier).openQuotation(quotation);
       setState(() => highlightedIndex = quotation.fromVerse);
       _scrollToVerse(quotation.fromVerse);
 
-      await _persistVisit(quotation, fromVerse: quotation.fromVerse);
+      await visitRecording;
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) setState(() => highlightedIndex = -1);
       return;
     }
 
-    await _recordLocation(ref.read(scriptureScreenProvider));
-  }
-
-  (int, int, int) _locationKey(Quotation reference) =>
-      (reference.versionId, reference.bookId, reference.chapter);
-
-  Future<void> _recordLocation(Quotation reference) async {
-    final key = _locationKey(reference);
-    if (_lastRecordedLocation == key) return;
-    _lastRecordedLocation = key;
-    await _persistVisit(reference);
-  }
-
-  Future<void> _persistVisit(
-    Quotation reference, {
-    int? fromVerse,
-  }) async {
-    try {
-      await ref.read(historyControllerProvider.notifier).recordVisit(
-            versionId: reference.versionId,
-            bookId: reference.bookId,
-            chapter: reference.chapter,
-            fromVerse: fromVerse,
-          );
-    } catch (error, stackTrace) {
-      FlutterError.reportError(
-        FlutterErrorDetails(
-          exception: error,
-          stack: stackTrace,
-          library: 'history',
-          context: ErrorDescription('while recording a scripture visit'),
-        ),
-      );
-    }
-  }
-
-// @override
-//   void deactivate() {
-//     // TODO: implement deactivate
-//     ref.read(selection.notifier).update((val) => val + 10);
-
-//     super.deactivate();
-//   }
-
-  Versions getVersionByID(int uid) {
-    return ref.read(scriptureServiceProvider).getVersion(uid);
+    await ref
+        .read(scriptureScreenProvider.notifier)
+        .recordLocation(ref.read(scriptureScreenProvider));
   }
 
   @override
@@ -182,13 +75,12 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     var theme = Theme.of(context);
     final controller = ref.watch(scriptureScreenProvider);
     ref.listen(scriptureScreenProvider, (previous, next) {
-      if (previous == null || _locationKey(previous) == _locationKey(next)) {
-        return;
-      }
-      _recordLocation(next);
+      ref.read(scriptureScreenProvider.notifier).recordLocation(next);
     });
 
-    final scripture = getVersionByID(controller.versionId)
+    final scripture = ref
+        .read(scriptureScreenProvider.notifier)
+        .getVersionByID(controller.versionId)
         .books[controller.bookId]
         .chapters[controller.chapter];
 
@@ -205,7 +97,8 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
       },
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => _showFABs(),
+        onTap: () =>
+            ref.read(scriptureScreenProvider.notifier).toggleFloatingActions(),
         child: Scaffold(
           // backgroundColor: Colors.black,
           appBar: AppBar(
@@ -378,7 +271,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   void _versions(context) {
     final theme = Theme.of(context);
 
-    final scriptures = ref.read(scriptureServiceProvider).getVersions();
+    final scriptures = ref.read(scriptureScreenProvider.notifier).getVersions();
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -419,7 +312,9 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     final theme = Theme.of(context);
     // final scripture = ref.watch(versionProvider);
     final controller = ref.watch(scriptureScreenProvider);
-    final scripture = getVersionByID(controller.versionId);
+    final scripture = ref
+        .read(scriptureScreenProvider.notifier)
+        .getVersionByID(controller.versionId);
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -463,7 +358,9 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     final theme = Theme.of(context);
     // final scripture = ref.watch(versionProvider);
     final controller = ref.watch(scriptureScreenProvider);
-    final scripture = getVersionByID(controller.versionId);
+    final scripture = ref
+        .read(scriptureScreenProvider.notifier)
+        .getVersionByID(controller.versionId);
 
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
@@ -750,7 +647,9 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     final theme = Theme.of(context);
 
     final controller = ref.watch(scriptureScreenProvider);
-    final scripture = getVersionByID(controller.versionId);
+    final scripture = ref
+        .read(scriptureScreenProvider.notifier)
+        .getVersionByID(controller.versionId);
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
