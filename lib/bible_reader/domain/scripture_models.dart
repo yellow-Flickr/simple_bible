@@ -125,6 +125,19 @@ class Quotation {
   final int bookId;
 
   Quotation(
+      {required this.chapter,
+      required this.fromVerse,
+      required List<int>? toVerse,
+      this.text = '',
+      required this.versionId,
+      this.bookName,
+      // /* required */ this.bookTag,
+      required this.bookId})
+      : toVerse = (() {
+          if (toVerse == null || toVerse.isEmpty) return toVerse;
+          return List<int>.from(toVerse)..sort();
+        })();
+  Quotation.zero(
       {/* required */ this.chapter = 0,
       /* required */ this.fromVerse = 0,
       /* required */ List<int>? toVerse,

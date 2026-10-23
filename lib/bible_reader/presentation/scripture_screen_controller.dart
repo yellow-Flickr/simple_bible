@@ -11,7 +11,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   @override
   Quotation build() {
     ref.onDispose(() => _fabTimer?.cancel());
-    return Quotation(text: '');
+    return Quotation.zero(text: '');
   }
 
   Timer? _fabTimer;

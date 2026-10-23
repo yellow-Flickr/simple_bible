@@ -26,5 +26,6 @@ class History {
         bookId: bookId,
         chapter: chapter,
         fromVerse: fromVerse,
+        toVerse: [],
       );
 }

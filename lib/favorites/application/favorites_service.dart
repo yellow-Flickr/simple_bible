@@ -25,7 +25,6 @@ class FavoritesService {
       favoritesByReference.putIfAbsent(key, () => []).add(favorite);
     }
 
-
     final allAreFavorites =
         verses.every((verse) => favoritesByReference.containsKey((
               versionId,
@@ -57,5 +56,4 @@ class FavoritesService {
 
     return _repository.getAll();
   }
-  
 }

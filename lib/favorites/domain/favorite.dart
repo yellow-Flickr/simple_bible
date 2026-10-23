@@ -7,32 +7,41 @@ class Favorite extends Quotation {
   int? uid;
 
   final int date;
-  @override
-  int chapter;
-  @override
-  int fromVerse;
-  @override
-  String text;
-  @override
-  int versionId;
-  @override
-  int bookId;
+  // @override
+ final int chapter;
+  // @override
+final  int fromVerse;
+  // @override
+ final String text;
+  // @override
+ final int versionId;
+  // @override
+ final int bookId;
   // String? bookTag;
 
   Favorite({
-    this.bookId = 0,
-    this.chapter = 0,
-    this.text = '',
-    this.fromVerse = 0,
-    this.versionId = 100,
+     required this.bookId ,
+     required this.chapter ,
+     required this.text ,
+     required this.fromVerse,
+     required this.versionId ,
     required this.date,
-  }) : super(
+    //  super.text,
+    // required super.chapter,
+    // required super.fromVerse,
+    // required super.toVerse,
+    // required super.versionId,
+    // required super.bookId,
+  })
+  : super(
           bookId: bookId,
           chapter: chapter,
           text: text,
           fromVerse: fromVerse,
           versionId: versionId,
-        );
+          toVerse: []
+        )
+  ;
 
   // factory Favorite.fromJson(Map<String, dynamic> json) {
   //   final version = Favorite(date:   json['createdAt'] != null ? DateTime .parse(json['createdAt']) : null,);

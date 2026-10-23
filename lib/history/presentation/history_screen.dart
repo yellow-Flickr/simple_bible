@@ -52,8 +52,7 @@ class HistoryScreen extends ConsumerWidget {
               final book = version.books[entry.bookId];
               final chapter = book.chapters[entry.chapter];
               final timestamp = DateTime.parse(entry.dateTime);
-              final verseLabel =
-                  ':${entry.fromVerse + 1}';
+              final verseLabel = ':${entry.fromVerse + 1}';
 
               return ListTile(
                 onTap: () => Navigator.push(
@@ -65,6 +64,7 @@ class HistoryScreen extends ConsumerWidget {
                         bookId: entry.bookId,
                         chapter: entry.chapter,
                         fromVerse: entry.fromVerse,
+                        toVerse: [],
                       ),
                     ),
                   ),

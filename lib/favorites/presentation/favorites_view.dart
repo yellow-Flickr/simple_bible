@@ -2,73 +2,120 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
     show scriptureServiceProvider;
-import 'package:simple_bible/user_space/application/user_space_service.dart';
+import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
+import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 
 class FavoritesView extends ConsumerWidget {
   const FavoritesView({
     super.key,
-    /* required this.kjv */
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var theme = Theme.of(context);
-    final userSpace = ref.watch(userSpaceProvider);
+    final theme = Theme.of(context);
     final favorites = ref.watch(favoritesControllerProvider);
-    final scripture = ref
-        .read(scriptureServiceProvider)
-        .getVersion(userSpace.preferredTranslation);
+    final scriptureService = ref.read(scriptureServiceProvider);
+
+    if (favorites.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          title: Text(
+            'Favorite Scriptures',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          toolbarHeight: kToolbarHeight - 2.h,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+        ),
+        body: const Center(
+          child: Text('No favorite verses yet'),
+        ),
+      );
+    }
 
     return Scaffold(
-      // backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Favorite Scriptures',
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Favorite Scriptures',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         toolbarHeight: kToolbarHeight - 2.h,
         elevation: 0,
         scrolledUnderElevation: 0,
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 3.w),
-            child: Icon(Icons.search),
-          ),
-        ],
       ),
+      body: ListView.separated(
+        itemCount: favorites.length,
+        padding: const EdgeInsets.all(16),
+        itemBuilder: (context, index) {
+          final favorite = favorites[index];
+          final version = scriptureService.getVersion(favorite.versionId);
+          final bookIndex = favorite.bookId - 1;
+          final book = bookIndex >= 0 && bookIndex < version.books.length
+              ? version.books[bookIndex]
+              : null;
+          final bookName = book?.name ?? 'Unknown';
+          final timestamp = DateTime.fromMillisecondsSinceEpoch(favorite.date);
 
-      body: ListView.builder(
-          itemCount: favorites.length,
-          padding: EdgeInsets.all(16.0),
-
-          // itemPositionsListener: itemPositionsListener,
-          // itemScrollController: itemScrollController,
-          itemBuilder: ((context, index) => Card(
-                // color: theme.cardColor,
-                // semanticContainer: false,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SelectableText(
-                        '${scripture.books[favorites[index].bookId].name} '
-                        '${favorites[index].chapter}:${favorites[index].fromVerse}',
-                        style: theme.textTheme.labelMedium,
+          return ListTile(
+            onTap: book == null
+                ? null
+                : () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScriptureScreen(
+                          quotation: favorite.copyWith(
+                            bookId: bookIndex,
+                            chapter: favorite.chapter - 1,
+                            fromVerse: favorite.fromVerse - 1,
+                          ),
+                        ),
                       ),
-                      SelectableText(
-                        favorites[index].text,
-                        style: theme.textTheme.bodySmall,
-                      )
-                    ],
-                  ),
+                    ),
+            leading: Container(
+              width: 10.w,
+              height: 10.w,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: theme.primaryColorDark),
+              ),
+              child: Text(
+                bookName.substring(
+                    0, bookName.length > 2 ? 2 : bookName.length),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-              ))),
+              ),
+            ),
+            title: Text(
+              '$bookName ${favorite.chapter}:${favorite.fromVerse}',
+              style: theme.textTheme.titleSmall,
+            ),
+            subtitle: Text(
+              favorite.text,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Text(
+              DateFormat('MMM d').format(timestamp),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.hintColor,
+              ),
+            ),
+          );
+        },
+        separatorBuilder: (context, index) => const Divider(height: 1),
+      ),
     );
   }
 }
