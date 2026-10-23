@@ -1100,16 +1100,15 @@ class _CardViewState extends ConsumerState<CardView> {
   }
 
   void _openNote(List<int> indexes) {
-    final verses = indexes.map((index) => widget.scripture.verses[index]);
-    final noteText = verses
-        .map((verse) =>
-            '${verse.bookName} ${verse.chapter}:${verse.verse}\n${verse.text}')
-        .join('\n\n');
+    final selection = Quotation.fromVerses(
+      indexes.map((index) => widget.scripture.verses[index]),
+      versionId: widget.versionId,
+    );
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => NoteEditor(
-          initialText: Quotation(text: 'Scripture notes\n\n$noteText'),
+          initialText: selection
         ),
       ),
     );

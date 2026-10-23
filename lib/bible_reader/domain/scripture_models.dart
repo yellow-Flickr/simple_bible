@@ -117,27 +117,96 @@ class Verse {
 class Quotation {
   final int chapter;
   final int fromVerse;
-  final int? toVerse;
+  List<int>? toVerse;
   final String text;
   int versionId;
+  final String? bookName;
   // String? bookTag;
   final int bookId;
 
   Quotation(
       {/* required */ this.chapter = 0,
       /* required */ this.fromVerse = 0,
-      /* required */ this.toVerse,
+      /* required */ List<int>? toVerse,
       this.text = '',
       /* required */ this.versionId = 100,
+      this.bookName,
       // /* required */ this.bookTag,
-      this.bookId = 0});
+      this.bookId = 0})
+      : toVerse = (() {
+          if (toVerse == null || toVerse.isEmpty) return toVerse;
+          return List<int>.from(toVerse)..sort();
+        })();
+
+  factory Quotation.fromVerses(
+    Iterable<Verse> verses, {
+    int versionId = 100,
+  }) {
+    final selectedVerses = verses.toList()
+      ..sort((a, b) => a.verse.compareTo(b.verse));
+    if (selectedVerses.isEmpty) {
+      throw ArgumentError.value(verses, 'verses', 'Must not be empty.');
+    }
+
+    final firstVerse = selectedVerses.first;
+    if (selectedVerses.any((verse) =>
+        verse.bookId != firstVerse.bookId ||
+        verse.chapter != firstVerse.chapter ||
+        verse.translationId != firstVerse.translationId)) {
+      throw ArgumentError.value(
+        verses,
+        'verses',
+        'All selected verses must belong to the same book, chapter, and '
+            'translation.',
+      );
+    }
+
+    final uniqueVerses = selectedVerses.fold<List<Verse>>([], (result, verse) {
+      if (result.isEmpty || result.last.verse != verse.verse) {
+        result.add(verse);
+      }
+      return result;
+    });
+
+    return Quotation(
+      bookId: firstVerse.bookId,
+      bookName: firstVerse.bookName,
+      chapter: firstVerse.chapter,
+      fromVerse: uniqueVerses.first.verse,
+      toVerse: uniqueVerses.map((verse) => verse.verse).toList(),
+      text: uniqueVerses.map((verse) => verse.text).join(' '),
+      versionId: versionId,
+    );
+  }
+
+  String get quotation {
+    final selectedVerses = toVerse?.isNotEmpty == true ? toVerse! : [fromVerse];
+    final ranges = <String>[];
+    var rangeStart = selectedVerses.first;
+    var previousVerse = rangeStart;
+
+    for (final verse in selectedVerses.skip(1)) {
+      if (verse == previousVerse + 1) {
+        previousVerse = verse;
+        continue;
+      }
+
+      ranges.add(_formatVerseRange(rangeStart, previousVerse));
+      rangeStart = previousVerse = verse;
+    }
+    ranges.add(_formatVerseRange(rangeStart, previousVerse));
+
+    final prefix = bookName == null || bookName!.isEmpty ? '' : '$bookName ';
+    return '$prefix$chapter:${ranges.join(', ')}';
+  }
 
   Quotation copyWith({
     int? chapter,
     int? fromVerse,
-    int? toVerse,
+    List<int>? toVerse,
     String? text,
     int? versionId,
+    String? bookName,
     int? bookId,
   }) {
     return Quotation(
@@ -146,9 +215,13 @@ class Quotation {
       toVerse: toVerse ?? this.toVerse,
       text: text ?? this.text,
       versionId: versionId ?? this.versionId,
+      bookName: bookName ?? this.bookName,
       bookId: bookId ?? this.bookId,
     );
   }
+
+  static String _formatVerseRange(int start, int end) =>
+      start == end ? '$start' : '$start-$end';
 }
 
 @Entity()

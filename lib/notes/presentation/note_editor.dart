@@ -44,12 +44,12 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
     if (widget.notes != null) {
       _controller.text = "${widget.notes!.title}\n${widget.notes!.content}";
     } else if (widget.initialText != null) {
-      _controller.text = widget.initialText!.text;
+      _controller.text = "Scripture Notes: ${widget.initialText!.quotation}\n${widget.initialText!.text}";
     }
   }
 
   void _handleTextChange() {
-    final text = _controller.text;
+    final text =  _controller.text;
 
     // Split text into first line (title) and the rest (body)
     final lines = text.split('\n');
@@ -79,12 +79,13 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: Text(
           _title,
-          style: Theme.of(context).textTheme.titleSmall,
+          style: theme.textTheme.titleSmall,
         ),
         actions: [
           Row(
@@ -125,7 +126,7 @@ class NoteEditorState extends ConsumerState<NoteEditor> {
           undoController: _undoController,
           controller: _controller,
           maxLines: null, // allows multiple lines
-          style: Theme.of(context).textTheme.bodySmall,
+          style: theme.textTheme.bodySmall,
           decoration: InputDecoration(
             hintText: 'What would you like to note?',
             border: InputBorder.none,
