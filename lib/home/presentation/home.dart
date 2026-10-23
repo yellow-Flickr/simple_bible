@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
+import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/shared/configs/assets.dart';
 import 'package:simple_bible/shared/configs/extensions.dart';
 import 'package:simple_bible/favorites/presentation/favorites_view.dart';
@@ -241,11 +243,21 @@ class Home extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScriptureScreen(),
-                        )),
+                    onTap: () {
+                      Quotation? quote = ref
+                          .read(historyServiceProvider)
+                          .loadHistory()
+                          .lastOrNull
+                          ?.fromHistory();
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ScriptureScreen(
+                              quotation: quote,
+                            ),
+                          ));
+                    },
                     child: Container(
                       width: 20.w,
                       height: 8.h,

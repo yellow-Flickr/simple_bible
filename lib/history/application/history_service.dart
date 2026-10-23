@@ -19,7 +19,7 @@ class HistoryService {
     required int versionId,
     required int bookId,
     required int chapter,
-    int? fromVerse,
+    int fromVerse = 0,
   }) {
     return _repository.save(
       History(
@@ -29,6 +29,33 @@ class HistoryService {
         fromVerse: fromVerse,
         dateTime: DateTime.now().toIso8601String(),
       ),
+    );
+  }
+
+  Future<void> recordExitLocation({
+    required int versionId,
+    required int bookId,
+    required int chapter,
+    required int fromVerse,
+  }) async {
+    final history = loadHistory();
+    if (history.isNotEmpty) {
+      final latestVisit = history.first;
+      if (latestVisit.bookId == bookId && latestVisit.chapter == chapter) {
+        latestVisit
+          ..versionId = versionId
+          ..fromVerse = fromVerse
+          ..dateTime = DateTime.now().toIso8601String();
+        await _repository.save(latestVisit);
+        return;
+      }
+    }
+
+    await recordVisit(
+      versionId: versionId,
+      bookId: bookId,
+      chapter: chapter,
+      fromVerse: fromVerse,
     );
   }
 }

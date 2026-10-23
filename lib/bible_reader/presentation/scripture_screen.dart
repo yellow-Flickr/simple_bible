@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'dart:async';
 import 'dart:convert' show utf8, JsonUtf8Encoder;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +27,18 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
   bool canPop = false;
+  bool _isRecordingExit = false;
   int highlightedIndex = -1;
+  int _visibleVerseIndex = 0;
+  int _chapterVerseCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateContinuousViewVerse);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeQuotation());
+    ref.read(scriptureScreenProvider.notifier).scheduleFloatingActions();
+  }
 
   void _scrollToVerse(int index) {
     itemScrollController.scrollTo(
@@ -36,63 +48,79 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
     );
   }
 
+  void _updateVisibleVerse(int index) {
+    if (index == _visibleVerseIndex) return;
+    _visibleVerseIndex = index;
+  }
+
+  void _updateContinuousViewVerse() {
+    if (!_scrollController.hasClients || _chapterVerseCount == 0) return;
+    final position = _scrollController.position;
+    if (position.maxScrollExtent <= 0) {
+      _updateVisibleVerse(0);
+      return;
+    }
+
+    final middlePosition = (position.pixels + position.viewportDimension / 2) /
+        (position.maxScrollExtent + position.viewportDimension);
+    final index = (middlePosition * _chapterVerseCount)
+        .floor()
+        .clamp(0, _chapterVerseCount - 1)
+        .toInt();
+    _updateVisibleVerse(index);
+  }
+
+  Future<void> _popAfterRecording() async {
+    if (_isRecordingExit) return;
+    _isRecordingExit = true;
+    final reference = ref.read(scriptureScreenProvider);
+    await ref.read(scriptureScreenProvider.notifier).recordExitLocation(
+          reference.copyWith(fromVerse: _visibleVerseIndex),
+        );
+    if (!mounted) return;
+    setState(() => canPop = true);
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _recordVisit());
-    ref.read(scriptureScreenProvider.notifier).scheduleFloatingActions();
-  }
-
-  Future<void> _recordVisit() async {
+  Future<void> _initializeQuotation() async {
     if (!mounted) return;
 
     final quotation = widget.quotation;
     if (quotation != null) {
-      final visitRecording =
-          ref.read(scriptureScreenProvider.notifier).openQuotation(quotation);
+      ref.read(scriptureScreenProvider.notifier).openQuotation(quotation);
       setState(() => highlightedIndex = quotation.fromVerse);
       _scrollToVerse(quotation.fromVerse);
 
-      await visitRecording;
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) setState(() => highlightedIndex = -1);
       return;
     }
-
-    await ref
-        .read(scriptureScreenProvider.notifier)
-        .recordLocation(ref.read(scriptureScreenProvider));
   }
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     final controller = ref.watch(scriptureScreenProvider);
-    ref.listen(scriptureScreenProvider, (previous, next) {
-      ref.read(scriptureScreenProvider.notifier).recordLocation(next);
-    });
-
     final scripture = ref
         .read(scriptureScreenProvider.notifier)
         .getVersionByID(controller.versionId)
         .books[controller.bookId]
         .chapters[controller.chapter];
+    _chapterVerseCount = scripture.verses.length;
 
     return PopScope(
       canPop: canPop,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          //? Update History Notifier here
-          setState(() {
-            canPop = true;
-          });
-          Navigator.pop(context);
+          unawaited(_popAfterRecording());
         }
       },
       child: GestureDetector(
@@ -167,6 +195,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
             // maintainState: true,
             replacement: CardView(
               scripture: scripture,
+              onVisibleVerseChanged: _updateVisibleVerse,
               scrollController: itemScrollController,
               highlightedIndex: highlightedIndex,
               versionId: controller.versionId,
@@ -772,12 +801,14 @@ class CardView extends ConsumerStatefulWidget {
   const CardView({
     super.key,
     required this.scripture,
+    required this.onVisibleVerseChanged,
     this.highlightedIndex = -1,
     required ItemScrollController scrollController,
     required this.versionId,
   }) : _scrollController = scrollController;
 
   final Chapter scripture;
+  final ValueChanged<int> onVisibleVerseChanged;
   final int highlightedIndex;
   final ItemScrollController _scrollController;
   final int versionId;
@@ -792,6 +823,34 @@ class _CardViewState extends ConsumerState<CardView> {
   final Set<int> _selectedIndexes = {};
 
   bool get _isSelecting => _selectedIndexes.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _itemPositionsListener.itemPositions.addListener(_onItemPositionsChanged);
+  }
+
+  @override
+  void dispose() {
+    _itemPositionsListener.itemPositions
+        .removeListener(_onItemPositionsChanged);
+    super.dispose();
+  }
+
+  void _onItemPositionsChanged() {
+    final positions = _itemPositionsListener.itemPositions.value;
+    if (positions.isEmpty) return;
+
+    final centeredPosition = positions.reduce((closest, position) {
+      final center = (position.itemLeadingEdge + position.itemTrailingEdge) / 2;
+      final closestCenter =
+          (closest.itemLeadingEdge + closest.itemTrailingEdge) / 2;
+      return (center - .5).abs() < (closestCenter - .5).abs()
+          ? position
+          : closest;
+    });
+    widget.onVisibleVerseChanged(centeredPosition.index);
+  }
 
   @override
   void didUpdateWidget(covariant CardView oldWidget) {

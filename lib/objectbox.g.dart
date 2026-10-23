@@ -164,7 +164,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 3921686483285617415),
     name: 'History',
-    lastPropertyId: const obx_int.IdUid(6, 2334966887826332100),
+    lastPropertyId: const obx_int.IdUid(9, 2530902205577136139),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -180,26 +180,26 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 179250965140352785),
+        id: const obx_int.IdUid(6, 2334966887826332100),
+        name: 'fromVerse',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 4484935993047110096),
         name: 'versionId',
         type: 6,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 7868165832025804384),
+        id: const obx_int.IdUid(8, 7910343539754377950),
         name: 'bookId',
         type: 6,
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 174810581091004952),
+        id: const obx_int.IdUid(9, 2530902205577136139),
         name: 'chapter',
-        type: 6,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(6, 2334966887826332100),
-        name: 'fromVerse',
         type: 6,
         flags: 0,
       ),
@@ -574,7 +574,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [6149293321204355552, 2454562762521780599],
+    retiredPropertyUids: const [
+      6149293321204355552,
+      2454562762521780599,
+      179250965140352785,
+      7868165832025804384,
+      174810581091004952,
+    ],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -782,13 +788,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (History object, fb.Builder fbb) {
         final dateTimeOffset = fbb.writeString(object.dateTime);
-        fbb.startTable(7);
+        fbb.startTable(10);
         fbb.addInt64(0, object.uid ?? 0);
         fbb.addOffset(1, dateTimeOffset);
-        fbb.addInt64(2, object.versionId);
-        fbb.addInt64(3, object.bookId);
-        fbb.addInt64(4, object.chapter);
         fbb.addInt64(5, object.fromVerse);
+        fbb.addInt64(6, object.versionId);
+        fbb.addInt64(7, object.bookId);
+        fbb.addInt64(8, object.chapter);
         fbb.finish(fbb.endTable());
         return object.uid ?? 0;
       },
@@ -803,25 +809,26 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final versionIdParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
-          8,
+          16,
           0,
         );
         final bookIdParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
-          10,
+          18,
           0,
         );
         final chapterParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
-          12,
+          20,
           0,
         );
-        final fromVerseParam = const fb.Int64Reader().vTableGetNullable(
+        final fromVerseParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
           14,
+          0,
         );
         final dateTimeParam = const fb.StringReader(
           asciiOptimization: true,
@@ -1381,23 +1388,23 @@ class History_ {
     _entities[3].properties[1],
   );
 
+  /// See [History.fromVerse].
+  static final fromVerse = obx.QueryIntegerProperty<History>(
+    _entities[3].properties[2],
+  );
+
   /// See [History.versionId].
   static final versionId = obx.QueryIntegerProperty<History>(
-    _entities[3].properties[2],
+    _entities[3].properties[3],
   );
 
   /// See [History.bookId].
   static final bookId = obx.QueryIntegerProperty<History>(
-    _entities[3].properties[3],
+    _entities[3].properties[4],
   );
 
   /// See [History.chapter].
   static final chapter = obx.QueryIntegerProperty<History>(
-    _entities[3].properties[4],
-  );
-
-  /// See [History.fromVerse].
-  static final fromVerse = obx.QueryIntegerProperty<History>(
     _entities[3].properties[5],
   );
 }

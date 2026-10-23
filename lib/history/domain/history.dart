@@ -1,22 +1,30 @@
 import 'package:objectbox/objectbox.dart';
+import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 
 @Entity()
 class History {
   @Id()
   int? uid;
 
-  final int versionId;
-  final int bookId;
-  final int chapter;
-  final int? fromVerse;
-  final String dateTime;
+  int versionId;
+  int bookId;
+  int chapter;
+  int fromVerse;
+  String dateTime;
 
   History({
     this.uid,
-    required this.versionId,
-    required this.bookId,
-    required this.chapter,
-    this.fromVerse,
+    this.versionId = 100,
+    this.bookId = 0,
+    this.chapter = 0,
+    this.fromVerse = 0,
     required this.dateTime,
   });
+
+  Quotation? fromHistory() => Quotation(
+        versionId: versionId,
+        bookId: bookId,
+        chapter: chapter,
+        fromVerse: fromVerse,
+      );
 }

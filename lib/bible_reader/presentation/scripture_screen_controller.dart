@@ -15,8 +15,6 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   }
 
   Timer? _fabTimer;
-  (int, int, int)? _lastRecordedLocation;
-
   void changeBook({required int bookID}) {
     state = state.copyWith(bookId: bookID);
   }
@@ -50,17 +48,29 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
     return ref.read(scriptureServiceProvider).getVersions();
   }
 
-  Future<void> openQuotation(Quotation quotation) async {
-    _lastRecordedLocation = _locationKey(quotation);
+  void openQuotation(Quotation quotation) {
     gotoQuotation(quote: quotation);
-    await _persistVisit(quotation, fromVerse: quotation.fromVerse);
   }
 
-  Future<void> recordLocation(Quotation reference) async {
-    final key = _locationKey(reference);
-    if (_lastRecordedLocation == key) return;
-    _lastRecordedLocation = key;
-    await _persistVisit(reference);
+  Future<void> recordExitLocation(Quotation reference) async {
+    try {
+      await ref.read(historyServiceProvider).recordExitLocation(
+            versionId: reference.versionId,
+            bookId: reference.bookId,
+            chapter: reference.chapter,
+            fromVerse: reference.fromVerse,
+          );
+      ref.invalidate(historyControllerProvider);
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'history',
+          context: ErrorDescription('while recording the reader exit location'),
+        ),
+      );
+    }
   }
 
   void scheduleFloatingActions() {
@@ -77,30 +87,6 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   void showFloatingActions() {
     ref.read(showFAB.notifier).state = true;
     _scheduleFloatingActionsHide();
-  }
-
-  (int, int, int) _locationKey(Quotation reference) =>
-      (reference.versionId, reference.bookId, reference.chapter);
-
-  Future<void> _persistVisit(Quotation reference, {int? fromVerse}) async {
-    try {
-      await ref.read(historyServiceProvider).recordVisit(
-            versionId: reference.versionId,
-            bookId: reference.bookId,
-            chapter: reference.chapter,
-            fromVerse: fromVerse,
-          );
-      ref.invalidate(historyControllerProvider);
-    } catch (error, stackTrace) {
-      FlutterError.reportError(
-        FlutterErrorDetails(
-          exception: error,
-          stack: stackTrace,
-          library: 'history',
-          context: ErrorDescription('while recording a scripture visit'),
-        ),
-      );
-    }
   }
 
   void _scheduleFloatingActionsHide() {

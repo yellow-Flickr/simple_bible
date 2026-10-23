@@ -19,7 +19,7 @@ class HistoryController extends AsyncNotifier<List<History>> {
     required int versionId,
     required int bookId,
     required int chapter,
-    int? fromVerse,
+    int fromVerse = 1,
   }) async {
     await future;
     await _service.recordVisit(
