@@ -61,9 +61,8 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
       return;
     }
 
-    final middlePosition = (position.pixels + position.viewportDimension / 2) /
-        (position.maxScrollExtent + position.viewportDimension);
-    final index = (middlePosition * _chapterVerseCount)
+    final scrollProgress = position.pixels / position.maxScrollExtent;
+    final index = (scrollProgress * (_chapterVerseCount - 1))
         .floor()
         .clamp(0, _chapterVerseCount - 1)
         .toInt();
@@ -841,15 +840,12 @@ class _CardViewState extends ConsumerState<CardView> {
     final positions = _itemPositionsListener.itemPositions.value;
     if (positions.isEmpty) return;
 
-    final centeredPosition = positions.reduce((closest, position) {
-      final center = (position.itemLeadingEdge + position.itemTrailingEdge) / 2;
-      final closestCenter =
-          (closest.itemLeadingEdge + closest.itemTrailingEdge) / 2;
-      return (center - .5).abs() < (closestCenter - .5).abs()
+    final topPosition = positions.reduce((closest, position) {
+      return position.itemLeadingEdge.abs() < closest.itemLeadingEdge.abs()
           ? position
           : closest;
     });
-    widget.onVisibleVerseChanged(centeredPosition.index);
+    widget.onVisibleVerseChanged(topPosition.index);
   }
 
   @override
@@ -1107,9 +1103,7 @@ class _CardViewState extends ConsumerState<CardView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => NoteEditor(
-          initialText: selection
-        ),
+        builder: (context) => NoteEditor(initialText: selection),
       ),
     );
   }
