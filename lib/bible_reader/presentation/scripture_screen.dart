@@ -820,6 +820,7 @@ class _CardViewState extends ConsumerState<CardView> {
   final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();
   final Set<int> _selectedIndexes = {};
+  int? _expandedVerseIndex;
 
   bool get _isSelecting => _selectedIndexes.isNotEmpty;
 
@@ -854,6 +855,7 @@ class _CardViewState extends ConsumerState<CardView> {
     if (oldWidget.scripture.id != widget.scripture.id ||
         oldWidget.versionId != widget.versionId) {
       _selectedIndexes.clear();
+      _expandedVerseIndex = null;
     }
   }
 
@@ -969,7 +971,9 @@ class _CardViewState extends ConsumerState<CardView> {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onLongPress: () => _selectVerse(index),
-                  onTap: _isSelecting ? () => _toggleSelection(index) : null,
+                  onTap: _isSelecting
+                      ? () => _toggleSelection(index)
+                      : () => _toggleVerseActions(index),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Column(
@@ -977,18 +981,18 @@ class _CardViewState extends ConsumerState<CardView> {
                       children: [
                         Row(
                           children: [
-                            if (_isSelecting)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: Icon(
-                                  isSelected
-                                      ? Icons.check_circle
-                                      : Icons.radio_button_unchecked,
-                                  color:
-                                      isSelected ? accent : theme.disabledColor,
-                                  size: 20,
-                                ),
-                              ),
+                            // if (_isSelecting)
+                            //   Padding(
+                            //     padding: const EdgeInsets.only(right: 8),
+                            //     child: Icon(
+                            //       isSelected
+                            //           ? Icons.check_circle
+                            //           : Icons.radio_button_unchecked,
+                            //       color:
+                            //           isSelected ? accent : theme.disabledColor,
+                            //       size: 20,
+                            //     ),
+                            //   ),
                             Expanded(
                               child: Text(
                                 '${verse.bookName} ${verse.chapter}:${verse.verse}',
@@ -1001,46 +1005,53 @@ class _CardViewState extends ConsumerState<CardView> {
                                 ),
                               ),
                             ),
-                            IconButton(
-                              tooltip: isFavorite
-                                  ? 'Remove from favorites'
-                                  : 'Add to favorites',
-                              visualDensity: VisualDensity.compact,
-                              constraints: const BoxConstraints.tightFor(
-                                width: 36,
-                                height: 36,
+                            if (isFavorite || _expandedVerseIndex == index)
+                              IconButton(
+                                tooltip: isFavorite
+                                    ? 'Remove from favorites'
+                                    : 'Add to favorites',
+                                visualDensity: VisualDensity.compact,
+                                constraints: const BoxConstraints.tightFor(
+                                  width: 36,
+                                  height: 36,
+                                ),
+                                onPressed: () => _toggleFavorites([index]),
+                                icon: Icon(
+                                  isFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  size: 15,
+                                  color: isFavorite
+                                      ? theme.colorScheme.error
+                                      : theme.iconTheme.color,
+                                ),
                               ),
-                              onPressed: () => _toggleFavorites([index]),
-                              icon: Icon(
-                                isFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                size: 19,
-                                color: isFavorite
-                                    ? theme.colorScheme.error
-                                    : theme.iconTheme.color,
+                            if (_expandedVerseIndex == index)
+                              IconButton(
+                                tooltip: 'Add a note',
+                                visualDensity: VisualDensity.compact,
+                                constraints: const BoxConstraints.tightFor(
+                                  width: 36,
+                                  height: 36,
+                                ),
+                                onPressed: () => _openNote([index]),
+                                icon: const Icon(
+                                  Icons.note_add_outlined,
+                                  size: 15,
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              tooltip: 'Add a note',
-                              visualDensity: VisualDensity.compact,
-                              constraints: const BoxConstraints.tightFor(
-                                width: 36,
-                                height: 36,
-                              ),
-                              onPressed: () => _openNote([index]),
-                              icon: const Icon(
-                                Icons.note_add_outlined,
-                                size: 19,
-                              ),
-                            ),
                           ],
                         ),
                         SelectableText(
-                          utf8.decode(JsonUtf8Encoder().convert(verse.text)),
+                          verse.text,
                           onTap: _isSelecting
                               ? () => _toggleSelection(index)
-                              : null,
+                              : () {
+                                  _toggleVerseActions(index);
+                                  ref
+                                      .read(scriptureScreenProvider.notifier)
+                                      .toggleFloatingActions();
+                                },
                           onSelectionChanged: (selection, cause) {
                             if (cause == SelectionChangedCause.longPress) {
                               _selectVerse(index);
@@ -1080,6 +1091,12 @@ class _CardViewState extends ConsumerState<CardView> {
       if (!_selectedIndexes.add(index)) {
         _selectedIndexes.remove(index);
       }
+    });
+  }
+
+  void _toggleVerseActions(int index) {
+    setState(() {
+      _expandedVerseIndex = _expandedVerseIndex == index ? null : index;
     });
   }
 

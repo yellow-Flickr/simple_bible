@@ -247,7 +247,7 @@ class Home extends ConsumerWidget {
                       Quotation? quote = ref
                           .read(historyServiceProvider)
                           .loadHistory()
-                          .lastOrNull
+                          .firstOrNull
                           ?.fromHistory();
 
                       Navigator.push(
