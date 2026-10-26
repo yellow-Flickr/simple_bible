@@ -7,6 +7,42 @@ import 'package:simple_bible/bible_reader/presentation/scripture_initialization_
     show scriptureServiceProvider;
 import 'package:simple_bible/history/presentation/history_controller.dart';
 
+typedef ChapterPosition = ({int bookIndex, int chapterIndex});
+
+ChapterPosition? adjacentChapterPosition(
+  Versions version, {
+  required int bookIndex,
+  required int chapterIndex,
+  required int direction,
+}) {
+  if (direction != -1 && direction != 1) {
+    throw ArgumentError.value(direction, 'direction', 'Must be -1 or 1.');
+  }
+  if (bookIndex < 0 || bookIndex >= version.books.length) return null;
+
+  final chapters = version.books[bookIndex].chapters;
+  if (chapterIndex < 0 || chapterIndex >= chapters.length) return null;
+
+  final adjacentChapterIndex = chapterIndex + direction;
+  if (adjacentChapterIndex >= 0 && adjacentChapterIndex < chapters.length) {
+    return (bookIndex: bookIndex, chapterIndex: adjacentChapterIndex);
+  }
+
+  var adjacentBookIndex = bookIndex + direction;
+  while (adjacentBookIndex >= 0 &&
+      adjacentBookIndex < version.books.length) {
+    final adjacentBookChapters = version.books[adjacentBookIndex].chapters;
+    if (adjacentBookChapters.isNotEmpty) {
+      return (
+        bookIndex: adjacentBookIndex,
+        chapterIndex: direction == 1 ? 0 : adjacentBookChapters.length - 1,
+      );
+    }
+    adjacentBookIndex += direction;
+  }
+  return null;
+}
+
 class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   @override
   Quotation build() {
@@ -21,6 +57,13 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
 
   void changeChapter({required int chapter}) {
     state = state.copyWith(chapter: chapter);
+  }
+
+  void changeBookAndChapter({
+    required int bookId,
+    required int chapter,
+  }) {
+    state = state.copyWith(bookId: bookId, chapter: chapter, fromVerse: 0);
   }
 
   void changeVerse({required int verse}) {

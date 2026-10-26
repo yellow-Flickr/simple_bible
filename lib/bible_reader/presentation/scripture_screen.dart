@@ -23,11 +23,15 @@ class ScriptureScreen extends ConsumerStatefulWidget {
   ConsumerState<ScriptureScreen> createState() => ScriptureScreenState();
 }
 
-class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
+class ScriptureScreenState extends ConsumerState<ScriptureScreen>
+    with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
+  late final AnimationController _chapterTransitionController;
+  late Animation<Offset> _chapterTransitionAnimation;
   bool canPop = false;
   bool _isRecordingExit = false;
+  bool _isNavigatingChapter = false;
   int highlightedIndex = -1;
   int _visibleVerseIndex = 0;
   int _chapterVerseCount = 0;
@@ -35,17 +39,113 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   @override
   void initState() {
     super.initState();
+    _chapterTransitionController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+    );
+    _chapterTransitionAnimation =
+        const AlwaysStoppedAnimation<Offset>(Offset.zero);
     _scrollController.addListener(_updateContinuousViewVerse);
     WidgetsBinding.instance.addPostFrameCallback((_) => _initializeQuotation());
     ref.read(scriptureScreenProvider.notifier).scheduleFloatingActions();
   }
 
   void _scrollToVerse(int index) {
+    final reference = ref.read(scriptureScreenProvider);
+    final version = ref
+        .read(scriptureScreenProvider.notifier)
+        .getVersionByID(reference.versionId);
+    final previousChapter = adjacentChapterPosition(
+      version,
+      bookIndex: reference.bookId,
+      chapterIndex: reference.chapter,
+      direction: -1,
+    );
     itemScrollController.scrollTo(
-      index: index,
+      index: index + (previousChapter == null ? 0 : 1),
       duration: Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
+  }
+
+  Future<void> _navigateChapter(int direction) async {
+    if (_isNavigatingChapter) return;
+
+    final reference = ref.read(scriptureScreenProvider);
+    final version = ref
+        .read(scriptureScreenProvider.notifier)
+        .getVersionByID(reference.versionId);
+    final destination = adjacentChapterPosition(
+      version,
+      bookIndex: reference.bookId,
+      chapterIndex: reference.chapter,
+      direction: direction,
+    );
+    if (destination == null) return;
+
+    final outgoingOffset = Offset(0, direction > 0 ? -1 : 1);
+    setState(() {
+      _isNavigatingChapter = true;
+      _chapterTransitionAnimation = Tween<Offset>(
+        begin: Offset.zero,
+        end: outgoingOffset,
+      ).animate(
+        CurvedAnimation(
+          parent: _chapterTransitionController,
+          curve: Curves.easeInOutCubic,
+        ),
+      );
+    });
+
+    try {
+      await _chapterTransitionController.forward(from: 0);
+      if (!mounted) return;
+
+      ref.read(scriptureScreenProvider.notifier).changeBookAndChapter(
+            bookId: destination.bookIndex,
+            chapter: destination.chapterIndex,
+          );
+      setState(() {
+        _chapterTransitionAnimation = Tween<Offset>(
+          begin: Offset.zero,
+          end: -outgoingOffset,
+        ).animate(
+          CurvedAnimation(
+            parent: _chapterTransitionController,
+            curve: Curves.easeInOutCubic,
+          ),
+        );
+      });
+      _visibleVerseIndex = 0;
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+
+      final updatedReference = ref.read(scriptureScreenProvider);
+      final updatedVersion = ref
+          .read(scriptureScreenProvider.notifier)
+          .getVersionByID(updatedReference.versionId);
+      final previousChapter = adjacentChapterPosition(
+        updatedVersion,
+        bookIndex: updatedReference.bookId,
+        chapterIndex: updatedReference.chapter,
+        direction: -1,
+      );
+      if (ref.read(cardSwitcherProvider)) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(0);
+        }
+      } else {
+        if (itemScrollController.isAttached) {
+          itemScrollController.jumpTo(index: previousChapter == null ? 0 : 1);
+        }
+      }
+
+      await _chapterTransitionController.reverse();
+    } finally {
+      if (mounted) {
+        setState(() => _isNavigatingChapter = false);
+      }
+    }
   }
 
   void _updateVisibleVerse(int index) {
@@ -86,6 +186,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _chapterTransitionController.dispose();
     super.dispose();
   }
 
@@ -108,11 +209,25 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     final controller = ref.watch(scriptureScreenProvider);
-    final scripture = ref
+    final version = ref
         .read(scriptureScreenProvider.notifier)
-        .getVersionByID(controller.versionId)
-        .books[controller.bookId]
-        .chapters[controller.chapter];
+        .getVersionByID(controller.versionId);
+    final selectedBook = version.books[controller.bookId];
+    final scripture = selectedBook.chapters[controller.chapter];
+    final hasPreviousChapter = adjacentChapterPosition(
+          version,
+          bookIndex: controller.bookId,
+          chapterIndex: controller.chapter,
+          direction: -1,
+        ) !=
+        null;
+    final hasNextChapter = adjacentChapterPosition(
+          version,
+          bookIndex: controller.bookId,
+          chapterIndex: controller.chapter,
+          direction: 1,
+        ) !=
+        null;
     _chapterVerseCount = scripture.verses.length;
 
     return PopScope(
@@ -189,19 +304,32 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen> {
             ],
           ),
 
-          body: Visibility(
-            visible: ref.watch(cardSwitcherProvider),
-            // maintainState: true,
-            replacement: CardView(
-              scripture: scripture,
-              onVisibleVerseChanged: _updateVisibleVerse,
-              scrollController: itemScrollController,
-              highlightedIndex: highlightedIndex,
-              versionId: controller.versionId,
-            ),
-            child: ContinousView(
-              scrollController: _scrollController,
-              scripture: scripture,
+          body: SlideTransition(
+            position: _chapterTransitionAnimation,
+            child: IgnorePointer(
+              ignoring: _isNavigatingChapter,
+              child: Visibility(
+                visible: ref.watch(cardSwitcherProvider),
+                replacement: CardView(
+                  scripture: scripture,
+                  onVisibleVerseChanged: _updateVisibleVerse,
+                  scrollController: itemScrollController,
+                  highlightedIndex: highlightedIndex,
+                  versionId: controller.versionId,
+                  hasPreviousChapter: hasPreviousChapter,
+                  hasNextChapter: hasNextChapter,
+                  onPreviousChapter: () => _navigateChapter(-1),
+                  onNextChapter: () => _navigateChapter(1),
+                ),
+                child: ContinousView(
+                  scrollController: _scrollController,
+                  scripture: scripture,
+                  hasPreviousChapter: hasPreviousChapter,
+                  hasNextChapter: hasNextChapter,
+                  onPreviousChapter: () => _navigateChapter(-1),
+                  onNextChapter: () => _navigateChapter(1),
+                ),
+              ),
             ),
           ),
 
@@ -744,10 +872,18 @@ class ContinousView extends ConsumerWidget {
     super.key,
     required ScrollController scrollController,
     required this.scripture,
+    required this.hasPreviousChapter,
+    required this.hasNextChapter,
+    required this.onPreviousChapter,
+    required this.onNextChapter,
   }) : _scrollController = scrollController;
 
   final ScrollController _scrollController;
   final Chapter scripture;
+  final bool hasPreviousChapter;
+  final bool hasNextChapter;
+  final VoidCallback onPreviousChapter;
+  final VoidCallback onNextChapter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -761,6 +897,11 @@ class ContinousView extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (hasPreviousChapter)
+            _ChapterEdgePrompt(
+              isNextChapter: false,
+              onTap: onPreviousChapter,
+            ),
           // Render all verses as one continuous text
           SelectableText.rich(
             TextSpan(
@@ -790,7 +931,53 @@ class ContinousView extends ConsumerWidget {
                       )),
             ),
           ),
+          if (hasNextChapter)
+            _ChapterEdgePrompt(
+              isNextChapter: true,
+              onTap: onNextChapter,
+            ),
         ],
+      ),
+    );
+  }
+}
+
+class _ChapterEdgePrompt extends StatelessWidget {
+  const _ChapterEdgePrompt({
+    required this.isNextChapter,
+    required this.onTap,
+  });
+
+  final bool isNextChapter;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final directionIcon =
+        isNextChapter ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up;
+    final chapterDirection = isNextChapter ? 'next' : 'previous';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Material(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(directionIcon),
+                const SizedBox(width: 8),
+                Text('Scroll to $chapterDirection chapter'),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -804,6 +991,10 @@ class CardView extends ConsumerStatefulWidget {
     this.highlightedIndex = -1,
     required ItemScrollController scrollController,
     required this.versionId,
+    required this.hasPreviousChapter,
+    required this.hasNextChapter,
+    required this.onPreviousChapter,
+    required this.onNextChapter,
   }) : _scrollController = scrollController;
 
   final Chapter scripture;
@@ -811,6 +1002,10 @@ class CardView extends ConsumerStatefulWidget {
   final int highlightedIndex;
   final ItemScrollController _scrollController;
   final int versionId;
+  final bool hasPreviousChapter;
+  final bool hasNextChapter;
+  final VoidCallback onPreviousChapter;
+  final VoidCallback onNextChapter;
 
   @override
   ConsumerState<CardView> createState() => _CardViewState();
@@ -841,12 +1036,21 @@ class _CardViewState extends ConsumerState<CardView> {
     final positions = _itemPositionsListener.itemPositions.value;
     if (positions.isEmpty) return;
 
-    final topPosition = positions.reduce((closest, position) {
+    final verseOffset = widget.hasPreviousChapter ? 1 : 0;
+    final versePositions = positions.where(
+      (position) =>
+          position.index >= verseOffset &&
+          position.index <
+              verseOffset + widget.scripture.verses.length,
+    );
+    if (versePositions.isEmpty) return;
+
+    final topPosition = versePositions.reduce((closest, position) {
       return position.itemLeadingEdge.abs() < closest.itemLeadingEdge.abs()
           ? position
           : closest;
     });
-    widget.onVisibleVerseChanged(topPosition.index);
+    widget.onVisibleVerseChanged(topPosition.index - verseOffset);
   }
 
   @override
@@ -934,13 +1138,29 @@ class _CardViewState extends ConsumerState<CardView> {
           ),
         Expanded(
           child: ScrollablePositionedList.separated(
-            itemCount: widget.scripture.verses.length,
+            itemCount: widget.scripture.verses.length +
+                (widget.hasPreviousChapter ? 1 : 0) +
+                (widget.hasNextChapter ? 1 : 0),
             itemScrollController: widget._scrollController,
             itemPositionsListener: _itemPositionsListener,
             padding: const EdgeInsets.all(16),
             itemBuilder: (context, index) {
-              final verse = widget.scripture.verses[index];
-              final isSelected = _selectedIndexes.contains(index);
+              if (widget.hasPreviousChapter && index == 0) {
+                return _ChapterEdgePrompt(
+                  isNextChapter: false,
+                  onTap: widget.onPreviousChapter,
+                );
+              }
+              final verseIndex = index - (widget.hasPreviousChapter ? 1 : 0);
+              if (verseIndex == widget.scripture.verses.length) {
+                return _ChapterEdgePrompt(
+                  isNextChapter: true,
+                  onTap: widget.onNextChapter,
+                );
+              }
+
+              final verse = widget.scripture.verses[verseIndex];
+              final isSelected = _selectedIndexes.contains(verseIndex);
               final isFavorite = favoriteKeys.contains((
                 widget.versionId,
                 verse.bookId,
@@ -950,7 +1170,7 @@ class _CardViewState extends ConsumerState<CardView> {
               final accent = theme.primaryColorDark;
               final backgroundColor = isSelected
                   ? accent.withValues(alpha: .2)
-                  : widget.highlightedIndex == index
+                  : widget.highlightedIndex == verseIndex
                       ? theme.primaryColor.withValues(alpha: .4)
                       : isFavorite
                           ? accent.withValues(alpha: .07)
@@ -970,10 +1190,10 @@ class _CardViewState extends ConsumerState<CardView> {
                 ),
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onLongPress: () => _selectVerse(index),
+                  onLongPress: () => _selectVerse(verseIndex),
                   onTap: _isSelecting
-                      ? () => _toggleSelection(index)
-                      : () => _toggleVerseActions(index),
+                      ? () => _toggleSelection(verseIndex)
+                      : () => _toggleVerseActions(verseIndex),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Column(
@@ -1005,7 +1225,8 @@ class _CardViewState extends ConsumerState<CardView> {
                                 ),
                               ),
                             ),
-                            if (isFavorite || _expandedVerseIndex == index)
+                            if (isFavorite ||
+                                _expandedVerseIndex == verseIndex)
                               IconButton(
                                 tooltip: isFavorite
                                     ? 'Remove from favorites'
@@ -1015,7 +1236,8 @@ class _CardViewState extends ConsumerState<CardView> {
                                   width: 36,
                                   height: 36,
                                 ),
-                                onPressed: () => _toggleFavorites([index]),
+                                onPressed: () =>
+                                    _toggleFavorites([verseIndex]),
                                 icon: Icon(
                                   isFavorite
                                       ? Icons.favorite
@@ -1026,7 +1248,7 @@ class _CardViewState extends ConsumerState<CardView> {
                                       : theme.iconTheme.color,
                                 ),
                               ),
-                            if (_expandedVerseIndex == index)
+                            if (_expandedVerseIndex == verseIndex)
                               IconButton(
                                 tooltip: 'Add a note',
                                 visualDensity: VisualDensity.compact,
@@ -1034,7 +1256,7 @@ class _CardViewState extends ConsumerState<CardView> {
                                   width: 36,
                                   height: 36,
                                 ),
-                                onPressed: () => _openNote([index]),
+                                onPressed: () => _openNote([verseIndex]),
                                 icon: const Icon(
                                   Icons.note_add_outlined,
                                   size: 15,
@@ -1045,16 +1267,16 @@ class _CardViewState extends ConsumerState<CardView> {
                         SelectableText(
                           verse.text,
                           onTap: _isSelecting
-                              ? () => _toggleSelection(index)
+                              ? () => _toggleSelection(verseIndex)
                               : () {
-                                  _toggleVerseActions(index);
+                                  _toggleVerseActions(verseIndex);
                                   ref
                                       .read(scriptureScreenProvider.notifier)
                                       .toggleFloatingActions();
                                 },
                           onSelectionChanged: (selection, cause) {
                             if (cause == SelectionChangedCause.longPress) {
-                              _selectVerse(index);
+                              _selectVerse(verseIndex);
                             }
                           },
                           style: theme.textTheme.bodySmall?.copyWith(
