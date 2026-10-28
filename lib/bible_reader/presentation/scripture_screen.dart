@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
+import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
+    show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen_controller.dart';
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
@@ -194,7 +196,10 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen>
     if (!mounted) return;
 
     final quotation = widget.quotation;
-    if (quotation != null) {
+    // An out-of-range reference would crash build(), so stay on the default
+    // passage instead.
+    if (quotation != null &&
+        ref.read(scriptureServiceProvider).resolve(quotation) != null) {
       ref.read(scriptureScreenProvider.notifier).openQuotation(quotation);
       setState(() => highlightedIndex = quotation.fromVerse);
       _scrollToVerse(quotation.fromVerse);

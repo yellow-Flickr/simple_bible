@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
     show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
@@ -48,10 +47,17 @@ class HistoryScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             itemBuilder: (context, index) {
               final entry = history[index];
-              final version = scriptureService.getVersion(entry.versionId);
-              final book = version.books[entry.bookId];
-              final chapter = book.chapters[entry.chapter];
               final timestamp = DateTime.parse(entry.dateTime);
+              final reference = scriptureService.resolve(entry.fromHistory()!);
+              if (reference == null) {
+                return ListTile(
+                  enabled: false,
+                  title: const Text('Passage no longer available'),
+                  subtitle: Text(serverformat.format(timestamp)),
+                );
+              }
+
+              final (:version, :book, :chapter) = reference;
               final verseLabel = ':${entry.fromVerse + 1}';
 
               return ListTile(
@@ -59,13 +65,7 @@ class HistoryScreen extends ConsumerWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ScriptureScreen(
-                      quotation: Quotation(
-                        versionId: entry.versionId,
-                        bookId: entry.bookId,
-                        chapter: entry.chapter,
-                        fromVerse: entry.fromVerse,
-                        toVerse: [],
-                      ),
+                      quotation: entry.fromHistory(),
                     ),
                   ),
                 ),

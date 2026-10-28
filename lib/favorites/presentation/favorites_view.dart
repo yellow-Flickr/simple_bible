@@ -73,11 +73,7 @@ class FavoritesView extends ConsumerWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ScriptureScreen(
-                          quotation: favorite.copyWith(
-                            bookId: bookIndex,
-                            chapter: favorite.chapter - 1,
-                            fromVerse: favorite.fromVerse - 1,
-                          ),
+                          quotation: favorite.toReaderQuotation(),
                         ),
                       ),
                     ),

@@ -233,6 +233,118 @@ class Quotation {
     );
   }
 
+  /// Converts 1-based numbers (as stored by favorites and produced by
+  /// [Quotation.fromVerses] and [tryParse]) to the 0-based indexes the reader
+  /// expects.
+  Quotation toReaderQuotation() => copyWith(
+        bookId: bookId - 1,
+        chapter: chapter - 1,
+        fromVerse: fromVerse - 1,
+        toVerse: toVerse?.map((verse) => verse - 1).toList(),
+      );
+
+  /// Parses a reference such as `John 3:16`, `1 John 1:9`, `Psalm 23` or
+  /// `Genesis 1:1-6, 11-13` (the format produced by [quotation]) against the
+  /// book names of [version].
+  ///
+  /// Book names match case-insensitively, ignoring spaces and punctuation, and
+  /// may be shortened to any unambiguous prefix (`Rom`, `1 Cor`). A name with
+  /// a parenthetical, like `1 Mose (Gyenesis)`, also matches either part.
+  /// The result uses 1-based numbers, like [Quotation.fromVerses]. Returns
+  /// null when the text is malformed, the book is unknown or ambiguous, or
+  /// the chapter or verses do not exist in [version].
+  static Quotation? tryParse(String input, Versions version) {
+    final match = _referencePattern.firstMatch(input.trim());
+    if (match == null) return null;
+
+    final bookIndex = _matchBook(match.group(1)!, version.books);
+    if (bookIndex == null) return null;
+    final book = version.books[bookIndex];
+
+    final chapterNumber = int.tryParse(match.group(2)!);
+    if (chapterNumber == null ||
+        chapterNumber < 1 ||
+        chapterNumber > book.chapters.length) {
+      return null;
+    }
+
+    final versesText = match.group(3);
+    final verses = versesText == null
+        ? <int>[]
+        : _parseVerses(
+            versesText,
+            book.chapters[chapterNumber - 1].verses.length,
+          );
+    if (verses == null) return null;
+
+    return Quotation(
+      bookId: bookIndex + 1,
+      bookName: book.name,
+      chapter: chapterNumber,
+      fromVerse: verses.firstOrNull ?? 1,
+      toVerse: verses,
+      versionId: version.id,
+    );
+  }
+
+  static final _referencePattern =
+      RegExp(r'^(.*?\p{L}.*?)\s*(\d+)(?:\s*:\s*(.+))?$', unicode: true);
+  static final _verseRangePattern = RegExp(r'^(\d+)(?:\s*[-–—]\s*(\d+))?$');
+  static final _parentheticalPattern = RegExp(r'^(.*?)\s*\((.*)\)\s*$');
+
+  static List<int>? _parseVerses(String text, int verseCount) {
+    final verses = <int>{};
+    for (final part in text.split(',')) {
+      final range = _verseRangePattern.firstMatch(part.trim());
+      if (range == null) return null;
+
+      final start = int.tryParse(range.group(1)!);
+      final end =
+          range.group(2) == null ? start : int.tryParse(range.group(2)!);
+      if (start == null || end == null) return null;
+      if (start < 1 || end < start || end > verseCount) return null;
+
+      for (var verse = start; verse <= end; verse++) {
+        verses.add(verse);
+      }
+    }
+    return verses.toList()..sort();
+  }
+
+  static int? _matchBook(String name, List<Book> books) {
+    final key = _nameKey(name);
+    if (key.isEmpty) return null;
+
+    final aliases = [for (final book in books) _bookAliases(book.name)];
+    final exact = aliases.indexWhere((names) => names.contains(key));
+    if (exact != -1) return exact;
+
+    final prefixed = [
+      for (var i = 0; i < aliases.length; i++)
+        if (aliases[i].any((alias) => alias.startsWith(key))) i,
+    ];
+    return prefixed.length == 1 ? prefixed.single : null;
+  }
+
+  static Set<String> _bookAliases(String name) {
+    final parenthetical = _parentheticalPattern.firstMatch(name);
+    return {
+      _nameKey(name),
+      if (parenthetical != null) ...[
+        _nameKey(parenthetical.group(1)!),
+        _nameKey(parenthetical.group(2)!),
+      ],
+    }..remove('');
+  }
+
+  /// Lowercases, folds the Twi vowels ɛ/ɔ to e/o, and drops everything but
+  /// letters and digits, so `1 John`, `1john` and `1-John` compare equal.
+  static String _nameKey(String name) => name
+      .toLowerCase()
+      .replaceAll('ɛ', 'e')
+      .replaceAll('ɔ', 'o')
+      .replaceAll(RegExp(r'[^\p{L}\p{N}]', unicode: true), '');
+
   static String _formatVerseRange(int start, int end) =>
       start == end ? '$start' : '$start-$end';
 }

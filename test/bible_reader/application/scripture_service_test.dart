@@ -51,7 +51,73 @@ void main() {
 
       expect(() => service.getVersion(404), throwsStateError);
     });
+
+    group('resolve', () {
+      final version = _versionWithVerses(chapters: 2, versesPerChapter: 3);
+      final service = ScriptureService(
+        _FakeScriptureRepository([version]),
+        _FakeScriptureAssetSource(() async => []),
+      );
+
+      Quotation reference({
+        int versionId = 100,
+        int bookId = 0,
+        int chapter = 0,
+        int fromVerse = 0,
+      }) =>
+          Quotation(
+            versionId: versionId,
+            bookId: bookId,
+            chapter: chapter,
+            fromVerse: fromVerse,
+            toVerse: [],
+          );
+
+      test('returns the version, book and chapter for a valid reference', () {
+        final resolved = service.resolve(reference(chapter: 1, fromVerse: 2));
+
+        expect(resolved?.version, same(version));
+        expect(resolved?.book, same(version.books[0]));
+        expect(resolved?.chapter, same(version.books[0].chapters[1]));
+      });
+
+      test('returns null for out-of-range references', () {
+        for (final (label, invalid) in [
+          ('unknown version', reference(versionId: 404)),
+          ('negative book', reference(bookId: -1)),
+          ('book past end', reference(bookId: 1)),
+          ('negative chapter', reference(chapter: -1)),
+          ('chapter past end', reference(chapter: 2)),
+          ('negative verse', reference(fromVerse: -1)),
+          ('verse past end', reference(fromVerse: 3)),
+        ]) {
+          expect(service.resolve(invalid), isNull, reason: label);
+        }
+      });
+    });
   });
+}
+
+Versions _versionWithVerses({
+  required int chapters,
+  required int versesPerChapter,
+}) {
+  final version = Versions(id: 100, versionName: 'KJV');
+  version.books.add(Book.fromVerses([
+    for (var chapter = 1; chapter <= chapters; chapter++)
+      for (var verse = 1; verse <= versesPerChapter; verse++)
+        Verse(
+          id: verse,
+          bookId: 1,
+          chapter: chapter,
+          verse: verse,
+          text: 'Verse $verse',
+          translationId: 'KJV',
+          bookName: 'Genesis',
+          testament: 'Old Testament',
+        ),
+  ]));
+  return version;
 }
 
 class _FakeScriptureRepository implements ScriptureRepository {

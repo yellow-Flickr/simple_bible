@@ -2,21 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
+import 'package:simple_bible/bible_reader/application/scripture_service.dart';
+import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
+    show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
+import 'package:simple_bible/favorites/domain/favorite.dart';
+import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/shared/configs/assets.dart';
 import 'package:simple_bible/shared/configs/extensions.dart';
 import 'package:simple_bible/favorites/presentation/favorites_view.dart';
+import 'package:simple_bible/history/domain/history.dart';
 import 'package:simple_bible/history/presentation/history_screen.dart';
 import 'package:simple_bible/notes/presentation/note_list.dart';
 
-class Home extends ConsumerWidget {
+class Home extends ConsumerStatefulWidget {
   const Home({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var theme = Theme.of(context);
+  ConsumerState<Home> createState() => _HomeState();
+}
+
+class _HomeState extends ConsumerState<Home> {
+  int _favoriteIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final historyAsync = ref.watch(historyControllerProvider);
+    final history = historyAsync.valueOrNull;
+    final favorites = [...ref.watch(favoritesControllerProvider)]
+      ..sort((a, b) => b.date.compareTo(a.date));
+    final favorite =
+        favorites.isEmpty ? null : favorites[_favoriteIndex % favorites.length];
+    final scriptureService = ref.read(scriptureServiceProvider);
+    final resume = _latestResolvableEntry(history, scriptureService);
     return Scaffold(
       appBar: AppBar(
         // leadingWidth: 30.w,
@@ -244,11 +264,7 @@ class Home extends ConsumerWidget {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      Quotation? quote = ref
-                          .read(historyServiceProvider)
-                          .loadHistory()
-                          .firstOrNull
-                          ?.fromHistory();
+                      final quote = resume?.entry.fromHistory();
 
                       Navigator.push(
                           context,
@@ -502,36 +518,22 @@ class Home extends ConsumerWidget {
           SizedBox(
             height: 3.h,
           ),
-          Container(
-            height: 6.h,
-            padding: EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: theme.primaryColor),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Resume Reading: Genesis 1:02',
-                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
-                ),
-                Container(
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                        color: theme.primaryColorLight,
-                        // border:
-                        //     Border.all(color: theme.primaryColorLight),
-                        // color: theme.primaryColorLight,
-                        shape: BoxShape.circle),
-                    child: Icon(
-                      Icons.arrow_forward,
-                      color: theme.scaffoldBackgroundColor,
-                      size: 15,
-                    ))
-              ],
+          if (resume != null)
+            _buildResumeCard(context, resume.entry, resume.reference),
+          if (historyAsync.hasError)
+            Padding(
+              padding: EdgeInsets.only(top: 2.h),
+              child: Row(
+                children: [
+                  const Expanded(
+                      child: Text('Unable to load reading history.')),
+                  TextButton(
+                    onPressed: () => ref.invalidate(historyControllerProvider),
+                    child: const Text('Try again'),
+                  ),
+                ],
+              ),
             ),
-          ),
           Padding(
             padding: EdgeInsets.only(
               top: 2.h,
@@ -555,58 +557,36 @@ class Home extends ConsumerWidget {
                     height: 1.h,
                   ),
                   Flexible(
-                    child: Text(
-                      'Job 1:20 - "God\'s plan for us is filled with hope. Reflect on HIS assurances and provisions."',
-                      // textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: favorite == null
+                        ? const Center(child: Text('No favorite verses yet'))
+                        : _buildFavoriteText(favorite, scriptureService),
                   ),
                   SizedBox(
                     height: 1.h,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    // crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  // color: theme.primaryColorLight,
-                                  border: Border.all(
-                                      color: theme.primaryColorLight),
-                                  // color: theme.primaryColorLight,
-                                  shape: BoxShape.circle),
-                              child: Icon(
-                                Icons.arrow_back,
-                                color: theme.primaryColorLight,
-                                size: 15,
-                              ))
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  // color: theme.primaryColorLight,
-                                  border: Border.all(
-                                      color: theme.primaryColorLight),
-                                  // color: theme.primaryColorLight,
-                                  shape: BoxShape.circle),
-                              child: Icon(
-                                Icons.arrow_forward,
-                                color: theme.primaryColorLight,
-                                size: 15,
-                              ))
-                        ],
-                      ),
-                    ],
-                  )
+                  if (favorite != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _favoriteNavigationButton(
+                          theme,
+                          Icons.arrow_back,
+                          () => setState(() {
+                            _favoriteIndex =
+                                (_favoriteIndex - 1 + favorites.length) %
+                                    favorites.length;
+                          }),
+                        ),
+                        _favoriteNavigationButton(
+                          theme,
+                          Icons.arrow_forward,
+                          () => setState(() {
+                            _favoriteIndex =
+                                (_favoriteIndex + 1) % favorites.length;
+                          }),
+                        ),
+                      ],
+                    )
                 ],
               ),
             ),
@@ -615,6 +595,131 @@ class Home extends ConsumerWidget {
             height: 5.h,
           ),
         ],
+      ),
+    );
+  }
+
+  /// The most recent history entry that still points at an existing passage,
+  /// so a stale entry neither crashes the resume card nor hides older ones.
+  ({History entry, ResolvedReference reference})? _latestResolvableEntry(
+    List<History>? history,
+    ScriptureService scriptureService,
+  ) {
+    for (final entry in history ?? const <History>[]) {
+      final reference = scriptureService.resolve(entry.fromHistory()!);
+      if (reference != null) return (entry: entry, reference: reference);
+    }
+    return null;
+  }
+
+  Widget _buildResumeCard(
+    BuildContext context,
+    History entry,
+    ResolvedReference reference,
+  ) {
+    final theme = Theme.of(context);
+    final (:book, :chapter, version: _) = reference;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 2.h),
+      child: Material(
+        color: theme.primaryColor,
+        borderRadius: BorderRadius.circular(5),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(5),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ScriptureScreen(quotation: entry.fromHistory()),
+            ),
+          ),
+          child: Container(
+            height: 6.h,
+            padding: EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
+            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    'Resume Reading: ${book.name} ${chapter.chapter}:${entry.fromVerse + 1}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColorLight,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward,
+                    color: theme.scaffoldBackgroundColor,
+                    size: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFavoriteText(
+    Favorite favorite,
+    ScriptureService scriptureService,
+  ) {
+    final version = scriptureService.getVersion(favorite.versionId);
+    final bookIndex = favorite.bookId - 1;
+    final book = bookIndex >= 0 && bookIndex < version.books.length
+        ? version.books[bookIndex]
+        : null;
+    final bookName = book?.name ?? 'Unknown';
+
+    return InkWell(
+      onTap: book == null
+          ? null
+          : () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ScriptureScreen(
+                    quotation: favorite.toReaderQuotation(),
+                  ),
+                ),
+              ),
+      child: Text(
+        '$bookName ${favorite.chapter}:${favorite.fromVerse} - "${favorite.text}"',
+        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _favoriteNavigationButton(
+    ThemeData theme,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      customBorder: const CircleBorder(),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.primaryColorLight),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: theme.primaryColorLight,
+          size: 15,
+        ),
       ),
     );
   }
