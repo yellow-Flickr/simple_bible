@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -10,11 +11,15 @@ import 'package:simple_bible/favorites/domain/favorite.dart';
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/shared/configs/assets.dart';
+import 'package:simple_bible/shared/configs/constants.dart';
 import 'package:simple_bible/shared/configs/extensions.dart';
 import 'package:simple_bible/favorites/presentation/favorites_view.dart';
 import 'package:simple_bible/history/domain/history.dart';
 import 'package:simple_bible/history/presentation/history_screen.dart';
 import 'package:simple_bible/notes/presentation/note_list.dart';
+import 'package:simple_bible/topics/presentation/topic_catalog_screen.dart';
+import 'package:simple_bible/topics/presentation/topic_screen.dart';
+import 'package:simple_bible/topics/presentation/topics_controller.dart';
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -103,104 +108,7 @@ class _HomeState extends ConsumerState<Home> {
         padding: EdgeInsets.symmetric(horizontal: 3.w),
         // shrinkWrap: true,
         children: [
-          Container(
-            height: 28.h,
-            padding: EdgeInsets.only(
-              top: 2.h,
-            ),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                // clipBehavior: Clip.hardEdge,
-                child: ColoredBox(
-                  color: theme.primaryColor,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 3.w, vertical: 1.h),
-                          child: Column(
-                            // mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Verse of the Day',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 10)),
-                                  Text('Sat, 07 Sep 2019',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 12))
-                                ],
-                              ),
-                              Text('John 1:01 [KJV]',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 12))
-                            ],
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 2.w),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                  'In the beginning was the word, and the word was with God, and the word was God.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 15)),
-                              // Text('John 1:1 [KJV]',
-                              //     style: TextStyle(
-                              //         fontWeight: FontWeight.w500,
-                              //         fontSize: 10))
-                            ],
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 5.w, vertical: 2.h),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 2.w, vertical: 1.h),
-                          decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: theme.primaryColorLight)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Icon(
-                                Icons.favorite_border,
-                                size: 15,
-                              ),
-                              Icon(
-                                Icons.share,
-                                size: 15,
-                              ),
-                              Icon(
-                                Icons.more_horiz_rounded,
-                                size: 15,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                )),
-          ),
+          _buildVerseOfTheDay(theme),
           Padding(
             padding: EdgeInsets.only(
               top: 2.h,
@@ -210,11 +118,11 @@ class _HomeState extends ConsumerState<Home> {
                 vertical: .5.h,
                 horizontal: 2.w,
               ),
-              height: 10.h,
               decoration: BoxDecoration(
                   border: Border.all(color: theme.primaryColorLight)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,14 +148,10 @@ class _HomeState extends ConsumerState<Home> {
                   SizedBox(
                     height: .5.h,
                   ),
-                  Flexible(
-                    child: Text(
-                      'God\'s plan for us is filled with hope.\nReflect on HIS assurances and provisions.',
-                      // textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  Text(
+                    'God\'s plan for us is filled with hope.\nReflect on HIS assurances and provisions.',
+                    // textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
                   ),
                 ],
               ),
@@ -394,127 +298,7 @@ class _HomeState extends ConsumerState<Home> {
           SizedBox(
             height: 3.h,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Explore',
-                  // textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
-              SizedBox(
-                height: 1.h,
-              ),
-              SizedBox(
-                height: 10.h,
-                child: GridView(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      mainAxisSpacing: 2.w,
-                      crossAxisSpacing: 1.h,
-                      crossAxisCount: 2,
-                      mainAxisExtent: 40.w),
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: theme.primaryColorDark,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Text(
-                        'Love',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w300, fontSize: 16),
-                      ),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: theme.primaryColorLight,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Text(
-                        'Anger',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w300, fontSize: 16),
-                      ),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: theme.primaryColorLight,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Text(
-                        'Fear',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w300, fontSize: 16),
-                      ),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: theme.primaryColorDark,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Text(
-                        'Desperation',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w300, fontSize: 16),
-                      ),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: theme.primaryColorDark,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Text(
-                        'Hope',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w300, fontSize: 16),
-                      ),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
-                      alignment: Alignment.centerLeft,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: theme.primaryColorLight,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Text(
-                        'Family',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w300, fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
+          _buildExplore(theme),
           SizedBox(
             height: 3.h,
           ),
@@ -543,11 +327,11 @@ class _HomeState extends ConsumerState<Home> {
                 vertical: .5.h,
                 horizontal: 2.w,
               ),
-              height: 15.h,
               decoration: BoxDecoration(
                   border: Border.all(color: theme.primaryColorLight)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('Favourite Verses',
                       // textAlign: TextAlign.center,
@@ -556,11 +340,9 @@ class _HomeState extends ConsumerState<Home> {
                   SizedBox(
                     height: 1.h,
                   ),
-                  Flexible(
-                    child: favorite == null
-                        ? const Center(child: Text('No favorite verses yet'))
-                        : _buildFavoriteText(favorite, scriptureService),
-                  ),
+                  favorite == null
+                      ? const Center(child: Text('No favorite verses yet'))
+                      : _buildFavoriteText(favorite, scriptureService),
                   SizedBox(
                     height: 1.h,
                   ),
@@ -596,6 +378,224 @@ class _HomeState extends ConsumerState<Home> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildVerseOfTheDay(ThemeData theme) {
+    final daily = ref.watch(dailyVerseProvider).valueOrNull;
+    final quotation = daily?.quotation;
+    final reference =
+        daily == null ? '' : '${quotation!.quotation} [${daily.translationId}]';
+    final favoriteKeys = ref
+        .watch(favoritesControllerProvider)
+        .map((f) => (f.versionId, f.bookId, f.chapter, f.fromVerse))
+        .toSet();
+    final isFavorite = daily != null &&
+        daily.verses.every((verse) => favoriteKeys.contains(
+            (quotation!.versionId, verse.bookId, verse.chapter, verse.verse)));
+
+    void openReader() => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ScriptureScreen(quotation: quotation!.toReaderQuotation()),
+          ),
+        );
+
+    return Padding(
+      padding: EdgeInsets.only(top: 2.h),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Material(
+          color: theme.primaryColor,
+          child: InkWell(
+            onTap: daily == null ? null : openReader,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+              // Same height as before for short verses; longer ones grow it.
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: 24.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Verse of the Day',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w300, fontSize: 10)),
+                        Text(serverformat2.format(DateTime.now()),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 12)),
+                      ],
+                    ),
+                    Text(reference,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 12)),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+                      child: Center(
+                        child: Text(
+                          quotation?.text ?? '',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w300, fontSize: 15),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 2.w),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: theme.primaryColorLight)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _verseOfTheDayAction(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            isFavorite ? 'Remove favourite' : 'Add favourite',
+                            daily == null
+                                ? null
+                                : () => ref
+                                    .read(favoritesControllerProvider.notifier)
+                                    .toggleFavorites(
+                                      verses: daily.verses,
+                                      versionId: quotation!.versionId,
+                                    ),
+                            color: isFavorite ? theme.primaryColorDark : null,
+                          ),
+                          _verseOfTheDayAction(
+                            Icons.copy,
+                            'Copy',
+                            daily == null
+                                ? null
+                                : () async {
+                                    await Clipboard.setData(ClipboardData(
+                                        text:
+                                            '${quotation!.text}\n— $reference'));
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text('Copied $reference')),
+                                    );
+                                  },
+                          ),
+                          _verseOfTheDayAction(
+                            Icons.menu_book_outlined,
+                            'Open in reader',
+                            daily == null ? null : openReader,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 1.h),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _verseOfTheDayAction(
+    IconData icon,
+    String tooltip,
+    VoidCallback? onPressed, {
+    Color? color,
+  }) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      visualDensity: VisualDensity.compact,
+      iconSize: 15,
+      icon: Icon(icon, color: color),
+    );
+  }
+
+  Widget _buildExplore(ThemeData theme) {
+    final sample = ref.watch(homeTopicSampleProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Explore',
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+            TextButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TopicCatalogScreen(),
+                ),
+              ),
+              iconAlignment: IconAlignment.end,
+              icon: Icon(Icons.arrow_forward,
+                  size: 14, color: theme.primaryColorDark),
+              label: Text(
+                'More',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                  color: theme.primaryColorDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (!sample.hasError)
+          SizedBox(
+            height: 10.h,
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  mainAxisSpacing: 2.w,
+                  crossAxisSpacing: 1.h,
+                  crossAxisCount: 2,
+                  mainAxisExtent: 40.w),
+              scrollDirection: Axis.horizontal,
+              itemCount: sample.valueOrNull?.length ?? 6,
+              itemBuilder: (context, index) {
+                final topic = sample.valueOrNull?[index];
+                // Alternate gold and muted borders, column by column.
+                final borderColor = (index ~/ 2).isEven == index.isEven
+                    ? theme.primaryColorDark
+                    : theme.primaryColorLight;
+                return InkWell(
+                  borderRadius: BorderRadius.circular(5),
+                  onTap: topic == null
+                      ? null
+                      : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TopicScreen(topic: topic),
+                            ),
+                          ),
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
+                    alignment: Alignment.centerLeft,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: borderColor, width: 1.5),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Text(
+                      topic?.name ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          TextStyle(fontWeight: FontWeight.w300, fontSize: 16),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 

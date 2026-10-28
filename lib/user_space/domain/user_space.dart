@@ -103,6 +103,31 @@ class UserSpace {
         // readingHistory: const [],
         notes: const [],
       );
+
+  /// Copies the scalar fields, keeping [uid] so saving updates this record.
+  /// The ToMany relations are not copied; ObjectBox only writes relation
+  /// changes made through them, so the stored links are left untouched.
+  UserSpace copyWith({int? preferredTranslation}) => UserSpace(
+        userId: userId,
+        email: email,
+        username: username,
+        passwordHash: passwordHash,
+        authProvider: authProvider,
+        createdAt: createdAt,
+        lastLogin: lastLogin,
+        fullName: fullName,
+        avatarUrl: avatarUrl,
+        bio: bio,
+        theme: theme,
+        fontSize: fontSize,
+        preferredTranslation: preferredTranslation ?? this.preferredTranslation,
+        streakDays: streakDays,
+        bookmarksCount: bookmarksCount,
+        notesCount: notesCount,
+        notes: notes,
+        appVersion: appVersion,
+        deviceType: deviceType,
+      )..uid = uid;
   // factory UserSpace.fromJson(Map<String, dynamic> json) {
   //   return UserSpace(
   //     userId: json['userId'],

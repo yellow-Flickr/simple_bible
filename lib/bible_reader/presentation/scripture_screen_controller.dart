@@ -6,6 +6,7 @@ import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
     show scriptureServiceProvider;
 import 'package:simple_bible/history/presentation/history_controller.dart';
+import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 typedef ChapterPosition = ({int bookIndex, int chapterIndex});
 
@@ -47,7 +48,10 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
   @override
   Quotation build() {
     ref.onDispose(() => _fabTimer?.cancel());
-    return Quotation.zero(text: '');
+    return Quotation.zero(
+      text: '',
+      versionId: ref.read(preferredVersionIdProvider),
+    );
   }
 
   Timer? _fabTimer;
@@ -72,6 +76,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
 
   void changeVersion({required int versionId}) {
     state = state.copyWith(versionId: versionId);
+    ref.read(userSpaceProvider.notifier).setPreferredTranslation(versionId);
   }
 
   void gotoQuotation({required Quotation quote}) {
