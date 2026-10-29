@@ -5,8 +5,11 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
     show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/version_picker.dart';
-import 'package:simple_bible/favorites/presentation/favorites_view.dart';
-import 'package:simple_bible/history/presentation/history_screen.dart';
+import 'package:simple_bible/user_space/legal_content.dart';
+import 'package:simple_bible/user_space/presentation/about/about_screen.dart';
+import 'package:simple_bible/user_space/presentation/about/app_actions.dart';
+import 'package:simple_bible/user_space/presentation/about/legal_screen.dart';
+import 'package:simple_bible/shared/widgets/settings_section.dart';
 import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -67,21 +70,23 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     Text(
                       name,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     Text(
                       joined == null
                           ? 'Guest account'
                           : 'Guest account · Joined '
                               '${DateFormat('MMMM yyyy').format(joined)}',
-                      style: TextStyle(fontWeight: FontWeight.w300, fontSize: 13),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w300, fontSize: 13),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          _Section(
+          SettingsSection(
             title: 'Reading',
             children: [
               ListTile(
@@ -99,7 +104,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          _Section(
+          SettingsSection(
             title: 'Appearance',
             children: [
               Padding(
@@ -138,7 +143,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const _Section(
+          const SettingsSection(
             title: 'Notifications',
             children: [
               SwitchListTile(
@@ -157,25 +162,58 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          _Section(
-            title: 'Your activity',
+          SettingsSection(
+            title: 'Support',
             children: [
               ListTile(
-                leading: const Icon(Icons.favorite_border),
-                title: const Text('Favourite verses'),
+                leading: const Icon(Icons.share_outlined),
+                title: const Text('Share the app'),
+                onTap: () => shareApp(context),
+              ),
+              ListTile(
+                leading: const Icon(Icons.star_outline),
+                title: const Text('Rate & review'),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => rateApp(context),
+              ),
+              ListTile(
+                leading: const Icon(Icons.mail_outline),
+                title: const Text('Send feedback'),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => sendFeedback(context, ref),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: 'About',
+            children: [
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('About Simple Bible'),
+                subtitle: const Text('Acknowledgements and licences'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push(
+                onTap: () => _push(context, const AboutScreen()),
+              ),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: const Text('Privacy policy'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _push(
                   context,
-                  MaterialPageRoute(builder: (context) => const FavoritesView()),
+                  const LegalScreen(
+                    title: 'Privacy policy',
+                    sections: privacyPolicy,
+                  ),
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.history),
-                title: const Text('Reading history'),
+                leading: const Icon(Icons.gavel_outlined),
+                title: const Text('Terms of use'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push(
+                onTap: () => _push(
                   context,
-                  MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                  const LegalScreen(
+                      title: 'Terms of use', sections: termsOfUse),
                 ),
               ),
             ],
@@ -184,47 +222,8 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
-}
 
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: EdgeInsets.only(top: 3.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 1.w, bottom: 1.h),
-            child: Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-            ),
-          ),
-          Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: theme.cardColor,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: theme.dividerColor),
-            ),
-            child: Column(
-              children: [
-                for (final (index, child) in children.indexed) ...[
-                  if (index > 0) Divider(height: 1, color: theme.dividerColor),
-                  child,
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  void _push(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 }

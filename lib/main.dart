@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simple_bible/user_space/presentation/about/about_screen.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart';
 import 'package:simple_bible/favorites/application/favorites_service.dart';
@@ -18,6 +19,7 @@ import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerAssetLicenses();
   final objectBox = await ObjectBox.create();
   runApp(ProviderScope(
     overrides: [
