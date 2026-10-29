@@ -69,14 +69,7 @@ class FavoritesView extends ConsumerWidget {
           return ListTile(
             onTap: book == null
                 ? null
-                : () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ScriptureScreen(
-                          quotation: favorite.toReaderQuotation(),
-                        ),
-                      ),
-                    ),
+                : () => openScripture(context, quotation: favorite.toReaderQuotation()),
             leading: Container(
               width: 10.w,
               height: 10.w,

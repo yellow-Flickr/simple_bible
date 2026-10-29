@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
-    show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen.dart';
+import 'package:simple_bible/bible_reader/presentation/version_picker.dart';
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
 import 'package:simple_bible/topics/domain/topic.dart';
 import 'package:simple_bible/topics/presentation/topics_controller.dart';
-import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 class TopicScreen extends ConsumerWidget {
   const TopicScreen({super.key, required this.topic});
@@ -89,48 +87,11 @@ class _VersionButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return TextButton.icon(
-      onPressed: () => _showVersions(context, ref),
+      onPressed: () => showVersionPicker(context, ref),
       icon: Icon(Icons.translate, size: 16, color: theme.primaryColorDark),
       label: Text(
         label ?? '',
         style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  void _showVersions(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final versions = ref.read(scriptureServiceProvider).getVersions();
-    final selectedId = ref.read(preferredVersionIdProvider);
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => ListView.builder(
-        shrinkWrap: true,
-        itemCount: versions.length,
-        itemBuilder: (context, index) {
-          final version = versions[index];
-          final selected = version.id == selectedId;
-          return ListTile(
-            onTap: () {
-              ref
-                  .read(userSpaceProvider.notifier)
-                  .setPreferredTranslation(version.id);
-              Navigator.pop(context);
-            },
-            title: Text(
-              version.versionName,
-              style: theme.textTheme.bodyMedium!
-                  .copyWith(color: theme.primaryColorLight),
-            ),
-            trailing: selected
-                ? Icon(Icons.check, color: theme.primaryColorDark)
-                : null,
-          );
-        },
       ),
     );
   }
@@ -191,13 +152,7 @@ class _TopicVerseCard extends ConsumerWidget {
     final isFavorite = topicVerse.verses.every((verse) => favoriteKeys
         .contains((quotation.versionId, verse.bookId, verse.chapter, verse.verse)));
 
-    void openReader() => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                ScriptureScreen(quotation: quotation.toReaderQuotation()),
-          ),
-        );
+    void openReader() => openScripture(context, quotation: quotation.toReaderQuotation());
 
     return Container(
       padding: EdgeInsets.fromLTRB(4.w, 2.h, 4.w, 1.h),

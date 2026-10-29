@@ -11,13 +11,12 @@ import 'package:simple_bible/favorites/domain/favorite.dart';
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/shared/configs/assets.dart';
+import 'package:simple_bible/shared/shell/app_tab_controller.dart';
 import 'package:simple_bible/shared/configs/constants.dart';
 import 'package:simple_bible/shared/configs/extensions.dart';
 import 'package:simple_bible/favorites/presentation/favorites_view.dart';
 import 'package:simple_bible/history/domain/history.dart';
 import 'package:simple_bible/history/presentation/history_screen.dart';
-import 'package:simple_bible/notes/presentation/note_list.dart';
-import 'package:simple_bible/topics/presentation/topic_catalog_screen.dart';
 import 'package:simple_bible/topics/presentation/topic_screen.dart';
 import 'package:simple_bible/topics/presentation/topics_controller.dart';
 
@@ -97,10 +96,6 @@ class _HomeState extends ConsumerState<Home> {
             padding: EdgeInsets.only(right: 3.w),
             child: Icon(Icons.search),
           ),
-          Padding(
-            padding: EdgeInsets.only(right: 4.w),
-            child: Icon(Icons.settings_outlined),
-          ),
         ],
         elevation: 0,
       ),
@@ -170,13 +165,7 @@ class _HomeState extends ConsumerState<Home> {
                     onTap: () {
                       final quote = resume?.entry.fromHistory();
 
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ScriptureScreen(
-                              quotation: quote,
-                            ),
-                          ));
+                      openScripture(context, quotation: quote);
                     },
                     child: Container(
                       width: 20.w,
@@ -195,7 +184,35 @@ class _HomeState extends ConsumerState<Home> {
                     height: .5.h,
                   ),
                   Text(
-                    'Bible Reader',
+                    'Scriptures',
+                    style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
+                  )
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () =>
+                        ref.read(appTabProvider.notifier).state = AppTab.topics,
+                    child: Container(
+                      width: 20.w,
+                      height: 8.h,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: theme.primaryColorLight)),
+                      child: Icon(
+                        Icons.auto_stories,
+                        size: 9.w,
+                        color: theme.primaryColorDark,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: .5.h,
+                  ),
+                  Text(
+                    'Reflections',
                     style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
                   )
                 ],
@@ -227,37 +244,6 @@ class _HomeState extends ConsumerState<Home> {
                   ),
                   Text(
                     'History',
-                    style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
-                  )
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NoteList(),
-                        )),
-                    child: Container(
-                      width: 20.w,
-                      height: 8.h,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: theme.primaryColorLight)),
-                      child: Lottie.asset(
-                        LottieAssets.notes,
-                        fit: BoxFit.contain,
-                        // height: kToolbarHeight,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: .5.h,
-                  ),
-                  Text(
-                    'Notes',
                     style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
                   )
                 ],
@@ -394,13 +380,8 @@ class _HomeState extends ConsumerState<Home> {
         daily.verses.every((verse) => favoriteKeys.contains(
             (quotation!.versionId, verse.bookId, verse.chapter, verse.verse)));
 
-    void openReader() => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                ScriptureScreen(quotation: quotation!.toReaderQuotation()),
-          ),
-        );
+    void openReader() =>
+        openScripture(context, quotation: quotation!.toReaderQuotation());
 
     return Padding(
       padding: EdgeInsets.only(top: 2.h),
@@ -529,12 +510,8 @@ class _HomeState extends ConsumerState<Home> {
             Text('Explore',
                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
             TextButton.icon(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TopicCatalogScreen(),
-                ),
-              ),
+              onPressed: () =>
+                  ref.read(appTabProvider.notifier).state = AppTab.topics,
               iconAlignment: IconAlignment.end,
               icon: Icon(Icons.arrow_forward,
                   size: 14, color: theme.primaryColorDark),
@@ -627,13 +604,7 @@ class _HomeState extends ConsumerState<Home> {
         borderRadius: BorderRadius.circular(5),
         child: InkWell(
           borderRadius: BorderRadius.circular(5),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ScriptureScreen(quotation: entry.fromHistory()),
-            ),
-          ),
+          onTap: () => openScripture(context, quotation: entry.fromHistory()),
           child: Container(
             height: 6.h,
             padding: EdgeInsets.symmetric(vertical: .5.h, horizontal: 3.w),
@@ -684,14 +655,8 @@ class _HomeState extends ConsumerState<Home> {
     return InkWell(
       onTap: book == null
           ? null
-          : () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ScriptureScreen(
-                    quotation: favorite.toReaderQuotation(),
-                  ),
-                ),
-              ),
+          : () =>
+              openScripture(context, quotation: favorite.toReaderQuotation()),
       child: Text(
         '$bookName ${favorite.chapter}:${favorite.fromVerse} - "${favorite.text}"',
         style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),

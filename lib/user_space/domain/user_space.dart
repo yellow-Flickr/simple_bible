@@ -107,7 +107,7 @@ class UserSpace {
   /// Copies the scalar fields, keeping [uid] so saving updates this record.
   /// The ToMany relations are not copied; ObjectBox only writes relation
   /// changes made through them, so the stored links are left untouched.
-  UserSpace copyWith({int? preferredTranslation}) => UserSpace(
+  UserSpace copyWith({int? preferredTranslation, int? theme}) => UserSpace(
         userId: userId,
         email: email,
         username: username,
@@ -118,7 +118,7 @@ class UserSpace {
         fullName: fullName,
         avatarUrl: avatarUrl,
         bio: bio,
-        theme: theme,
+        theme: theme ?? this.theme,
         fontSize: fontSize,
         preferredTranslation: preferredTranslation ?? this.preferredTranslation,
         streakDays: streakDays,

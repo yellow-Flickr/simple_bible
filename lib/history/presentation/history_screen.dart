@@ -61,14 +61,7 @@ class HistoryScreen extends ConsumerWidget {
               final verseLabel = ':${entry.fromVerse + 1}';
 
               return ListTile(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ScriptureScreen(
-                      quotation: entry.fromHistory(),
-                    ),
-                  ),
-                ),
+                onTap: () => openScripture(context, quotation: entry.fromHistory()),
                 leading: Container(
                   width: 10.w,
                   height: 10.w,

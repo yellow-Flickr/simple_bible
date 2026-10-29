@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
@@ -26,6 +27,14 @@ class UserSpaceService extends Notifier<UserSpace> {
     state = state.copyWith(preferredTranslation: versionId);
     await ref.read(userSpaceRepositoryProvider).saveUserSpace(state);
   }
+
+  /// Sets the app theme and persists it.
+  Future<void> setThemeMode(ThemeMode mode) async {
+    final theme = mode.index;
+    if (state.theme == theme) return;
+    state = state.copyWith(theme: theme);
+    await ref.read(userSpaceRepositoryProvider).saveUserSpace(state);
+  }
 }
 
 final userSpaceProvider =
@@ -49,3 +58,10 @@ int resolvePreferredVersionId(int preferred, List<Versions> versions) {
   }
   return versions.first.id;
 }
+
+/// The app theme. [UserSpace.theme] stores a [ThemeMode] index
+/// (0 system, 1 light, 2 dark); anything else means system.
+final themeModeProvider = Provider<ThemeMode>((ref) {
+  final theme = ref.watch(userSpaceProvider.select((u) => u.theme));
+  return ThemeMode.values.elementAtOrNull(theme ?? 0) ?? ThemeMode.system;
+});

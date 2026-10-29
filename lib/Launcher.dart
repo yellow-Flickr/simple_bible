@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_bible/bible_reader/data/scripture_data_source.dart' show scriptureDataProvider;
-import 'package:simple_bible/home/presentation/home.dart';
+import 'package:simple_bible/shared/shell/app_shell.dart';
 
 class Launcher extends ConsumerStatefulWidget {
   const Launcher({super.key});
@@ -15,7 +15,7 @@ class _LauncherState extends ConsumerState<Launcher> {
     Future.delayed(Duration(seconds: 2), () {
       if (!mounted) return;
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: ((context) => const Home())));
+          context, MaterialPageRoute(builder: ((context) => const AppShell())));
     });
   }
 

@@ -13,6 +13,16 @@ import 'package:simple_bible/bible_reader/presentation/scripture_screen_controll
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
 
+/// Opens the reader full screen, above the bottom navigation bar, at
+/// [quotation] (0-based reader indexes) or the default passage.
+Future<void> openScripture(BuildContext context, {Quotation? quotation}) {
+  return Navigator.of(context, rootNavigator: true).push(
+    MaterialPageRoute(
+      builder: (context) => ScriptureScreen(quotation: quotation),
+    ),
+  );
+}
+
 class ScriptureScreen extends ConsumerStatefulWidget {
   final Quotation? quotation;
   const ScriptureScreen({

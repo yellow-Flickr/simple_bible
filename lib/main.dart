@@ -44,7 +44,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(scriptureInitializationProvider);
-    ref.watch(userSpaceProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return ResponsiveSizer(builder:
         (BuildContext context, Orientation orientation, ScreenType deviceType) {
@@ -53,7 +53,7 @@ class MyApp extends ConsumerWidget {
         // title: 'Flutter Demo',
         darkTheme: Themes.darkTheme, // standard dark theme
         theme: Themes.lightTheme,
-        themeMode: ThemeMode.system,
+        themeMode: themeMode,
         home: const Launcher(),
       );
     });
