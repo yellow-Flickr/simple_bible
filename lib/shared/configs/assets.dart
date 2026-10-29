@@ -49,6 +49,7 @@ class LottieAssets {
   static const String midday = 'asset/lotties/midday.json';
   static const String sunrise = 'asset/lotties/sunrise.json';
   static const String sunset = 'asset/lotties/sunset.json';
+  static const String meditation = 'asset/lotties/meditation.json';
   static const String favourite = 'asset/lotties/favourite.json';
   static const String reader = 'asset/lotties/reader.json';
   static const String notes = 'asset/lotties/notes.json';

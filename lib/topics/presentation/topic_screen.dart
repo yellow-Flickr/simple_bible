@@ -38,7 +38,7 @@ class TopicScreen extends ConsumerWidget {
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 2.w),
-            child: _VersionButton(
+            child: VersionButton(
               label: versesAsync.valueOrNull?.firstOrNull?.translationId,
             ),
           ),
@@ -73,25 +73,6 @@ class TopicScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _VersionButton extends ConsumerWidget {
-  const _VersionButton({required this.label});
-
-  final String? label;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    return TextButton.icon(
-      onPressed: () => showVersionPicker(context, ref),
-      icon: Icon(Icons.translate, size: 16, color: theme.primaryColorDark),
-      label: Text(
-        label ?? '',
-        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -149,10 +130,11 @@ class _TopicVerseCard extends ConsumerWidget {
         .watch(favoritesControllerProvider)
         .map((f) => (f.versionId, f.bookId, f.chapter, f.fromVerse))
         .toSet();
-    final isFavorite = topicVerse.verses.every((verse) => favoriteKeys
-        .contains((quotation.versionId, verse.bookId, verse.chapter, verse.verse)));
+    final isFavorite = topicVerse.verses.every((verse) => favoriteKeys.contains(
+        (quotation.versionId, verse.bookId, verse.chapter, verse.verse)));
 
-    void openReader() => openScripture(context, quotation: quotation.toReaderQuotation());
+    void openReader() =>
+        openScripture(context, quotation: quotation.toReaderQuotation());
 
     return Container(
       padding: EdgeInsets.fromLTRB(4.w, 2.h, 4.w, 1.h),

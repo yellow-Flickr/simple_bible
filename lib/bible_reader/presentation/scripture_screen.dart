@@ -10,6 +10,7 @@ import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
     show scriptureServiceProvider;
 import 'package:simple_bible/bible_reader/presentation/scripture_screen_controller.dart';
+import 'package:simple_bible/bible_reader/presentation/version_picker.dart';
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
 
@@ -309,11 +310,15 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen>
                 padding: EdgeInsets.only(right: 3.w),
                 child: Icon(Icons.search),
               ),
-              GestureDetector(
-                onTap: () => _versions(context),
-                child: Padding(
-                  padding: EdgeInsets.only(right: 4.w),
-                  child: Icon(Icons.translate),
+              
+              Padding(
+                padding: EdgeInsets.only(right: 2.w),
+                child: VersionButton(
+                  label: scripture.verses.firstOrNull?.translationId,
+                  selectedId: controller.versionId,
+                  onSelected: (versionId) => ref
+                      .read(scriptureScreenProvider.notifier)
+                      .changeVersion(versionId: versionId),
                 ),
               ),
             ],
@@ -437,43 +442,6 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen>
         ),
       ),
     );
-  }
-
-  void _versions(context) {
-    final theme = Theme.of(context);
-
-    final scriptures = ref.read(scriptureScreenProvider.notifier).getVersions();
-    showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(20.0),
-              topRight: const Radius.circular(20.0)),
-        ),
-        context: context,
-        builder: (BuildContext bc) {
-          return ListView.builder(
-              itemCount: scriptures.length,
-              shrinkWrap: true,
-              itemBuilder: ((context, index) {
-                return ListTile(
-                  onTap: () {
-                    ref
-                        .read(scriptureScreenProvider.notifier)
-                        .changeVersion(versionId: scriptures[index].id);
-
-                    Navigator.pop(context);
-                  },
-                  title: Text(
-                    scriptures[index].versionName,
-                    style: theme.textTheme.bodyMedium!
-                        .copyWith(color: theme.primaryColorLight),
-                  ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                  ),
-                );
-              }));
-        });
   }
 
   void _books(

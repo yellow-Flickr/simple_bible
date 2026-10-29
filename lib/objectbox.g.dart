@@ -18,6 +18,8 @@ import 'bible_reader/domain/scripture_models.dart';
 import 'favorites/domain/favorite.dart';
 import 'history/domain/history.dart';
 import 'notes/domain/notes.dart';
+import 'reflections/domain/reflection_log.dart';
+import 'search/domain/recent_search.dart';
 import 'user_space/domain/user_space.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -528,6 +530,69 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(10, 4166099723946670469),
+    name: 'ReflectionLog',
+    lastPropertyId: const obx_int.IdUid(4, 1299189556700093103),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5227920087116205645),
+        name: 'uid',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 886206646976161264),
+        name: 'date',
+        type: 9,
+        flags: 34848,
+        indexId: const obx_int.IdUid(4, 9074690954427160807),
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 8899769610304403904),
+        name: 'reflectionId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 1299189556700093103),
+        name: 'shownAt',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(11, 320771935479327733),
+    name: 'RecentSearch',
+    lastPropertyId: const obx_int.IdUid(3, 6338230506677920393),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 6964375311031389361),
+        name: 'uid',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 8704142525467957615),
+        name: 'query',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 6338230506677920393),
+        name: 'usedAt',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -568,8 +633,8 @@ Future<obx.Store> openStore({
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(9, 7751605867257765537),
-    lastIndexId: const obx_int.IdUid(3, 3490676688967502133),
+    lastEntityId: const obx_int.IdUid(11, 320771935479327733),
+    lastIndexId: const obx_int.IdUid(4, 9074690954427160807),
     lastRelationId: const obx_int.IdUid(6, 8354695754462940354),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
@@ -1281,6 +1346,98 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    ReflectionLog: obx_int.EntityDefinition<ReflectionLog>(
+      model: _entities[9],
+      toOneRelations: (ReflectionLog object) => [],
+      toManyRelations: (ReflectionLog object) => {},
+      getId: (ReflectionLog object) => object.uid,
+      setId: (ReflectionLog object, int id) {
+        object.uid = id;
+      },
+      objectToFB: (ReflectionLog object, fb.Builder fbb) {
+        final dateOffset = fbb.writeString(object.date);
+        final reflectionIdOffset = fbb.writeString(object.reflectionId);
+        fbb.startTable(5);
+        fbb.addInt64(0, object.uid ?? 0);
+        fbb.addOffset(1, dateOffset);
+        fbb.addOffset(2, reflectionIdOffset);
+        fbb.addInt64(3, object.shownAt);
+        fbb.finish(fbb.endTable());
+        return object.uid ?? 0;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final uidParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          4,
+        );
+        final dateParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final reflectionIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final shownAtParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          10,
+          0,
+        );
+        final object = ReflectionLog(
+          uid: uidParam,
+          date: dateParam,
+          reflectionId: reflectionIdParam,
+          shownAt: shownAtParam,
+        );
+
+        return object;
+      },
+    ),
+    RecentSearch: obx_int.EntityDefinition<RecentSearch>(
+      model: _entities[10],
+      toOneRelations: (RecentSearch object) => [],
+      toManyRelations: (RecentSearch object) => {},
+      getId: (RecentSearch object) => object.uid,
+      setId: (RecentSearch object, int id) {
+        object.uid = id;
+      },
+      objectToFB: (RecentSearch object, fb.Builder fbb) {
+        final queryOffset = fbb.writeString(object.query);
+        fbb.startTable(4);
+        fbb.addInt64(0, object.uid ?? 0);
+        fbb.addOffset(1, queryOffset);
+        fbb.addInt64(2, object.usedAt);
+        fbb.finish(fbb.endTable());
+        return object.uid ?? 0;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final uidParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          4,
+        );
+        final queryParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final usedAtParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          8,
+          0,
+        );
+        final object = RecentSearch(
+          uid: uidParam,
+          query: queryParam,
+          usedAt: usedAtParam,
+        );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -1649,5 +1806,46 @@ class Notes_ {
   /// See [Notes.content].
   static final content = obx.QueryStringProperty<Notes>(
     _entities[8].properties[5],
+  );
+}
+
+/// [ReflectionLog] entity fields to define ObjectBox queries.
+class ReflectionLog_ {
+  /// See [ReflectionLog.uid].
+  static final uid = obx.QueryIntegerProperty<ReflectionLog>(
+    _entities[9].properties[0],
+  );
+
+  /// See [ReflectionLog.date].
+  static final date = obx.QueryStringProperty<ReflectionLog>(
+    _entities[9].properties[1],
+  );
+
+  /// See [ReflectionLog.reflectionId].
+  static final reflectionId = obx.QueryStringProperty<ReflectionLog>(
+    _entities[9].properties[2],
+  );
+
+  /// See [ReflectionLog.shownAt].
+  static final shownAt = obx.QueryIntegerProperty<ReflectionLog>(
+    _entities[9].properties[3],
+  );
+}
+
+/// [RecentSearch] entity fields to define ObjectBox queries.
+class RecentSearch_ {
+  /// See [RecentSearch.uid].
+  static final uid = obx.QueryIntegerProperty<RecentSearch>(
+    _entities[10].properties[0],
+  );
+
+  /// See [RecentSearch.query].
+  static final query = obx.QueryStringProperty<RecentSearch>(
+    _entities[10].properties[1],
+  );
+
+  /// See [RecentSearch.usedAt].
+  static final usedAt = obx.QueryIntegerProperty<RecentSearch>(
+    _entities[10].properties[2],
   );
 }

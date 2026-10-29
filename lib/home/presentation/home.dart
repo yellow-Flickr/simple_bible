@@ -12,6 +12,10 @@ import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/history/presentation/history_controller.dart';
 import 'package:simple_bible/shared/configs/assets.dart';
 import 'package:simple_bible/shared/shell/app_tab_controller.dart';
+import 'package:simple_bible/reflections/presentation/reflection_history_screen.dart';
+import 'package:simple_bible/reflections/presentation/reflection_screen.dart';
+import 'package:simple_bible/reflections/presentation/reflections_controller.dart';
+import 'package:simple_bible/topics/domain/topic.dart';
 import 'package:simple_bible/shared/configs/constants.dart';
 import 'package:simple_bible/shared/configs/extensions.dart';
 import 'package:simple_bible/favorites/presentation/favorites_view.dart';
@@ -104,54 +108,7 @@ class _HomeState extends ConsumerState<Home> {
         // shrinkWrap: true,
         children: [
           _buildVerseOfTheDay(theme),
-          Padding(
-            padding: EdgeInsets.only(
-              top: 2.h,
-            ),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                vertical: .5.h,
-                horizontal: 2.w,
-              ),
-              decoration: BoxDecoration(
-                  border: Border.all(color: theme.primaryColorLight)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Reflections Today',
-                          // textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w300, fontSize: 13)),
-                      Container(
-                          padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: theme.primaryColorLight),
-                              // color: theme.primaryColorLight,
-                              shape: BoxShape.circle),
-                          child: Icon(
-                            Icons.arrow_outward_sharp,
-                            color: theme.primaryColorLight,
-                            size: 15,
-                          ))
-                    ],
-                  ),
-                  SizedBox(
-                    height: .5.h,
-                  ),
-                  Text(
-                    'God\'s plan for us is filled with hope.\nReflect on HIS assurances and provisions.',
-                    // textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildReflectionCard(theme),
           SizedBox(
             height: 3.h,
           ),
@@ -193,18 +150,22 @@ class _HomeState extends ConsumerState<Home> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   GestureDetector(
-                    onTap: () =>
-                        ref.read(appTabProvider.notifier).state = AppTab.topics,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ReflectionHistoryScreen(),
+                      ),
+                    ),
                     child: Container(
                       width: 20.w,
                       height: 8.h,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(color: theme.primaryColorLight)),
-                      child: Icon(
-                        Icons.auto_stories,
-                        size: 9.w,
-                        color: theme.primaryColorDark,
+                      child: Lottie.asset(
+                        LottieAssets.meditation,
+                        fit: BoxFit.contain,
+                        // height: kToolbarHeight,
                       ),
                     ),
                   ),
@@ -363,6 +324,84 @@ class _HomeState extends ConsumerState<Home> {
             height: 5.h,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReflectionCard(ThemeData theme) {
+    final reflection = ref.watch(todayReflectionProvider).valueOrNull;
+    if (reflection == null) return const SizedBox.shrink();
+    final topicName = (ref.watch(topicsProvider).valueOrNull ?? const <Topic>[])
+        .where((t) => t.slug == reflection.topicSlug)
+        .firstOrNull
+        ?.name;
+
+    return Padding(
+      padding: EdgeInsets.only(top: 2.h),
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReflectionScreen(
+              reflection: reflection,
+              date: DateTime.now(),
+            ),
+          ),
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
+          decoration: BoxDecoration(
+              border: Border.all(color: theme.primaryColorLight)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Text("Today's Reflection",
+                      style:
+                          TextStyle(fontWeight: FontWeight.w300, fontSize: 13)),
+                  const Spacer(),
+                  if (topicName != null)
+                    Text(
+                      topicName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        color: theme.primaryColorDark,
+                      ),
+                    ),
+                  SizedBox(width: 2.w),
+                  Container(
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: theme.primaryColorLight),
+                        shape: BoxShape.circle),
+                    child: Icon(
+                      Icons.arrow_outward_sharp,
+                      color: theme.primaryColorLight,
+                      size: 15,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: .8.h),
+              Text(
+                reflection.title,
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+              ),
+              SizedBox(height: .5.h),
+              Text(
+                '"${reflection.question}"',
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

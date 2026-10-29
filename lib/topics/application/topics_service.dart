@@ -62,6 +62,15 @@ class TopicsService {
     return null;
   }
 
+  /// Resolves a single [reference] in [version], or null if the version
+  /// doesn't contain it.
+  TopicVerse? resolveReference(
+    TopicReference reference,
+    Versions version, {
+    List<Topic> allTopics = const [],
+  }) =>
+      _resolve(reference, version, {for (final t in allTopics) t.slug: t});
+
   TopicVerse? _resolve(
     TopicReference reference,
     Versions version,
