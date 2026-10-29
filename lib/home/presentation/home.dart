@@ -15,6 +15,7 @@ import 'package:simple_bible/shared/shell/app_tab_controller.dart';
 import 'package:simple_bible/reflections/presentation/reflection_history_screen.dart';
 import 'package:simple_bible/reflections/presentation/reflection_screen.dart';
 import 'package:simple_bible/reflections/presentation/reflections_controller.dart';
+import 'package:simple_bible/search/presentation/search_screen.dart';
 import 'package:simple_bible/topics/domain/topic.dart';
 import 'package:simple_bible/shared/configs/constants.dart';
 import 'package:simple_bible/shared/configs/extensions.dart';
@@ -97,8 +98,15 @@ class _HomeState extends ConsumerState<Home> {
         automaticallyImplyLeading: false,
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 3.w),
-            child: Icon(Icons.search),
+            padding: EdgeInsets.only(right: 2.w),
+            child: IconButton(
+              tooltip: 'Search',
+              icon: Icon(Icons.search),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchScreen()),
+              ),
+            ),
           ),
         ],
         elevation: 0,

@@ -13,6 +13,7 @@ import 'package:simple_bible/bible_reader/presentation/scripture_screen_controll
 import 'package:simple_bible/bible_reader/presentation/version_picker.dart';
 import 'package:simple_bible/favorites/presentation/favorites_controller.dart';
 import 'package:simple_bible/notes/presentation/note_editor.dart';
+import 'package:simple_bible/search/presentation/search_screen.dart';
 
 /// Opens the reader full screen, above the bottom navigation bar, at
 /// [quotation] (0-based reader indexes) or the default passage.
@@ -207,18 +208,37 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen>
     if (!mounted) return;
 
     final quotation = widget.quotation;
-    // An out-of-range reference would crash build(), so stay on the default
-    // passage instead.
-    if (quotation != null &&
-        ref.read(scriptureServiceProvider).resolve(quotation) != null) {
-      ref.read(scriptureScreenProvider.notifier).openQuotation(quotation);
-      setState(() => highlightedIndex = quotation.fromVerse);
-      _scrollToVerse(quotation.fromVerse);
+    if (quotation != null) await _goTo(quotation);
+  }
 
-      await Future.delayed(const Duration(seconds: 2));
-      if (mounted) setState(() => highlightedIndex = -1);
-      return;
-    }
+  /// Moves the reader to [quotation] (0-based indexes) and briefly highlights
+  /// its first verse.
+  Future<void> _goTo(Quotation quotation) async {
+    // An out-of-range reference would crash build(), so stay where we are.
+    if (ref.read(scriptureServiceProvider).resolve(quotation) == null) return;
+    ref.read(scriptureScreenProvider.notifier).openQuotation(quotation);
+    setState(() => highlightedIndex = quotation.fromVerse);
+    // Wait a frame so the list shows the new chapter before scrolling.
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    _scrollToVerse(quotation.fromVerse);
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => highlightedIndex = -1);
+  }
+
+  Future<void> _openSearch() async {
+    final reference = ref.read(scriptureScreenProvider);
+    final passage = await Navigator.of(context).push<Quotation>(
+      MaterialPageRoute(
+        builder: (context) => SearchScreen(
+          versionId: reference.versionId,
+          bookId: reference.bookId + 1,
+          returnPassage: true,
+        ),
+      ),
+    );
+    if (passage != null && mounted) await _goTo(passage);
   }
 
   @override
@@ -306,9 +326,10 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen>
             //       ),
             //     )),
             actions: [
-              Padding(
-                padding: EdgeInsets.only(right: 3.w),
-                child: Icon(Icons.search),
+              IconButton(
+                tooltip: 'Search',
+                icon: Icon(Icons.search),
+                onPressed: _openSearch,
               ),
               
               Padding(

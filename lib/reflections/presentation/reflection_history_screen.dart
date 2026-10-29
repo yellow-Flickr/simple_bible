@@ -119,6 +119,7 @@ class _ReflectionHistoryScreenState
           onSelected: (_) => onTap(),
           showCheckmark: false,
           selectedColor: theme.primaryColorDark,
+          backgroundColor: theme.cardColor,
           labelStyle: TextStyle(
             fontSize: 12,
             color: selected ? Colors.black : null,
