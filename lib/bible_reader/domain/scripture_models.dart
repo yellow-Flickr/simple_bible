@@ -27,11 +27,16 @@ class Versions {
   @Id()
   int? uid;
   String versionName;
+
+  /// The catalogue revision this text came from. Rows saved before revisions
+  /// existed read as 0 and count as revision 1.
+  int revision;
   final books = ToMany<Book>();
 
   Versions({
     this.id = 0,
     required this.versionName,
+    this.revision = 1,
   });
 
   factory Versions.fromJson(Map<String, dynamic> json) {

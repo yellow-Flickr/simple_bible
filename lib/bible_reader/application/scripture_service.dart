@@ -18,6 +18,19 @@ class ScriptureService {
 
   List<Versions> getVersions() => _repository.getAll();
 
+  /// Saves a downloaded [version], replacing an older copy of it.
+  Future<void> install(Versions version) => _repository.install(version);
+
+  /// Deletes the version with [id]. The last installed version can't be
+  /// removed, so the app always has something to read.
+  void remove(int id) {
+    final versions = _repository.getAll();
+    if (versions.length <= 1 && versions.any((v) => v.id == id)) {
+      throw StateError('The last installed version cannot be removed.');
+    }
+    _repository.remove(id);
+  }
+
   Versions getVersion(int id) {
     final version = _repository.getById(id);
     if (version == null) {

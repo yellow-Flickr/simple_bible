@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
-    show scriptureInitializationProvider, scriptureServiceProvider;
+    show installedVersionsProvider;
 import 'package:simple_bible/user_space/data/user_space_repository_provider.dart';
 import 'package:simple_bible/user_space/domain/user_space.dart';
 
@@ -46,9 +46,7 @@ final preferredVersionIdProvider = Provider<int>((ref) {
   final preferred = ref.watch(
     userSpaceProvider.select((userSpace) => userSpace.preferredTranslation),
   );
-  // Recompute once the bundled versions have been stored at startup.
-  ref.watch(scriptureInitializationProvider);
-  final versions = ref.watch(scriptureServiceProvider).getVersions();
+  final versions = ref.watch(installedVersionsProvider);
   return resolvePreferredVersionId(preferred, versions);
 });
 

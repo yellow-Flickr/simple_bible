@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
-    show scriptureServiceProvider;
+    show installedVersionsProvider;
 import 'package:simple_bible/bible_reader/presentation/version_picker.dart';
+import 'package:simple_bible/version_store/presentation/version_store_screen.dart';
 import 'package:simple_bible/user_space/legal_content.dart';
 import 'package:simple_bible/user_space/presentation/about/about_screen.dart';
 import 'package:simple_bible/user_space/presentation/about/app_actions.dart';
@@ -22,8 +23,7 @@ class ProfileScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final versionId = ref.watch(preferredVersionIdProvider);
     final versionName = ref
-            .watch(scriptureServiceProvider)
-            .getVersions()
+            .watch(installedVersionsProvider)
             .where((version) => version.id == versionId)
             .firstOrNull
             ?.versionName ??
@@ -96,11 +96,13 @@ class ProfileScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => showVersionPicker(context, ref),
               ),
-              const ListTile(
-                enabled: false,
-                leading: Icon(Icons.download_outlined),
-                title: Text('Download more versions'),
-                subtitle: Text('Coming soon'),
+              ListTile(
+                leading: const Icon(Icons.download_outlined),
+                title: const Text('Download more versions'),
+                subtitle: const Text('Get other translations and languages'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () =>
+                    Navigator.push(context, VersionStoreScreen.route()),
               ),
             ],
           ),

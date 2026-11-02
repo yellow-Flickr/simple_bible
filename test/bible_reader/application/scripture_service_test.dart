@@ -52,6 +52,42 @@ void main() {
       expect(() => service.getVersion(404), throwsStateError);
     });
 
+    test('install replaces a stored version with the same id', () async {
+      final repository =
+          _FakeScriptureRepository([Versions(id: 100, versionName: 'KJV')]);
+      final service =
+          ScriptureService(repository, _FakeScriptureAssetSource(() async => []));
+      final update = Versions(id: 100, versionName: 'KJV', revision: 2);
+
+      await service.install(update);
+
+      expect(service.getVersions(), [update]);
+    });
+
+    test('removes a version while another is installed', () {
+      final service = ScriptureService(
+        _FakeScriptureRepository([
+          Versions(id: 100, versionName: 'KJV'),
+          Versions(id: 200, versionName: 'Twi'),
+        ]),
+        _FakeScriptureAssetSource(() async => []),
+      );
+
+      service.remove(200);
+
+      expect(service.getVersions().map((v) => v.id), [100]);
+    });
+
+    test('refuses to remove the last installed version', () {
+      final service = ScriptureService(
+        _FakeScriptureRepository([Versions(id: 100, versionName: 'KJV')]),
+        _FakeScriptureAssetSource(() async => []),
+      );
+
+      expect(() => service.remove(100), throwsStateError);
+      expect(service.getVersions(), hasLength(1));
+    });
+
     group('resolve', () {
       final version = _versionWithVerses(chapters: 2, versesPerChapter: 3);
       final service = ScriptureService(
@@ -143,6 +179,15 @@ class _FakeScriptureRepository implements ScriptureRepository {
     savedVersions.addAll(versions);
     _versions.addAll(versions);
   }
+
+  @override
+  Future<void> install(Versions version) async {
+    remove(version.id);
+    _versions.add(version);
+  }
+
+  @override
+  void remove(int id) => _versions.removeWhere((v) => v.id == id);
 }
 
 class _FakeScriptureAssetSource implements ScriptureAssetSource {

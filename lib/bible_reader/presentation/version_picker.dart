@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
-    show scriptureServiceProvider;
+    show installedVersionsProvider;
 import 'package:simple_bible/user_space/application/user_space_service.dart';
+import 'package:simple_bible/version_store/presentation/version_store_screen.dart';
 
 /// Lets the user pick a Bible version from the installed ones.
 ///
@@ -15,7 +16,7 @@ void showVersionPicker(
   ValueChanged<int>? onSelected,
 }) {
   final theme = Theme.of(context);
-  final versions = ref.read(scriptureServiceProvider).getVersions();
+  final versions = ref.read(installedVersionsProvider);
   final current = selectedId ?? ref.read(preferredVersionIdProvider);
 
   showModalBottomSheet(
@@ -24,10 +25,23 @@ void showVersionPicker(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) => ListView.builder(
+    builder: (sheetContext) => ListView.builder(
       shrinkWrap: true,
-      itemCount: versions.length,
-      itemBuilder: (context, index) {
+      itemCount: versions.length + 1,
+      itemBuilder: (sheetContext, index) {
+        if (index == versions.length) {
+          return ListTile(
+            leading:
+                Icon(Icons.download_outlined, color: theme.primaryColorDark),
+            title: const Text('Get more versions'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.pop(sheetContext);
+              // The caller's navigator: the reader's, or the current tab's.
+              Navigator.push(context, VersionStoreScreen.route());
+            },
+          );
+        }
         final version = versions[index];
         return ListTile(
           onTap: () {
@@ -38,7 +52,7 @@ void showVersionPicker(
                   .read(userSpaceProvider.notifier)
                   .setPreferredTranslation(version.id);
             }
-            Navigator.pop(context);
+            Navigator.pop(sheetContext);
           },
           title: Text(
             version.versionName,

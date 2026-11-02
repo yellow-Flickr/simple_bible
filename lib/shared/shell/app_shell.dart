@@ -6,6 +6,9 @@ import 'package:simple_bible/notes/presentation/note_list.dart';
 import 'package:simple_bible/shared/shell/app_tab_controller.dart';
 import 'package:simple_bible/topics/presentation/topic_catalog_screen.dart';
 import 'package:simple_bible/user_space/presentation/profile_screen.dart';
+import 'package:simple_bible/version_store/application/version_store_controller.dart';
+import 'package:simple_bible/version_store/presentation/download_strip.dart';
+import 'package:simple_bible/version_store/presentation/version_store_screen.dart';
 
 /// Hosts the main tabs behind a bottom navigation bar. Each tab has its own
 /// navigator, so screens opened from a tab keep the bar and the tab's back
@@ -51,9 +54,26 @@ class _AppShellState extends ConsumerState<AppShell> {
     await SystemNavigator.pop();
   }
 
+  /// Shows the versions screen in the current tab, reusing it if it is open.
+  void _openVersionStore() {
+    final navigator = _navigatorKeys[ref.read(appTabProvider)]!.currentState;
+    if (navigator == null) return;
+    var showing = false;
+    navigator.popUntil((route) {
+      showing = route.settings.name == VersionStoreScreen.routeName;
+      return showing || route.isFirst;
+    });
+    if (!showing) navigator.push(VersionStoreScreen.route());
+  }
+
   @override
   Widget build(BuildContext context) {
     final current = ref.watch(appTabProvider);
+    ref.listen(
+      versionDownloadControllerProvider,
+      (previous, next) =>
+          announceVersionDownloads(context, ref, previous, next),
+    );
 
     return PopScope(
       canPop: false,
@@ -74,35 +94,43 @@ class _AppShellState extends ConsumerState<AppShell> {
               ),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          // Fixed so the theme's background colour applies with 4 items.
-          type: BottomNavigationBarType.fixed,
-          currentIndex: current.index,
-          onTap: (index) => _onTabTapped(AppTab.values[index]),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.auto_stories_outlined),
-              activeIcon: Icon(Icons.auto_stories),
-              label: 'Topics',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.sticky_note_2_outlined),
-              activeIcon: Icon(Icons.sticky_note_2),
-              label: 'Notes',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DownloadStrip(onTap: _openVersionStore),
+            _navigationBar(current),
           ],
         ),
       ),
     );
   }
+
+  Widget _navigationBar(AppTab current) => BottomNavigationBar(
+        // Fixed so the theme's background colour applies with 4 items.
+        type: BottomNavigationBarType.fixed,
+        currentIndex: current.index,
+        onTap: (index) => _onTabTapped(AppTab.values[index]),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_stories_outlined),
+            activeIcon: Icon(Icons.auto_stories),
+            label: 'Topics',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.sticky_note_2_outlined),
+            activeIcon: Icon(Icons.sticky_note_2),
+            label: 'Notes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      );
 }
