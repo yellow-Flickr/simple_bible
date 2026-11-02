@@ -280,7 +280,7 @@ class ScriptureScreenState extends ConsumerState<ScriptureScreen>
         child: Scaffold(
           // backgroundColor: Colors.black,
           appBar: AppBar(
-            leading: DrawerButton(),
+            leading: BackButton(),
             automaticallyImplyLeading: false,
             title: Text.rich(
                 TextSpan(children: [
