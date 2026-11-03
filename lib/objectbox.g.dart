@@ -21,6 +21,7 @@ import 'notes/domain/notes.dart';
 import 'reflections/domain/reflection_log.dart';
 import 'search/domain/recent_search.dart';
 import 'user_space/domain/user_space.dart';
+import 'version_store/domain/cached_catalogue.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -150,7 +151,7 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(12, 4732672637252046874),
         name: 'versionId',
-        type: 6,
+        type: 9,
         flags: 0,
       ),
       obx_int.ModelProperty(
@@ -190,7 +191,7 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(7, 4484935993047110096),
         name: 'versionId',
-        type: 6,
+        type: 9,
         flags: 0,
       ),
       obx_int.ModelProperty(
@@ -276,14 +277,14 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(6, 8357890997136580676),
     name: 'Versions',
-    lastPropertyId: const obx_int.IdUid(3, 4364434394991071871),
+    lastPropertyId: const obx_int.IdUid(5, 8227608246157338823),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(1, 143332685337330851),
         name: 'id',
-        type: 6,
-        flags: 32808,
+        type: 9,
+        flags: 34848,
         indexId: const obx_int.IdUid(1, 22275339665192138),
       ),
       obx_int.ModelProperty(
@@ -297,6 +298,21 @@ final _entities = <obx_int.ModelEntity>[
         name: 'versionName',
         type: 9,
         flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 7525279768057514659),
+        name: 'revision',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 8227608246157338823),
+        name: 'languageId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(5, 7470438847887013432),
+        relationField: 'language',
+        relationTarget: 'Language',
       ),
     ],
     relations: <obx_int.ModelRelation>[
@@ -395,7 +411,7 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(14, 9193368937322555414),
         name: 'preferredTranslation',
-        type: 6,
+        type: 9,
         flags: 0,
       ),
       obx_int.ModelProperty(
@@ -593,6 +609,68 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(12, 8870483180227195419),
+    name: 'CachedCatalogue',
+    lastPropertyId: const obx_int.IdUid(3, 4192001638163415733),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 340309066440425922),
+        name: 'uid',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 8121769154019273901),
+        name: 'json',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 4192001638163415733),
+        name: 'fetchedAt',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(13, 4983037992671079770),
+    name: 'Language',
+    lastPropertyId: const obx_int.IdUid(4, 1086625234304466853),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5911940199039455320),
+        name: 'uid',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 3945158834124012483),
+        name: 'code',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 3624575601468392338),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 1086625234304466853),
+        name: 'dialect',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -632,9 +710,14 @@ Future<obx.Store> openStore({
 /// [obx.Store.new].
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
+    // If this version is not found, it means that this file was generated
+    // with an older version of the ObjectBox Dart generator.
+    // Please regenerate this file with the current generator version.
+    // Typically, this is done with `dart run build_runner build`.
+    generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(11, 320771935479327733),
-    lastIndexId: const obx_int.IdUid(4, 9074690954427160807),
+    lastEntityId: const obx_int.IdUid(13, 4983037992671079770),
+    lastIndexId: const obx_int.IdUid(5, 7470438847887013432),
     lastRelationId: const obx_int.IdUid(6, 8354695754462940354),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
@@ -661,10 +744,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
     Book: obx_int.EntityDefinition<Book>(
       model: _entities[0],
       toOneRelations: (Book object) => [],
-      toManyRelations:
-          (Book object) => {
-            obx_int.RelInfo<Book>.toMany(1, object.uid!): object.chapters,
-          },
+      toManyRelations: (Book object) => {
+        obx_int.RelInfo<Book>.toMany(1, object.uid!): object.chapters,
+      },
       getId: (Book object) => object.uid,
       setId: (Book object, int id) {
         object.uid = id;
@@ -693,16 +775,17 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final testamentParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 10, '');
-        final object = Book(
-            translationId: translationIdParam,
-            name: nameParam,
-            testament: testamentParam,
-          )
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            4,
-          );
+        final object =
+            Book(
+                translationId: translationIdParam,
+                name: nameParam,
+                testament: testamentParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
         obx_int.InternalToManyAccess.setRelInfo<Book>(
           object.chapters,
           store,
@@ -714,10 +797,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
     Chapter: obx_int.EntityDefinition<Chapter>(
       model: _entities[1],
       toOneRelations: (Chapter object) => [],
-      toManyRelations:
-          (Chapter object) => {
-            obx_int.RelInfo<Chapter>.toMany(2, object.uid!): object.verses,
-          },
+      toManyRelations: (Chapter object) => {
+        obx_int.RelInfo<Chapter>.toMany(2, object.uid!): object.verses,
+      },
       getId: (Chapter object) => object.uid,
       setId: (Chapter object, int id) {
         object.uid = id;
@@ -755,17 +837,18 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final testamentParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 12, '');
-        final object = Chapter(
-            id: idParam,
-            chapter: chapterParam,
-            translationId: translationIdParam,
-            testament: testamentParam,
-          )
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            4,
-          );
+        final object =
+            Chapter(
+                id: idParam,
+                chapter: chapterParam,
+                translationId: translationIdParam,
+                testament: testamentParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
         obx_int.InternalToManyAccess.setRelInfo<Chapter>(
           object.verses,
           store,
@@ -784,13 +867,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (Favorite object, fb.Builder fbb) {
         final textOffset = fbb.writeString(object.text);
+        final versionIdOffset = fbb.writeString(object.versionId);
         fbb.startTable(14);
         fbb.addInt64(0, object.uid ?? 0);
         fbb.addInt64(1, object.date);
         fbb.addInt64(8, object.chapter);
         fbb.addInt64(9, object.fromVerse);
         fbb.addOffset(10, textOffset);
-        fbb.addInt64(11, object.versionId);
+        fbb.addOffset(11, versionIdOffset);
         fbb.addInt64(12, object.bookId);
         fbb.finish(fbb.endTable());
         return object.uid ?? 0;
@@ -819,31 +903,29 @@ obx_int.ModelDefinition getObjectBoxModel() {
           22,
           0,
         );
-        final versionIdParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          26,
-          0,
-        );
+        final versionIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 26, '');
         final dateParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
           6,
           0,
         );
-        final object = Favorite(
-            bookId: bookIdParam,
-            chapter: chapterParam,
-            text: textParam,
-            fromVerse: fromVerseParam,
-            versionId: versionIdParam,
-            date: dateParam,
-          )
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            4,
-          );
+        final object =
+            Favorite(
+                bookId: bookIdParam,
+                chapter: chapterParam,
+                text: textParam,
+                fromVerse: fromVerseParam,
+                versionId: versionIdParam,
+                date: dateParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
 
         return object;
       },
@@ -858,11 +940,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (History object, fb.Builder fbb) {
         final dateTimeOffset = fbb.writeString(object.dateTime);
+        final versionIdOffset = fbb.writeString(object.versionId);
         fbb.startTable(10);
         fbb.addInt64(0, object.uid ?? 0);
         fbb.addOffset(1, dateTimeOffset);
         fbb.addInt64(5, object.fromVerse);
-        fbb.addInt64(6, object.versionId);
+        fbb.addOffset(6, versionIdOffset);
         fbb.addInt64(7, object.bookId);
         fbb.addInt64(8, object.chapter);
         fbb.finish(fbb.endTable());
@@ -876,12 +959,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
           rootOffset,
           4,
         );
-        final versionIdParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          16,
-          0,
-        );
+        final versionIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 16, '');
         final bookIdParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -980,63 +1060,81 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final testamentParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 20, '');
-        final object = Verse(
-            id: idParam,
-            bookId: bookIdParam,
-            chapter: chapterParam,
-            verse: verseParam,
-            text: textParam,
-            translationId: translationIdParam,
-            bookName: bookNameParam,
-            testament: testamentParam,
-          )
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            4,
-          );
+        final object =
+            Verse(
+                id: idParam,
+                bookId: bookIdParam,
+                chapter: chapterParam,
+                verse: verseParam,
+                text: textParam,
+                translationId: translationIdParam,
+                bookName: bookNameParam,
+                testament: testamentParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
 
         return object;
       },
     ),
     Versions: obx_int.EntityDefinition<Versions>(
       model: _entities[5],
-      toOneRelations: (Versions object) => [],
-      toManyRelations:
-          (Versions object) => {
-            obx_int.RelInfo<Versions>.toMany(3, object.uid!): object.books,
-          },
+      toOneRelations: (Versions object) => [object.language],
+      toManyRelations: (Versions object) => {
+        obx_int.RelInfo<Versions>.toMany(3, object.uid!): object.books,
+      },
       getId: (Versions object) => object.uid,
       setId: (Versions object, int id) {
         object.uid = id;
       },
       objectToFB: (Versions object, fb.Builder fbb) {
+        final idOffset = fbb.writeString(object.id);
         final versionNameOffset = fbb.writeString(object.versionName);
-        fbb.startTable(4);
-        fbb.addInt64(0, object.id);
+        fbb.startTable(6);
+        fbb.addOffset(0, idOffset);
         fbb.addInt64(1, object.uid ?? 0);
         fbb.addOffset(2, versionNameOffset);
+        fbb.addInt64(3, object.revision);
+        fbb.addInt64(4, object.language.targetId);
         fbb.finish(fbb.endTable());
         return object.uid ?? 0;
       },
       objectFromFB: (obx.Store store, ByteData fbData) {
         final buffer = fb.BufferContext(fbData);
         final rootOffset = buffer.derefObject(0);
-        final idParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          4,
-          0,
-        );
+        final idParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 4, '');
         final versionNameParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 8, '');
-        final object = Versions(id: idParam, versionName: versionNameParam)
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            6,
-          );
+        final revisionParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          10,
+          0,
+        );
+        final object =
+            Versions(
+                id: idParam,
+                versionName: versionNameParam,
+                revision: revisionParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                6,
+              );
+        object.language.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          12,
+          0,
+        );
+        object.language.attach(store);
         obx_int.InternalToManyAccess.setRelInfo<Versions>(
           object.books,
           store,
@@ -1048,52 +1146,53 @@ obx_int.ModelDefinition getObjectBoxModel() {
     UserSpace: obx_int.EntityDefinition<UserSpace>(
       model: _entities[6],
       toOneRelations: (UserSpace object) => [],
-      toManyRelations:
-          (UserSpace object) => {
-            obx_int.RelInfo<UserSpace>.toMany(4, object.uid!):
-                object.favoriteVerses,
-            obx_int.RelInfo<UserSpace>.toMany(5, object.uid!):
-                object.readingHistory,
-            obx_int.RelInfo<UserSpace>.toMany(6, object.uid!):
-                object.versesHighlighted,
-          },
+      toManyRelations: (UserSpace object) => {
+        obx_int.RelInfo<UserSpace>.toMany(4, object.uid!):
+            object.favoriteVerses,
+        obx_int.RelInfo<UserSpace>.toMany(5, object.uid!):
+            object.readingHistory,
+        obx_int.RelInfo<UserSpace>.toMany(6, object.uid!):
+            object.versesHighlighted,
+      },
       getId: (UserSpace object) => object.uid,
       setId: (UserSpace object, int id) {
         object.uid = id;
       },
       objectToFB: (UserSpace object, fb.Builder fbb) {
         final userIdOffset = fbb.writeString(object.userId);
-        final emailOffset =
-            object.email == null ? null : fbb.writeString(object.email!);
-        final usernameOffset =
-            object.username == null ? null : fbb.writeString(object.username!);
-        final passwordHashOffset =
-            object.passwordHash == null
-                ? null
-                : fbb.writeString(object.passwordHash!);
-        final authProviderOffset =
-            object.authProvider == null
-                ? null
-                : fbb.writeString(object.authProvider!);
-        final fullNameOffset =
-            object.fullName == null ? null : fbb.writeString(object.fullName!);
-        final avatarUrlOffset =
-            object.avatarUrl == null
-                ? null
-                : fbb.writeString(object.avatarUrl!);
-        final bioOffset =
-            object.bio == null ? null : fbb.writeString(object.bio!);
+        final emailOffset = object.email == null
+            ? null
+            : fbb.writeString(object.email!);
+        final usernameOffset = object.username == null
+            ? null
+            : fbb.writeString(object.username!);
+        final passwordHashOffset = object.passwordHash == null
+            ? null
+            : fbb.writeString(object.passwordHash!);
+        final authProviderOffset = object.authProvider == null
+            ? null
+            : fbb.writeString(object.authProvider!);
+        final fullNameOffset = object.fullName == null
+            ? null
+            : fbb.writeString(object.fullName!);
+        final avatarUrlOffset = object.avatarUrl == null
+            ? null
+            : fbb.writeString(object.avatarUrl!);
+        final bioOffset = object.bio == null
+            ? null
+            : fbb.writeString(object.bio!);
+        final preferredTranslationOffset = fbb.writeString(
+          object.preferredTranslation,
+        );
         final notesOffset = fbb.writeList(
           object.notes.map(fbb.writeString).toList(growable: false),
         );
-        final appVersionOffset =
-            object.appVersion == null
-                ? null
-                : fbb.writeString(object.appVersion!);
-        final deviceTypeOffset =
-            object.deviceType == null
-                ? null
-                : fbb.writeString(object.deviceType!);
+        final appVersionOffset = object.appVersion == null
+            ? null
+            : fbb.writeString(object.appVersion!);
+        final deviceTypeOffset = object.deviceType == null
+            ? null
+            : fbb.writeString(object.deviceType!);
         fbb.startTable(22);
         fbb.addInt64(0, object.uid ?? 0);
         fbb.addOffset(1, userIdOffset);
@@ -1108,7 +1207,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(10, bioOffset);
         fbb.addInt64(11, object.theme);
         fbb.addInt64(12, object.fontSize);
-        fbb.addInt64(13, object.preferredTranslation);
+        fbb.addOffset(13, preferredTranslationOffset);
         fbb.addInt64(14, object.streakDays);
         fbb.addInt64(16, object.bookmarksCount);
         fbb.addInt64(17, object.notesCount);
@@ -1165,12 +1264,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
           rootOffset,
           28,
         );
-        final preferredTranslationParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          30,
-          0,
-        );
+        final preferredTranslationParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 30, '');
         final streakDaysParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -1199,32 +1295,33 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final deviceTypeParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 44);
-        final object = UserSpace(
-            userId: userIdParam,
-            email: emailParam,
-            username: usernameParam,
-            passwordHash: passwordHashParam,
-            authProvider: authProviderParam,
-            createdAt: createdAtParam,
-            lastLogin: lastLoginParam,
-            fullName: fullNameParam,
-            avatarUrl: avatarUrlParam,
-            bio: bioParam,
-            theme: themeParam,
-            fontSize: fontSizeParam,
-            preferredTranslation: preferredTranslationParam,
-            streakDays: streakDaysParam,
-            bookmarksCount: bookmarksCountParam,
-            notesCount: notesCountParam,
-            notes: notesParam,
-            appVersion: appVersionParam,
-            deviceType: deviceTypeParam,
-          )
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            4,
-          );
+        final object =
+            UserSpace(
+                userId: userIdParam,
+                email: emailParam,
+                username: usernameParam,
+                passwordHash: passwordHashParam,
+                authProvider: authProviderParam,
+                createdAt: createdAtParam,
+                lastLogin: lastLoginParam,
+                fullName: fullNameParam,
+                avatarUrl: avatarUrlParam,
+                bio: bioParam,
+                theme: themeParam,
+                fontSize: fontSizeParam,
+                preferredTranslation: preferredTranslationParam,
+                streakDays: streakDaysParam,
+                bookmarksCount: bookmarksCountParam,
+                notesCount: notesCountParam,
+                notes: notesParam,
+                appVersion: appVersionParam,
+                deviceType: deviceTypeParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
         obx_int.InternalToManyAccess.setRelInfo<UserSpace>(
           object.favoriteVerses,
           store,
@@ -1275,15 +1372,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fb.Int64Reader(),
           lazy: false,
         ).vTableGet(buffer, rootOffset, 8, []);
-        final object = HighLightedVerses(
-            versionID: versionIDParam,
-            highlightedVerses: highlightedVersesParam,
-          )
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            4,
-          );
+        final object =
+            HighLightedVerses(
+                versionID: versionIDParam,
+                highlightedVerses: highlightedVersesParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
 
         return object;
       },
@@ -1330,18 +1428,19 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final contentParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 14, '');
-        final object = Notes(
-            id: idParam,
-            createdAt: createdAtParam,
-            lastModified: lastModifiedParam,
-            title: titleParam,
-            content: contentParam,
-          )
-          ..uid = const fb.Int64Reader().vTableGetNullable(
-            buffer,
-            rootOffset,
-            4,
-          );
+        final object =
+            Notes(
+                id: idParam,
+                createdAt: createdAtParam,
+                lastModified: lastModifiedParam,
+                title: titleParam,
+                content: contentParam,
+              )
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
 
         return object;
       },
@@ -1438,6 +1537,92 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    CachedCatalogue: obx_int.EntityDefinition<CachedCatalogue>(
+      model: _entities[11],
+      toOneRelations: (CachedCatalogue object) => [],
+      toManyRelations: (CachedCatalogue object) => {},
+      getId: (CachedCatalogue object) => object.uid,
+      setId: (CachedCatalogue object, int id) {
+        object.uid = id;
+      },
+      objectToFB: (CachedCatalogue object, fb.Builder fbb) {
+        final jsonOffset = fbb.writeString(object.json);
+        fbb.startTable(4);
+        fbb.addInt64(0, object.uid ?? 0);
+        fbb.addOffset(1, jsonOffset);
+        fbb.addInt64(2, object.fetchedAt);
+        fbb.finish(fbb.endTable());
+        return object.uid ?? 0;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final uidParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          4,
+        );
+        final jsonParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final fetchedAtParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          8,
+          0,
+        );
+        final object = CachedCatalogue(
+          uid: uidParam,
+          json: jsonParam,
+          fetchedAt: fetchedAtParam,
+        );
+
+        return object;
+      },
+    ),
+    Language: obx_int.EntityDefinition<Language>(
+      model: _entities[12],
+      toOneRelations: (Language object) => [],
+      toManyRelations: (Language object) => {},
+      getId: (Language object) => object.uid,
+      setId: (Language object, int id) {
+        object.uid = id;
+      },
+      objectToFB: (Language object, fb.Builder fbb) {
+        final codeOffset = fbb.writeString(object.code);
+        final nameOffset = fbb.writeString(object.name);
+        final dialectOffset = fbb.writeString(object.dialect);
+        fbb.startTable(5);
+        fbb.addInt64(0, object.uid ?? 0);
+        fbb.addOffset(1, codeOffset);
+        fbb.addOffset(2, nameOffset);
+        fbb.addOffset(3, dialectOffset);
+        fbb.finish(fbb.endTable());
+        return object.uid ?? 0;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final codeParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final dialectParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 10, '');
+        final object =
+            Language(code: codeParam, name: nameParam, dialect: dialectParam)
+              ..uid = const fb.Int64Reader().vTableGetNullable(
+                buffer,
+                rootOffset,
+                4,
+              );
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -1528,7 +1713,7 @@ class Favorite_ {
   );
 
   /// See [Favorite.versionId].
-  static final versionId = obx.QueryIntegerProperty<Favorite>(
+  static final versionId = obx.QueryStringProperty<Favorite>(
     _entities[2].properties[5],
   );
 
@@ -1556,7 +1741,7 @@ class History_ {
   );
 
   /// See [History.versionId].
-  static final versionId = obx.QueryIntegerProperty<History>(
+  static final versionId = obx.QueryStringProperty<History>(
     _entities[3].properties[3],
   );
 
@@ -1620,7 +1805,7 @@ class Verse_ {
 /// [Versions] entity fields to define ObjectBox queries.
 class Versions_ {
   /// See [Versions.id].
-  static final id = obx.QueryIntegerProperty<Versions>(
+  static final id = obx.QueryStringProperty<Versions>(
     _entities[5].properties[0],
   );
 
@@ -1632,6 +1817,16 @@ class Versions_ {
   /// See [Versions.versionName].
   static final versionName = obx.QueryStringProperty<Versions>(
     _entities[5].properties[2],
+  );
+
+  /// See [Versions.revision].
+  static final revision = obx.QueryIntegerProperty<Versions>(
+    _entities[5].properties[3],
+  );
+
+  /// See [Versions.language].
+  static final language = obx.QueryRelationToOne<Versions, Language>(
+    _entities[5].properties[4],
   );
 
   /// see [Versions.books]
@@ -1708,7 +1903,7 @@ class UserSpace_ {
   );
 
   /// See [UserSpace.preferredTranslation].
-  static final preferredTranslation = obx.QueryIntegerProperty<UserSpace>(
+  static final preferredTranslation = obx.QueryStringProperty<UserSpace>(
     _entities[6].properties[13],
   );
 
@@ -1847,5 +2042,46 @@ class RecentSearch_ {
   /// See [RecentSearch.usedAt].
   static final usedAt = obx.QueryIntegerProperty<RecentSearch>(
     _entities[10].properties[2],
+  );
+}
+
+/// [CachedCatalogue] entity fields to define ObjectBox queries.
+class CachedCatalogue_ {
+  /// See [CachedCatalogue.uid].
+  static final uid = obx.QueryIntegerProperty<CachedCatalogue>(
+    _entities[11].properties[0],
+  );
+
+  /// See [CachedCatalogue.json].
+  static final json = obx.QueryStringProperty<CachedCatalogue>(
+    _entities[11].properties[1],
+  );
+
+  /// See [CachedCatalogue.fetchedAt].
+  static final fetchedAt = obx.QueryIntegerProperty<CachedCatalogue>(
+    _entities[11].properties[2],
+  );
+}
+
+/// [Language] entity fields to define ObjectBox queries.
+class Language_ {
+  /// See [Language.uid].
+  static final uid = obx.QueryIntegerProperty<Language>(
+    _entities[12].properties[0],
+  );
+
+  /// See [Language.code].
+  static final code = obx.QueryStringProperty<Language>(
+    _entities[12].properties[1],
+  );
+
+  /// See [Language.name].
+  static final name = obx.QueryStringProperty<Language>(
+    _entities[12].properties[2],
+  );
+
+  /// See [Language.dialect].
+  static final dialect = obx.QueryStringProperty<Language>(
+    _entities[12].properties[3],
   );
 }

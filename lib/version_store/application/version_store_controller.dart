@@ -65,20 +65,20 @@ final catalogueProvider =
 );
 
 /// Installed revision per version id.
-final installedRevisionsProvider = Provider<Map<int, int>>((ref) => {
+final installedRevisionsProvider = Provider<Map<String, int>>((ref) => {
       for (final version in ref.watch(installedVersionsProvider))
         version.id: version.revision,
     });
 
 /// Downloads versions one at a time. State holds the queued, running and
 /// failed jobs by version id; finished and cancelled jobs are dropped.
-class VersionDownloadController extends Notifier<Map<int, DownloadJob>> {
+class VersionDownloadController extends Notifier<Map<String, DownloadJob>> {
   final _queue = Queue<CatalogueEntry>();
   CancelToken? _cancelToken;
-  int? _currentId;
+  String? _currentId;
 
   @override
-  Map<int, DownloadJob> build() {
+  Map<String, DownloadJob> build() {
     ref.listen(isOnlineProvider, (wasOnline, online) {
       if (online && wasOnline == false) _retryWaiting();
     });
@@ -92,13 +92,13 @@ class VersionDownloadController extends Notifier<Map<int, DownloadJob>> {
     _run();
   }
 
-  void retry(int id) {
+  void retry(String id) {
     final job = state[id];
     if (job != null) download(job.entry);
   }
 
   /// Stops a queued or downloading job. Installing can't be interrupted.
-  void cancel(int id) {
+  void cancel(String id) {
     if (id == _currentId) {
       if (state[id]?.phase == DownloadPhase.downloading) _cancelToken?.cancel();
       return;
@@ -108,7 +108,7 @@ class VersionDownloadController extends Notifier<Map<int, DownloadJob>> {
   }
 
   /// Deletes an installed version. Throws [StateError] for the last one.
-  void remove(int id) {
+  void remove(String id) {
     ref.read(scriptureServiceProvider).remove(id);
     _versionsChanged();
   }
@@ -183,10 +183,10 @@ class VersionDownloadController extends Notifier<Map<int, DownloadJob>> {
 
   void _set(DownloadJob job) => state = {...state, job.entry.id: job};
 
-  void _clear(int id) => state = {...state}..remove(id);
+  void _clear(String id) => state = {...state}..remove(id);
 }
 
 final versionDownloadControllerProvider =
-    NotifierProvider<VersionDownloadController, Map<int, DownloadJob>>(
+    NotifierProvider<VersionDownloadController, Map<String, DownloadJob>>(
   VersionDownloadController.new,
 );

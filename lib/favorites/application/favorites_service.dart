@@ -11,10 +11,10 @@ class FavoritesService {
 
   List<Favorite> toggleFavorites({
     required List<Verse> verses,
-    required int versionId,
+    required String versionId,
   }) {
     final currentFavorites = _repository.getAll();
-    final favoritesByReference = <(int, int, int, int), List<Favorite>>{};
+    final favoritesByReference = <(String, int, int, int), List<Favorite>>{};
     for (final favorite in currentFavorites) {
       final key = (
         favorite.versionId,

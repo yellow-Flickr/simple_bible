@@ -1,6 +1,7 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 import 'package:simple_bible/favorites/domain/favorite.dart';
 import 'package:simple_bible/history/domain/history.dart';
 
@@ -28,7 +29,7 @@ class UserSpace {
   // Settings / Preferences
   final int? theme; // "light", "dark", or "system"
   final int? fontSize;
-  final int preferredTranslation; // "NIV", "KJV", etc.
+  final String preferredTranslation; // A version id, e.g. "eng-kjv".
   // final bool notificationsEnabled;
   // final String? dailyReminderTime; // e.g. "07:00"
   // final bool offlineMode;
@@ -68,7 +69,7 @@ class UserSpace {
     // this.preferredLanguage,
     this.theme,
     this.fontSize,
-    this.preferredTranslation = 100,
+    this.preferredTranslation = defaultVersionId,
     // this.notificationsEnabled = true,
     // this.dailyReminderTime,
     // this.offlineMode = false,
@@ -96,7 +97,7 @@ class UserSpace {
         createdAt: DateTime.now().microsecondsSinceEpoch,
         // notificationsEnabled: false,
         // offlineMode: true,
-        preferredTranslation: 100,
+        preferredTranslation: defaultVersionId,
         theme: 0,
         // fontSize: 16,
         // favoriteVerses: const [],
@@ -107,7 +108,7 @@ class UserSpace {
   /// Copies the scalar fields, keeping [uid] so saving updates this record.
   /// The ToMany relations are not copied; ObjectBox only writes relation
   /// changes made through them, so the stored links are left untouched.
-  UserSpace copyWith({int? preferredTranslation, int? theme}) => UserSpace(
+  UserSpace copyWith({String? preferredTranslation, int? theme}) => UserSpace(
         userId: userId,
         email: email,
         username: username,

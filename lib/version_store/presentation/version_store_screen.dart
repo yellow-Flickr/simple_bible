@@ -95,12 +95,13 @@ class _VersionStoreScreenState extends ConsumerState<VersionStoreScreen> {
   }) {
     if (waiting) return 'Downloads paused — waiting for connection';
     if (!online) return "You're offline — showing the last saved list";
-    if (fromCache)
+    if (fromCache) {
       return "Couldn't refresh the list — showing the last saved one";
+    }
     return null;
   }
 
-  Widget _list(Catalogue catalogue, Map<int, DownloadJob> jobs) {
+  Widget _list(Catalogue catalogue, Map<String, DownloadJob> jobs) {
     final revisions = ref.watch(installedRevisionsProvider);
     final canRemove = ref.watch(installedVersionsProvider).length > 1;
     final filter = _filter.trim().toLowerCase();
@@ -176,7 +177,11 @@ class _VersionTile extends ConsumerWidget {
       title: Text(entry.name),
       subtitle: Text(
         error ??
-            '${entry.abbreviation} · ${formatBytes(entry.sizeBytes)} · ${entry.license}',
+            [
+              entry.abbreviation,
+              formatBytes(entry.sizeBytes),
+              if (entry.license != null) entry.license,
+            ].join(' · '),
         style: error == null ? null : TextStyle(color: theme.colorScheme.error),
       ),
       trailing: _action(context, ref),

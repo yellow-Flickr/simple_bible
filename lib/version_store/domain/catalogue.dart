@@ -45,7 +45,7 @@ class CatalogueEntry {
   factory CatalogueEntry.fromJson(Map<String, dynamic> json) {
     final language = json['language'] as Map<String, dynamic>;
     return CatalogueEntry(
-      id: json['id'] as int,
+      id: json['id'] as String,
       translationId: json['translationId'] as String,
       name: json['name'] as String,
       abbreviation: json['abbreviation'] as String,
@@ -56,12 +56,12 @@ class CatalogueEntry {
       sizeBytes: json['sizeBytes'] as int,
       bookCount: json['bookCount'] as int,
       verseCount: json['verseCount'] as int,
-      license: json['license'] as String,
+      license: json['license'] as String?,
       minSchemaVersion: json['minSchemaVersion'] as int? ?? 1,
     );
   }
 
-  final int id;
+  final String id;
   final String translationId;
   final String name;
   final String abbreviation;
@@ -76,7 +76,8 @@ class CatalogueEntry {
   final int sizeBytes;
   final int bookCount;
   final int verseCount;
-  final String license;
+  /// Rights notice to show with the entry, when the catalogue gives one.
+  final String? license;
   final int minSchemaVersion;
 
   bool get isSupported => minSchemaVersion <= supportedSchemaVersion;

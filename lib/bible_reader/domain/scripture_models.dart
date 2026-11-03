@@ -10,6 +10,9 @@
 import 'dart:convert';
 import 'package:objectbox/objectbox.dart';
 
+/// The bundled King James Version, used until the user picks another.
+const defaultVersionId = 'eng-kjv';
+
 Versions versionsFromJson(String str) {
   final jsonData = json.decode(str);
   return Versions.fromJson(jsonData);
@@ -23,7 +26,7 @@ Versions versionsFromJson(String str) {
 @Entity()
 class Versions {
   @Unique(onConflict: ConflictStrategy.replace)
-  int id;
+  String id;
   @Id()
   int? uid;
   String versionName;
@@ -32,9 +35,10 @@ class Versions {
   /// existed read as 0 and count as revision 1.
   int revision;
   final books = ToMany<Book>();
+  final language = ToOne<Language>();
 
   Versions({
-    this.id = 0,
+    required this.id,
     required this.versionName,
     this.revision = 1,
   });
@@ -55,7 +59,10 @@ class Versions {
         .map((e) => Book.fromVerses(
             verseList.where(((vers) => vers.bookId == e)).toList())));
 
+    final language = Language.fromJson(json['language']);
+
     version.books.addAll(books);
+    version.language.target = language;
 
     return version;
   }
@@ -124,7 +131,7 @@ class Quotation {
   final int fromVerse;
   List<int>? toVerse;
   final String text;
-  int versionId;
+  String versionId;
   final String? bookName;
   // String? bookTag;
   final int bookId;
@@ -147,7 +154,7 @@ class Quotation {
       /* required */ this.fromVerse = 0,
       /* required */ List<int>? toVerse,
       this.text = '',
-      /* required */ this.versionId = 100,
+      /* required */ this.versionId = defaultVersionId,
       this.bookName,
       // /* required */ this.bookTag,
       this.bookId = 0})
@@ -158,7 +165,7 @@ class Quotation {
 
   factory Quotation.fromVerses(
     Iterable<Verse> verses, {
-    int versionId = 100,
+    String versionId = defaultVersionId,
   }) {
     final selectedVerses = verses.toList()
       ..sort((a, b) => a.verse.compareTo(b.verse));
@@ -223,7 +230,7 @@ class Quotation {
     int? fromVerse,
     List<int>? toVerse,
     String? text,
-    int? versionId,
+    String? versionId,
     String? bookName,
     int? bookId,
   }) {
@@ -425,4 +432,47 @@ class Chapter {
     chapter.verses.addAll(verses);
     return chapter;
   }
+}
+
+@Entity()
+class Language {
+  @Id()
+  int? uid;
+  final String code;
+  final String name;
+  final String dialect;
+
+  Language({
+    required this.code,
+    required this.name,
+    required this.dialect,
+  });
+
+  Language copyWith({
+    String? code,
+    String? name,
+    String? dialect,
+  }) =>
+      Language(
+        code: code ?? this.code,
+        name: name ?? this.name,
+        dialect: dialect ?? this.dialect,
+      );
+
+  factory Language.fromRawJson(String str) =>
+      Language.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Language.fromJson(Map<String, dynamic> json) => Language(
+        code: json["code"],
+        name: json["name"],
+        dialect: json["dialect"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "code": code,
+        "name": name,
+        "dialect": dialect,
+      };
 }

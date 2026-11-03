@@ -6,7 +6,7 @@ class History {
   @Id()
   int? uid;
 
-  int versionId;
+  String versionId;
   int bookId;
   int chapter;
   int fromVerse;
@@ -14,7 +14,7 @@ class History {
 
   History({
     this.uid,
-    this.versionId = 100,
+    this.versionId = defaultVersionId,
     this.bookId = 0,
     this.chapter = 0,
     this.fromVerse = 0,

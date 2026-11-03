@@ -8,15 +8,20 @@ class Favorite extends Quotation {
 
   final int date;
   // @override
- final int chapter;
+ @override
+  final int chapter;
   // @override
-final  int fromVerse;
+@override
+  final  int fromVerse;
   // @override
- final String text;
+ @override
+  final String text;
   // @override
- final int versionId;
+ @override
+  final String versionId;
   // @override
- final int bookId;
+ @override
+  final int bookId;
   // String? bookTag;
 
   Favorite({

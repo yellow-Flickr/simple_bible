@@ -30,7 +30,7 @@ void main() {
 
       expect(verse.quotation.quotation, '2 Mose 2:3-4');
       expect(verse.quotation.text, 'Verse 3 Verse 4');
-      expect(verse.quotation.versionId, 200);
+      expect(verse.quotation.versionId, 'twi-akna');
       expect(verse.verses.map((v) => v.verse), [3, 4]);
       expect(verse.otherTopics, [faith]);
       expect(verse.translationId, 'TEST');
@@ -128,7 +128,7 @@ Topic _topic(
 
 /// Each book has 3 chapters of 5 verses.
 Versions _version(List<String> bookNames) {
-  final version = Versions(id: 200, versionName: 'Test');
+  final version = Versions(id: 'twi-akna', versionName: 'Test');
   for (final (index, name) in bookNames.indexed) {
     version.books.add(Book.fromVerses([
       for (var chapter = 1; chapter <= 3; chapter++)

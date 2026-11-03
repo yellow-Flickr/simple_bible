@@ -22,7 +22,7 @@ class UserSpaceService extends Notifier<UserSpace> {
   }
 
   /// Sets the Bible version used across the app and persists it.
-  Future<void> setPreferredTranslation(int versionId) async {
+  Future<void> setPreferredTranslation(String versionId) async {
     if (state.preferredTranslation == versionId) return;
     state = state.copyWith(preferredTranslation: versionId);
     await ref.read(userSpaceRepositoryProvider).saveUserSpace(state);
@@ -42,7 +42,7 @@ final userSpaceProvider =
 
 /// The app-wide Bible version id. Falls back to the first installed version
 /// when the stored preference is no longer available.
-final preferredVersionIdProvider = Provider<int>((ref) {
+final preferredVersionIdProvider = Provider<String>((ref) {
   final preferred = ref.watch(
     userSpaceProvider.select((userSpace) => userSpace.preferredTranslation),
   );
@@ -50,7 +50,7 @@ final preferredVersionIdProvider = Provider<int>((ref) {
   return resolvePreferredVersionId(preferred, versions);
 });
 
-int resolvePreferredVersionId(int preferred, List<Versions> versions) {
+String resolvePreferredVersionId(String preferred, List<Versions> versions) {
   if (versions.isEmpty || versions.any((v) => v.id == preferred)) {
     return preferred;
   }

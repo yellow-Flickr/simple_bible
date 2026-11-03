@@ -16,7 +16,7 @@ class HistoryService {
   }
 
   Future<void> recordVisit({
-    required int versionId,
+    required String versionId,
     required int bookId,
     required int chapter,
     int fromVerse = 0,
@@ -33,7 +33,7 @@ class HistoryService {
   }
 
   Future<void> recordExitLocation({
-    required int versionId,
+    required String versionId,
     required int bookId,
     required int chapter,
     required int fromVerse,

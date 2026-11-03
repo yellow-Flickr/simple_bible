@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'dart:async';
-import 'dart:convert' show utf8, JsonUtf8Encoder;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -1005,7 +1004,7 @@ class CardView extends ConsumerStatefulWidget {
   final ValueChanged<int> onVisibleVerseChanged;
   final int highlightedIndex;
   final ItemScrollController _scrollController;
-  final int versionId;
+  final String versionId;
   final bool hasPreviousChapter;
   final bool hasNextChapter;
   final VoidCallback onPreviousChapter;

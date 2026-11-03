@@ -15,7 +15,7 @@ void main() {
         _verse(4),
         _verse(5),
         _verse(12),
-      ], versionId: 101);
+      ], versionId: 'eng-asv');
 
       expect(quotation.quotation, 'Genesis 1:1-6, 11-13');
       expect(
@@ -23,7 +23,7 @@ void main() {
         'Verse 1 Verse 2 Verse 3 Verse 4 Verse 5 Verse 6 '
         'Verse 11 Verse 12 Verse 13',
       );
-      expect(quotation.versionId, 101);
+      expect(quotation.versionId, 'eng-asv');
     });
 
     test('formats selected single verses without range delimiters', () {
@@ -59,7 +59,7 @@ void main() {
       expect(quotation.chapter, 3);
       expect(quotation.fromVerse, 16);
       expect(quotation.toVerse, [16]);
-      expect(quotation.versionId, 100);
+      expect(quotation.versionId, 'eng-kjv');
     });
 
     test('round-trips the quotation format', () {
@@ -137,7 +137,7 @@ void main() {
 Versions _version({
   List<String> names = const ['Genesis', 'Psalms', '1 John', 'John', 'Jude'],
 }) {
-  final version = Versions(id: 100, versionName: 'Test');
+  final version = Versions(id: 'eng-kjv', versionName: 'Test');
   for (final (index, name) in names.indexed) {
     final verses = [
       for (var chapter = 1; chapter <= 3; chapter++)

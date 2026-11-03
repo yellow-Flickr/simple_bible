@@ -18,7 +18,7 @@ class FavoritesController extends Notifier<List<Favorite>> {
 
   void toggleFavorites({
     required List<Verse> verses,
-    required int versionId,
+    required String versionId,
   }) {
     state = _service.toggleFavorites(verses: verses, versionId: versionId);
   }

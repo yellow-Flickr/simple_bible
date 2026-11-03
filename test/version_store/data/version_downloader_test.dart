@@ -8,7 +8,7 @@ import 'package:simple_bible/version_store/data/version_downloader.dart';
 import 'package:simple_bible/version_store/domain/catalogue.dart';
 
 const _entry = CatalogueEntry(
-  id: 300,
+  id: 'eng-tst',
   translationId: 'TST',
   name: 'Test Version',
   abbreviation: 'TST',
@@ -23,7 +23,7 @@ const _entry = CatalogueEntry(
   minSchemaVersion: 1,
 );
 
-String _versionFile({int id = 300, int verses = 3}) => jsonEncode({
+String _versionFile({String id = 'eng-tst', int verses = 3}) => jsonEncode({
       'id': id,
       'version_name': 'Test Version',
       'version': [
@@ -65,7 +65,7 @@ void main() {
 
     test('rejects a file for another version', () {
       expect(
-        () => decodeVersionFile(_versionFile(id: 400), _entry),
+        () => decodeVersionFile(_versionFile(id: 'eng-other'), _entry),
         throwsA(isA<VersionDownloadException>()),
       );
     });
@@ -95,7 +95,7 @@ void main() {
 
       final json = await downloader.fetch(_entry, url, onProgress: progress.add);
 
-      expect(json['id'], 300);
+      expect(json['id'], 'eng-tst');
       expect(progress.last, 1.0);
       expect(directory.listSync(), isEmpty);
     });
@@ -107,7 +107,7 @@ void main() {
 
       final json = await downloader.fetch(_entry, url);
 
-      expect(json['id'], 300);
+      expect(json['id'], 'eng-tst');
       expect(adapter.calls, 2);
     });
 

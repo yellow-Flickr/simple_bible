@@ -74,7 +74,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
     state = state.copyWith(fromVerse: verse);
   }
 
-  void changeVersion({required int versionId}) {
+  void changeVersion({required String versionId}) {
     state = state.copyWith(versionId: versionId);
     ref.read(userSpaceProvider.notifier).setPreferredTranslation(versionId);
   }
@@ -88,7 +88,7 @@ class ScriptureScreenNotifier extends AutoDisposeNotifier<Quotation> {
     );
   }
 
-  Versions getVersionByID(int uid) {
+  Versions getVersionByID(String uid) {
     return ref.read(scriptureServiceProvider).getVersion(uid);
   }
 

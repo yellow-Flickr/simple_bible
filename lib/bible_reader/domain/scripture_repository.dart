@@ -3,7 +3,7 @@ import 'package:simple_bible/bible_reader/domain/scripture_models.dart';
 abstract interface class ScriptureRepository {
   List<Versions> getAll();
 
-  Versions? getById(int id);
+  Versions? getById(String id);
 
   Future<void> saveAll(List<Versions> versions);
 
@@ -12,7 +12,7 @@ abstract interface class ScriptureRepository {
   Future<void> install(Versions version);
 
   /// Deletes the version with [id] and its books, chapters and verses.
-  void remove(int id);
+  void remove(String id);
 }
 
 abstract interface class ScriptureAssetSource {

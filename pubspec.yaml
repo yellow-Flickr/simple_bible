@@ -11,11 +11,11 @@ dependencies:
   dio: ^5.9.0
   flutter:
     sdk: flutter
-  flutter_riverpod: ^2.6.1
-  intl: ^0.19.0
+  flutter_riverpod: ^3.1.0
+  intl: ^0.20.3
   lottie: ^3.3.1
-  objectbox: ^4.3.0
-  objectbox_flutter_libs: ^4.3.0
+  objectbox: ^5.3.2
+  objectbox_flutter_libs: ^5.3.2
   package_info_plus: ^10.2.2
   path_provider: ^2.1.5
   responsive_sizer: ^3.3.1
@@ -28,12 +28,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
   build_runner: ^2.4.15
-  objectbox_generator: ^4.3.0
-  riverpod_lint: ^2.6.5
-  custom_lint: ^0.7.6
+  objectbox_generator: ^5.3.2
+  riverpod_lint: ^3.1.0
+  custom_lint: ^0.8.1
 
 flutter:
   uses-material-design: true
@@ -42,7 +42,6 @@ flutter:
     - asset/
     - asset/lotties/
     - asset/kjv.json
-    - asset/AkuapemTwi.json
     
   fonts:
     - family: Myriad Pro

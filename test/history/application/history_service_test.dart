@@ -11,19 +11,19 @@ void main() {
       final service = HistoryService(repository);
 
       await service.recordVisit(
-        versionId: 100,
+        versionId: 'eng-kjv',
         bookId: 1,
         chapter: 2,
         fromVerse: 3,
       );
       await service.recordVisit(
-        versionId: 100,
+        versionId: 'eng-kjv',
         bookId: 1,
         chapter: 2,
       );
 
       expect(repository.saved, hasLength(2));
-      expect(repository.saved.first.versionId, 100);
+      expect(repository.saved.first.versionId, 'eng-kjv');
       expect(repository.saved.first.bookId, 1);
       expect(repository.saved.first.chapter, 2);
       expect(repository.saved.first.fromVerse, 3);
@@ -52,7 +52,7 @@ void main() {
         dateTime: '2024-01-02T00:00:00.000',
         fromVerse: 2,
       );
-      latest.versionId = 101;
+      latest.versionId = 'eng-asv';
       earlier.uid = 1;
       latest.uid = 2;
       final repository = _FakeHistoryRepository([earlier, latest]);
@@ -60,7 +60,7 @@ void main() {
       final previousDateTime = DateTime.parse(latest.dateTime);
 
       await service.recordExitLocation(
-        versionId: 100,
+        versionId: 'eng-kjv',
         bookId: 0,
         chapter: 0,
         fromVerse: 7,
@@ -69,7 +69,7 @@ void main() {
       expect(repository.events, hasLength(2));
       expect(earlier.fromVerse, 1);
       expect(latest.fromVerse, 7);
-      expect(latest.versionId, 100);
+      expect(latest.versionId, 'eng-kjv');
       expect(
         DateTime.parse(latest.dateTime).isAfter(previousDateTime),
         isTrue,
@@ -86,7 +86,7 @@ void main() {
       final service = HistoryService(repository);
 
       await service.recordExitLocation(
-        versionId: 100,
+        versionId: 'eng-kjv',
         bookId: 1,
         chapter: 2,
         fromVerse: 4,
@@ -104,7 +104,7 @@ void main() {
       final service = HistoryService(repository);
 
       await expectLater(
-        service.recordVisit(versionId: 100, bookId: 0, chapter: 0),
+        service.recordVisit(versionId: 'eng-kjv', bookId: 0, chapter: 0),
         throwsA(isA<StateError>()),
       );
       expect(repository.events, isEmpty);
@@ -114,7 +114,7 @@ void main() {
 
 History _history({required String dateTime, int fromVerse = 1}) {
   return History(
-    versionId: 100,
+    versionId: 'eng-kjv',
     bookId: 0,
     chapter: 0,
     fromVerse: fromVerse,

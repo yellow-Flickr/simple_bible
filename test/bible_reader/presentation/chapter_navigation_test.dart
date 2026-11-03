@@ -53,7 +53,7 @@ void main() {
 
     test('skips books without chapters when crossing a book boundary', () {
       final versionWithEmptyBook = Versions(
-        id: 100,
+        id: 'eng-kjv',
         versionName: 'Test',
       )..books.addAll([
           _book('First', [1]),
@@ -126,7 +126,7 @@ void main() {
 }
 
 Versions _version() {
-  final version = Versions(id: 100, versionName: 'Test');
+  final version = Versions(id: 'eng-kjv', versionName: 'Test');
   version.books.addAll([
     _book('First', [1, 2]),
     _book('Second', [1]),

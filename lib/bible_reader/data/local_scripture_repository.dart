@@ -6,6 +6,7 @@ typedef _VersionContent = ({
   List<int> books,
   List<int> chapters,
   List<int> verses,
+  int language,
 });
 
 class LocalScriptureRepository implements ScriptureRepository {
@@ -18,7 +19,7 @@ class LocalScriptureRepository implements ScriptureRepository {
   List<Versions> getAll() => _box.getAll();
 
   @override
-  Versions? getById(int id) {
+  Versions? getById(String id) {
     final query = _box.query(Versions_.id.equals(id)).build();
     try {
       return query.findFirst();
@@ -44,7 +45,7 @@ class LocalScriptureRepository implements ScriptureRepository {
   }
 
   @override
-  void remove(int id) {
+  void remove(String id) {
     final stale = _contentOf(id);
     _store.runInTransaction(TxMode.write, () {
       if (stale != null) _removeContent(stale);
@@ -57,10 +58,11 @@ class LocalScriptureRepository implements ScriptureRepository {
     });
   }
 
-  /// Ids of the books, chapters and verses stored for version [id], found by
-  /// translation id, which is unique per version.
-  _VersionContent? _contentOf(int id) {
-    final translationId = getById(id)?.books.firstOrNull?.translationId;
+  /// Ids of the books, chapters, verses and language stored for version [id].
+  /// The first three are found by translation id, which is unique per version.
+  _VersionContent? _contentOf(String id) {
+    final version = getById(id);
+    final translationId = version?.books.firstOrNull?.translationId;
     if (translationId == null) return null;
 
     List<int> idsOf<T>(Condition<T> condition) {
@@ -76,6 +78,7 @@ class LocalScriptureRepository implements ScriptureRepository {
       books: idsOf(Book_.translationId.equals(translationId)),
       chapters: idsOf(Chapter_.translationId.equals(translationId)),
       verses: idsOf(Verse_.translationId.equals(translationId)),
+      language: version!.language.targetId,
     );
   }
 
@@ -83,5 +86,6 @@ class LocalScriptureRepository implements ScriptureRepository {
     _store.box<Verse>().removeMany(content.verses);
     _store.box<Chapter>().removeMany(content.chapters);
     _store.box<Book>().removeMany(content.books);
+    if (content.language != 0) _store.box<Language>().remove(content.language);
   }
 }

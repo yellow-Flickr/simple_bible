@@ -1,6 +1,7 @@
 {
-  "id":100,
+  "id":"eng-kjv",
   "version_name": "King James Version",
+  "language": { "code": "en", "name": "English","dialect": "British" },
   "version": [
     {
       "id": 0,

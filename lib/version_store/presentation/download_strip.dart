@@ -85,8 +85,8 @@ class DownloadStrip extends ConsumerWidget {
 void announceVersionDownloads(
   BuildContext context,
   WidgetRef ref,
-  Map<int, DownloadJob>? previous,
-  Map<int, DownloadJob> next,
+  Map<String, DownloadJob>? previous,
+  Map<String, DownloadJob> next,
 ) {
   final messenger = ScaffoldMessenger.of(context);
   for (final job in (previous ?? const {}).values) {

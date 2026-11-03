@@ -12,8 +12,8 @@ import 'package:simple_bible/version_store/presentation/version_store_screen.dar
 void showVersionPicker(
   BuildContext context,
   WidgetRef ref, {
-  int? selectedId,
-  ValueChanged<int>? onSelected,
+  String? selectedId,
+  ValueChanged<String>? onSelected,
 }) {
   final theme = Theme.of(context);
   final versions = ref.read(installedVersionsProvider);
@@ -80,8 +80,8 @@ class VersionButton extends ConsumerWidget {
 
   /// Short version name, such as `KJV`.
   final String? label;
-  final int? selectedId;
-  final ValueChanged<int>? onSelected;
+  final String? selectedId;
+  final ValueChanged<String>? onSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

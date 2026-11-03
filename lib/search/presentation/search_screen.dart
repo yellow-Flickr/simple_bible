@@ -33,7 +33,7 @@ class SearchScreen extends ConsumerStatefulWidget {
   });
 
   /// Version to search; defaults to the app-wide version.
-  final int? versionId;
+  final String? versionId;
 
   /// Canonical book number (1-66) to start filtered to.
   final int? bookId;
@@ -53,7 +53,7 @@ typedef _Results = ({
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _input = TextEditingController();
   Timer? _debounce;
-  late int _versionId;
+  late String _versionId;
   late SearchScope _scope;
   bool _wholeWords = false;
   bool _showAllNotes = false;

@@ -12,7 +12,6 @@ class ScriptureDataSource implements ScriptureAssetSource {
   /// Asset paths for local scripture files
   static const List<String> _scriptureAssets = [
     'asset/kjv.json',
-    'asset/AkuapemTwi.json',
   ];
 
   /// Loads all local scripture versions concurrently

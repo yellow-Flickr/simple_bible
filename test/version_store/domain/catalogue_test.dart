@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_bible/version_store/domain/catalogue.dart';
 
 Map<String, dynamic> entryJson({int revision = 2, int? minSchemaVersion}) => {
-      'id': 300,
+      'id': 'eng-asv',
       'translationId': 'ASV',
       'name': 'American Standard Version',
       'abbreviation': 'ASV',
@@ -28,7 +28,7 @@ void main() {
       expect(catalogue.schemaVersion, 1);
       expect(catalogue.updatedAt, DateTime.utc(2026, 11, 2));
       final entry = catalogue.entries.single;
-      expect(entry.id, 300);
+      expect(entry.id, 'eng-asv');
       expect(entry.languageName, 'English');
       expect(entry.minSchemaVersion, 1);
       expect(entry.isSupported, isTrue);

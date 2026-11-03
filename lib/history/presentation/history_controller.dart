@@ -16,7 +16,7 @@ class HistoryController extends AsyncNotifier<List<History>> {
   }
 
   Future<void> recordVisit({
-    required int versionId,
+    required String versionId,
     required int bookId,
     required int chapter,
     int fromVerse = 1,
