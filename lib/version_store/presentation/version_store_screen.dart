@@ -37,13 +37,13 @@ class _VersionStoreScreenState extends ConsumerState<VersionStoreScreen> {
 
     // Swap the saved list for a fresh one once the connection is back.
     ref.listen(isOnlineProvider, (wasOnline, online) {
-      final fromCache = ref.read(catalogueProvider).valueOrNull?.fromCache;
+      final fromCache = ref.read(catalogueProvider).value?.fromCache;
       if (online && wasOnline == false && (fromCache ?? true)) _refresh();
     });
 
     final banner = _bannerMessage(
       online: online,
-      fromCache: catalogue.valueOrNull?.fromCache ?? false,
+      fromCache: catalogue.value?.fromCache ?? false,
       waiting: jobs.values.any((job) => job.waitingForNetwork),
     );
 
@@ -73,6 +73,7 @@ class _VersionStoreScreenState extends ConsumerState<VersionStoreScreen> {
           ),
           Expanded(
             child: catalogue.when(
+              skipLoadingOnReload: true,
               data: (snapshot) => RefreshIndicator(
                 onRefresh: _refresh,
                 child: _list(snapshot.catalogue, jobs),

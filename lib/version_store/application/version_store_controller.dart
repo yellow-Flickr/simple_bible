@@ -41,7 +41,7 @@ class CatalogueController extends AsyncNotifier<CatalogueSnapshot> {
 
   /// Fetches the catalogue again, keeping the current one on screen meanwhile.
   Future<void> refresh() async {
-    state = const AsyncLoading<CatalogueSnapshot>().copyWithPrevious(state);
+    state = const AsyncLoading<CatalogueSnapshot>();
     state = await AsyncValue.guard(_load);
   }
 

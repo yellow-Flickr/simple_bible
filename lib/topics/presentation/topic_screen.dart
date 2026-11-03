@@ -18,7 +18,7 @@ class TopicScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final versesAsync = ref.watch(topicVersesProvider(topic.slug));
-    final allTopics = ref.watch(topicsProvider).valueOrNull ?? const <Topic>[];
+    final allTopics = ref.watch(topicsProvider).value ?? const <Topic>[];
     final related = [
       for (final slug in topic.relatedSlugs)
         ...allTopics.where((t) => t.slug == slug),
@@ -39,7 +39,7 @@ class TopicScreen extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.only(right: 2.w),
             child: VersionButton(
-              label: versesAsync.valueOrNull?.firstOrNull?.translationId,
+              label: versesAsync.value?.firstOrNull?.translationId,
             ),
           ),
         ],

@@ -23,8 +23,8 @@ class ReflectionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final verse = ref.watch(reflectionVerseProvider(reflection)).valueOrNull;
-    final topic = (ref.watch(topicsProvider).valueOrNull ?? const <Topic>[])
+    final verse = ref.watch(reflectionVerseProvider(reflection)).value;
+    final topic = (ref.watch(topicsProvider).value ?? const <Topic>[])
         .where((t) => t.slug == reflection.topicSlug)
         .firstOrNull;
     final reference = verse == null

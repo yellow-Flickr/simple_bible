@@ -32,7 +32,7 @@ Future<void> rateApp(BuildContext context) async {
 }
 
 Future<void> sendFeedback(BuildContext context, WidgetRef ref) async {
-  final version = ref.read(appVersionProvider).valueOrNull ?? 'unknown';
+  final version = ref.read(appVersionProvider).value ?? 'unknown';
   // Built by hand: Uri.queryParameters encodes spaces as "+", which mail
   // apps show literally.
   final uri = Uri.parse(

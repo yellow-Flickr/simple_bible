@@ -106,8 +106,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       reference: RegExp(r'\d').hasMatch(input)
           ? Quotation.tryParse(input, version)
           : null,
-      topics: matchTopics(ref.read(topicsProvider).valueOrNull ?? const [], input),
-      notes: matchNotes(ref.read(notesControllerProvider).valueOrNull ?? const [], query),
+      topics: matchTopics(ref.read(topicsProvider).value ?? const [], input),
+      notes: matchNotes(ref.read(notesControllerProvider).value ?? const [], query),
       verses: ref
           .read(searchServiceProvider)
           .indexFor(translationId)

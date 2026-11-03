@@ -25,7 +25,7 @@ class _ReflectionHistoryScreenState
     final theme = Theme.of(context);
     final historyAsync = ref.watch(reflectionHistoryProvider);
     final topicsBySlug = {
-      for (final t in ref.watch(topicsProvider).valueOrNull ?? const <Topic>[])
+      for (final t in ref.watch(topicsProvider).value ?? const <Topic>[])
         t.slug: t,
     };
     String topicName(String slug) => topicsBySlug[slug]?.name ?? slug;

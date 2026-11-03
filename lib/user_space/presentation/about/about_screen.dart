@@ -20,7 +20,7 @@ class AboutScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final version = ref.watch(appVersionProvider).valueOrNull;
+    final version = ref.watch(appVersionProvider).value;
 
     return Scaffold(
       appBar: AppBar(

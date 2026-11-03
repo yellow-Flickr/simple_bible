@@ -62,7 +62,7 @@ final connectivityProvider =
 /// Whether the device has any connection. Only a hint: a request can still
 /// fail while "online", so failures are judged from the request itself.
 final isOnlineProvider = Provider<bool>((ref) {
-  final connections = ref.watch(connectivityProvider).valueOrNull;
+  final connections = ref.watch(connectivityProvider).value;
   // Assume online until the platform says otherwise.
   return connections == null ||
       connections.any((c) => c != ConnectivityResult.none);
@@ -70,7 +70,7 @@ final isOnlineProvider = Provider<bool>((ref) {
 
 /// Whether the only connection is mobile data.
 final isMeteredProvider = Provider<bool>((ref) {
-  final connections = ref.watch(connectivityProvider).valueOrNull ?? const [];
+  final connections = ref.watch(connectivityProvider).value ?? const [];
   return connections.contains(ConnectivityResult.mobile) &&
       !connections.contains(ConnectivityResult.wifi) &&
       !connections.contains(ConnectivityResult.ethernet);

@@ -39,7 +39,7 @@ class _HomeState extends ConsumerState<Home> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final historyAsync = ref.watch(historyControllerProvider);
-    final history = historyAsync.valueOrNull;
+    final history = historyAsync.value;
     final favorites = [...ref.watch(favoritesControllerProvider)]
       ..sort((a, b) => b.date.compareTo(a.date));
     final favorite =
@@ -337,9 +337,9 @@ class _HomeState extends ConsumerState<Home> {
   }
 
   Widget _buildReflectionCard(ThemeData theme) {
-    final reflection = ref.watch(todayReflectionProvider).valueOrNull;
+    final reflection = ref.watch(todayReflectionProvider).value;
     if (reflection == null) return const SizedBox.shrink();
-    final topicName = (ref.watch(topicsProvider).valueOrNull ?? const <Topic>[])
+    final topicName = (ref.watch(topicsProvider).value ?? const <Topic>[])
         .where((t) => t.slug == reflection.topicSlug)
         .firstOrNull
         ?.name;
@@ -415,7 +415,7 @@ class _HomeState extends ConsumerState<Home> {
   }
 
   Widget _buildVerseOfTheDay(ThemeData theme) {
-    final daily = ref.watch(dailyVerseProvider).valueOrNull;
+    final daily = ref.watch(dailyVerseProvider).value;
     final quotation = daily?.quotation;
     final reference =
         daily == null ? '' : '${quotation!.quotation} [${daily.translationId}]';
@@ -583,9 +583,9 @@ class _HomeState extends ConsumerState<Home> {
                   crossAxisCount: 2,
                   mainAxisExtent: 40.w),
               scrollDirection: Axis.horizontal,
-              itemCount: sample.valueOrNull?.length ?? 6,
+              itemCount: sample.value?.length ?? 6,
               itemBuilder: (context, index) {
-                final topic = sample.valueOrNull?[index];
+                final topic = sample.value?[index];
                 // Alternate gold and muted borders, column by column.
                 final borderColor = (index ~/ 2).isEven == index.isEven
                     ? theme.primaryColorDark

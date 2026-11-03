@@ -49,7 +49,7 @@ void main() {
         _FakeScriptureAssetSource(() async => []),
       );
 
-      expect(() => service.getVersion(404), throwsStateError);
+      expect(() => service.getVersion('xxx-none'), throwsStateError);
     });
 
     test('install replaces a stored version with the same id', () async {
@@ -73,7 +73,7 @@ void main() {
         _FakeScriptureAssetSource(() async => []),
       );
 
-      service.remove(200);
+      service.remove('twi-akna');
 
       expect(service.getVersions().map((v) => v.id), ['eng-kjv']);
     });
@@ -84,7 +84,7 @@ void main() {
         _FakeScriptureAssetSource(() async => []),
       );
 
-      expect(() => service.remove(100), throwsStateError);
+      expect(() => service.remove('eng-kjv'), throwsStateError);
       expect(service.getVersions(), hasLength(1));
     });
 
