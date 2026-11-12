@@ -30,7 +30,7 @@ class _LauncherState extends ConsumerState<Launcher> {
     var theme = Theme.of(context);
     ref.watch(scriptureDataProvider);
     return Scaffold(
-      // backgroundColor: darkColor,
+      backgroundColor: theme.cardColor,
       body: Stack(
         children: [
           Positioned(
