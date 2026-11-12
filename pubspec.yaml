@@ -1,7 +1,9 @@
 name: simple_bible
-description: "A new Flutter project."
+description: "Simple Bible by CodeKraft: read, search and reflect on Scripture in your language, offline, with topics, daily reflections, notes and downloadable translations."
 publish_to: 'none'
-version: 0.1.0
+# major.minor.patch+build. The part after "+" is the Android versionCode and
+# must go up with every upload to the Play Store.
+version: 1.0.0+1
 
 environment:
   sdk: ^3.6.1

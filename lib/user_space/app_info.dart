@@ -2,9 +2,8 @@
 abstract final class AppInfo {
   static const name = 'Simple Bible';
 
-  /// Must match `applicationId` in android/app/build.gradle. Change both
-  /// before publishing; `com.example` ids are rejected by the Play Store.
-  static const androidPackage = 'com.example.simple_bible';
+  /// Must match `applicationId` in android/app/build.gradle.
+  static const androidPackage = 'com.codekraft.simple_bible';
 
   static const company = 'CodeKraft';
   static const copyright = '© 2026 $company. All rights reserved.';
