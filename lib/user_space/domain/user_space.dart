@@ -37,7 +37,7 @@ class UserSpace {
 
   // Spiritual / Activity
   final int streakDays;
-  final   versesHighlighted = ToMany<HighLightedVerses>();
+  final versesHighlighted = ToMany<HighLightedVerses>();
   final int bookmarksCount;
   final int notesCount;
   // final String? lastReadReference;

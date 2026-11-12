@@ -1,7 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:simple_bible/bible_reader/presentation/scripture_initialization_controller.dart'
+    show installedVersionsProvider;
+import 'package:simple_bible/version_store/application/version_store_controller.dart'
+    show catalogueProvider;
 import 'package:simple_bible/user_space/app_info.dart';
 import 'package:simple_bible/user_space/presentation/about/app_actions.dart';
 import 'package:simple_bible/shared/widgets/settings_section.dart';
@@ -50,18 +55,28 @@ class AboutScreen extends ConsumerWidget {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           if (version != null)
-            Text(
-              'Version $version',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w300, fontSize: 13),
+            Center(
+              child: InkWell(
+                borderRadius: BorderRadius.circular(6),
+                onTap: () => _copyVersion(context, version),
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 2.w, vertical: .3.h),
+                  child: Text(
+                    'Version $version',
+                    style: TextStyle(fontWeight: FontWeight.w300, fontSize: 13),
+                  ),
+                ),
+              ),
             ),
           SizedBox(height: 1.5.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 4.w),
             child: Text(
-              'A simple, offline Bible for everyday reading. Read in English '
-              'or Akuapem Twi, explore verses by topic, reflect daily and '
-              'keep your own notes.',
+              "God's Word, in the language of your heart. Read and search "
+              'Scripture, explore it by topic, pause for a daily reflection '
+              'and keep your own notes, with new translations added as they '
+              'become available.',
               textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
             ),
@@ -80,18 +95,15 @@ class AboutScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.open_in_new, size: 18),
                 onTap: () => openLink(context, 'https://dailyverses.net'),
               ),
-              const ListTile(
-                leading: Icon(Icons.menu_book_outlined),
-                title: Text('King James Version'),
-                subtitle: Text('Public domain.'),
-              ),
-              const ListTile(
-                leading: Icon(Icons.menu_book_outlined),
-                title: Text('Akuapem Twi Bible'),
-                subtitle: Text(
-                  'Included for personal reading. All rights remain with the '
-                  'translation\'s copyright holder.',
+              ListTile(
+                leading: const Icon(Icons.menu_book_outlined),
+                title: const Text('Bible translations'),
+                subtitle: const Text(
+                  'Each translation belongs to its rights holder. See who '
+                  'they are and the licence for each.',
                 ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showTranslationCredits(context),
               ),
               ListTile(
                 leading: const Icon(Icons.animation_outlined),
@@ -106,20 +118,15 @@ class AboutScreen extends ConsumerWidget {
             ],
           ),
           SettingsSection(
-            title: 'Made by',
-            children: [
-              for (final author in AppInfo.authors)
-                ListTile(
-                  leading: const Icon(Icons.person_outline),
-                  title: Text(author.name),
-                  trailing: const Icon(Icons.open_in_new, size: 18),
-                  onTap: () => openLink(context, author.url),
-                ),
-            ],
-          ),
-          SettingsSection(
             title: 'Legal',
             children: [
+              ListTile(
+                leading: const Icon(Icons.copyright_outlined),
+                title: const Text('Licence'),
+                subtitle: const Text(AppInfo.copyright),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => openLink(context, AppInfo.licenseUrl),
+              ),
               ListTile(
                 leading: const Icon(Icons.article_outlined),
                 title: const Text('Open-source licences'),
@@ -128,6 +135,7 @@ class AboutScreen extends ConsumerWidget {
                   context: context,
                   applicationName: AppInfo.name,
                   applicationVersion: version,
+                  applicationLegalese: AppInfo.copyright,
                   applicationIcon: Padding(
                     padding: EdgeInsets.all(2.w),
                     child: Image.asset('asset/launchIcon.png', width: 12.w),
@@ -136,6 +144,87 @@ class AboutScreen extends ConsumerWidget {
               ),
             ],
           ),
+          SizedBox(height: 4.h),
+          Text(
+            'Made with ♥ by ${AppInfo.company}',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+          ),
+          SizedBox(height: .5.h),
+          Text(
+            AppInfo.copyright,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _copyVersion(BuildContext context, String version) async {
+    await Clipboard.setData(ClipboardData(text: '${AppInfo.name} $version'));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Version copied')),
+    );
+  }
+
+  void _showTranslationCredits(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const _TranslationCredits(),
+    );
+  }
+}
+
+/// Credits every translation in the version catalogue, so newly published
+/// versions are acknowledged without an app update. Falls back to the
+/// installed versions when the catalogue can't be loaded.
+class _TranslationCredits extends ConsumerWidget {
+  const _TranslationCredits();
+
+  static const _noLicense = 'All rights reserved by the rights holder.';
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final entries = ref.watch(catalogueProvider).value?.catalogue.entries;
+    final credits = entries != null && entries.isNotEmpty
+        ? [
+            for (final entry in entries)
+              (
+                title: '${entry.name} (${entry.abbreviation})',
+                license: entry.license ?? _noLicense,
+              ),
+          ]
+        : [
+            for (final version in ref.watch(installedVersionsProvider))
+              (title: version.versionName, license: _noLicense),
+          ];
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: 70.h),
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.fromLTRB(2.w, 2.h, 2.w, 3.h),
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Text(
+              'Bible translations',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
+          SizedBox(height: 1.h),
+          for (final credit in credits)
+            ListTile(
+              title: Text(credit.title),
+              subtitle: Text(credit.license),
+            ),
         ],
       ),
     );

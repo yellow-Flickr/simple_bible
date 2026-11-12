@@ -6,19 +6,27 @@ abstract final class AppInfo {
   /// before publishing; `com.example` ids are rejected by the Play Store.
   static const androidPackage = 'com.example.simple_bible';
 
-  // TODO: replace with the real support address before release.
-  static const feedbackEmail = 'feedback@example.com';
+  static const company = 'CodeKraft';
+  static const copyright = '© 2026 $company. All rights reserved.';
+
+  static const feedbackEmail = 'c0d3.kraft@gmail.com';
+
+  // TODO: confirm the Buy Me a Coffee handle.
+  static const supportUrl = 'https://buymeacoffee.com/c0d3kraft';
 
   static const playStoreUrl =
       'https://play.google.com/store/apps/details?id=$androidPackage';
   static const playStoreAppUrl = 'market://details?id=$androidPackage';
 
-  static const shareMessage =
-      'I read the Bible with $name: KJV and Akuapem Twi, topics, daily '
-      'reflections and notes, all offline.\n$playStoreUrl';
 
-  static const authors = [
-    (name: 'Jeffrey Boahen', url: 'https://github.com/yellow-Flickr'),
-    (name: 'Collins Brobbey', url: 'https://github.com/Qweku'),
-  ];
+  static const siteBaseUrl =
+      'https://yellow-flickr.github.io/simple-bible-catalogue';
+  static const privacyUrl = '$siteBaseUrl/privacy-policy/';
+  static const termsUrl = '$siteBaseUrl/terms-of-use/';
+  static const licenseUrl = '$siteBaseUrl/license/';
+  static const changelogUrl = '$siteBaseUrl/changelog/';
+
+  static const shareMessage =
+      'Read, search and reflect on the Bible in your language with $name.'
+      '\n$playStoreUrl';
 }

@@ -25,12 +25,14 @@ class SettingsSection extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
             ),
           ),
-          Container(
+          // A Material rather than a coloured Container, so the ListTiles'
+          // ink splashes paint on it instead of underneath it.
+          Material(
+            color: theme.cardColor,
             clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: theme.cardColor,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: theme.dividerColor),
+              side: BorderSide(color: theme.dividerColor),
             ),
             child: Column(
               children: [

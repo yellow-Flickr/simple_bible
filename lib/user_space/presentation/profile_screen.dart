@@ -6,11 +6,10 @@ import 'package:simple_bible/bible_reader/presentation/scripture_initialization_
     show installedVersionsProvider;
 import 'package:simple_bible/bible_reader/presentation/version_picker.dart';
 import 'package:simple_bible/version_store/presentation/version_store_screen.dart';
-import 'package:simple_bible/user_space/legal_content.dart';
 import 'package:simple_bible/user_space/presentation/about/about_screen.dart';
 import 'package:simple_bible/user_space/presentation/about/app_actions.dart';
-import 'package:simple_bible/user_space/presentation/about/legal_screen.dart';
 import 'package:simple_bible/shared/widgets/settings_section.dart';
+import 'package:simple_bible/user_space/app_info.dart';
 import 'package:simple_bible/user_space/application/user_space_service.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -184,6 +183,13 @@ class ProfileScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.open_in_new, size: 18),
                 onTap: () => sendFeedback(context, ref),
               ),
+              ListTile(
+                leading: const Icon(Icons.coffee_outlined),
+                title: const Text('Support us'),
+                subtitle: const Text('Buy CodeKraft a coffee'),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => openLink(context, AppInfo.supportUrl),
+              ),
             ],
           ),
           SettingsSection(
@@ -199,24 +205,20 @@ class ProfileScreen extends ConsumerWidget {
               ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined),
                 title: const Text('Privacy policy'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _push(
-                  context,
-                  const LegalScreen(
-                    title: 'Privacy policy',
-                    sections: privacyPolicy,
-                  ),
-                ),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => openLink(context, AppInfo.privacyUrl),
               ),
               ListTile(
                 leading: const Icon(Icons.gavel_outlined),
                 title: const Text('Terms of use'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _push(
-                  context,
-                  const LegalScreen(
-                      title: 'Terms of use', sections: termsOfUse),
-                ),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => openLink(context, AppInfo.termsUrl),
+              ),
+              ListTile(
+                leading: const Icon(Icons.new_releases_outlined),
+                title: const Text("What's new"),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => openLink(context, AppInfo.changelogUrl),
               ),
             ],
           ),
